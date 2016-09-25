@@ -13,13 +13,8 @@ script: python test.py
 # Slack integration
 notifications:
   slack: cmput404team4:HT0av7nWQe41caTypBBG2ht4
-    on_success: change # Only sends a notification when build status changes
-    on_failure: always
-   
-  email: 
+  email:
     recipients:
       - vbobey@ualberta.ca
-    on_success: change
-    on_failure: always
     
   
