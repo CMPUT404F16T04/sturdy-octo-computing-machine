@@ -4,7 +4,7 @@ import unittest
 class TestMethods(unittest.TestCase):
 
     def testTrue(self):
-        self.assertTrue(False)
+        self.assertTrue(True)
 
 if __name__ == '__main__':
     unittest.main()
