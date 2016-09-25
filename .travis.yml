@@ -13,8 +13,5 @@ script: python test.py
 # Slack integration
 notifications:
   slack: cmput404team4:HT0av7nWQe41caTypBBG2ht4
-  email:
-    recipients:
-      - vbobey@ualberta.ca
     
   
