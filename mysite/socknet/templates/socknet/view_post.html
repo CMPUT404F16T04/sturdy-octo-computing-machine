@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Post Id: {{post.id}}</h1>
+  <p>Author: {{post.author}}</p>
+  <p>Created On (UTC): {{post.created_on}}</p>
+  <p>{{post.content}}</p>
+  <a href="{% url 'list_posts' %}">Return to Post List</a>
+{% endblock %}
