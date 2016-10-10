@@ -3,7 +3,12 @@
     <h2>Post List</h2>
     <ol>
         {% for post in object_list %}
-            <li>Author: {{ post.author }}<br/>Created On (UTC): {{ post.created_on }}</br>Content: {{ post.content }}</li>
+            <li class="post">Author: {{ post.author }}<br/>Created On (UTC): {{ post.created_on }}
+            <br/>Content: 
+            {% for text in post.view_content %}
+                {{text}}<br/> 
+            {% endfor %}
+            </li>
         {% endfor %}
     </ol>
     <a href="{% url 'create_post' %}">New Post</a>

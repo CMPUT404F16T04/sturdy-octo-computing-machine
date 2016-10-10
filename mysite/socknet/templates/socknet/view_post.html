@@ -3,6 +3,8 @@
   <h1>Post Id: {{post.id}}</h1>
   <p>Author: {{post.author}}</p>
   <p>Created On (UTC): {{post.created_on}}</p>
-  <p>{{post.content}}</p>
+  {% for text in post.view_content %}
+  <p>{{text}}<br/></p>
+  {% endfor %}
   <a href="{% url 'list_posts' %}">Return to Post List</a>
 {% endblock %}

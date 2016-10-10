@@ -1,0 +1,12 @@
+body {
+	background: white;
+}
+ol {
+	list-style-type: none;	
+}
+li.post {
+	padding: 5pt;
+}
+li:nth-child(even) {
+	background: lightgray;
+}

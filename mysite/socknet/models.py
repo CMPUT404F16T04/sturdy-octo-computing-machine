@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class Post(models.Model):
     """ Represents a post made by a user """
     author = models.ForeignKey(User)
-    content = models.CharField(max_length=512)
+    content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
 
     def get_absolute_url(self):
@@ -14,5 +14,9 @@ class Post(models.Model):
         """
         return reverse('view_post', args=[str(self.id)])
 
+    def view_content(self):
+        #return self.content.replace("\n","<br>")
+        return self.content.split("\n")
+        
     def __str__(self):
         return self.author.username + ": " + self.content

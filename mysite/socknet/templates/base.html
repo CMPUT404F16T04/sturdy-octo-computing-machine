@@ -1,6 +1,14 @@
+{% load staticfiles %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+{% load staticfiles %}
+  <meta charset="utf-8"/>
+  <title>socknet</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
+</head>
 <body>
+  <script src="{% static 'js/base.js' %}"></script>
   <!-- Logout link -->
   <a href="{% url 'logged_out' %}">Logout</a>
   {% block content %}{% endblock %}
