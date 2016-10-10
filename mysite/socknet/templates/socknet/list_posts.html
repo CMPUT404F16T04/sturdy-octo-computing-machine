@@ -4,10 +4,9 @@
     <ol>
         {% for post in object_list %}
             <li class="post">Author: {{ post.author }}<br/>Created On (UTC): {{ post.created_on }}
-            <br/>Content: 
-            {% for text in post.view_content %}
-                {{text}}<br/> 
-            {% endfor %}
+            <br/>Content:
+                {{post.view_content|safe}}
+            <br/>
             </li>
         {% endfor %}
     </ol>
