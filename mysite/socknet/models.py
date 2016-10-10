@@ -19,9 +19,10 @@ class Post(models.Model):
         return reverse('view_post', args=[str(self.id)])
     
     def _unescape_markdown(self, text):
-        """ Removes HTML escape characters for certain markdown features 
-        to work properly, which are > for blockquotes, and
-        any contents within the <code></code> tags.
+        """ Removes HTML escape characters from given text for 
+        certain markdown features to work properly, which are > for blockquotes, 
+        and any contents within the <code></code> tags. Then returns the result.
+        
         """
         # To enable block quotes in markdown.
         tmp = text.replace('&gt;', '>')
@@ -42,22 +43,24 @@ class Post(models.Model):
                 code_tag_contents.append(parser.unescape(each))
             else:
                 code_tag_contents.append(each)
-        # enclose properly in unlikely case of unproper enclosing.
-        closing = ''
-        if starts-ends > 0:
-            closing = '</code>'
-        return '<'.join(code_tag_contents) + closing
+        return '<'.join(code_tag_contents)
     
-    def view_content(self):
-        """ Retrieves content appropriately whether post is in markdown
-        or in plain text. It escapes user input's content first before
-        applying markdown or returning it.
+    def get_converted_content(self):
+        """ Converts and returns the instance's content appropriately whether post 
+        is in markdown or in plain text. It escapes user generated content first before
+        applying markdown (if applicable) and returning it.
         """
         safe_text = html.conditional_escape(self.content)
         if self.markdown:
             markdowned = self._unescape_markdown(CommonMark.commonmark(safe_text))
             return markdowned
         return safe_text
+    
+    def view_content(self):
+        """ Retrieves content to be displayed as html, it is assumed safe 
+        due to get_converted_content() upon form submitting.
+        """
+        return self.content
         
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8

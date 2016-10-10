@@ -28,4 +28,6 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     def form_valid(self, form):
         print("Inside form valid!")
         form.instance.author = self.request.user
+        # Converts content to make it safe for html and applies markdown if needed.
+        form.instance.content = form.instance.get_converted_content()
         return super(CreatePost, self).form_valid(form)
