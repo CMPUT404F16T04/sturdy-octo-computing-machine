@@ -32,7 +32,6 @@ class PostsTests(TestCase):
         model.content = test_content
         model.markdown = True
         model.content = model.get_converted_content()
-        print model.content
         self.assertEqual(model.view_content(), test_expect)
         
     def test_accepts_weird_characters(self):
