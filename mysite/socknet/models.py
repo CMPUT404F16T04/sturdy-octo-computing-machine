@@ -19,13 +19,12 @@ class Post(models.Model):
         return reverse('view_post', args=[str(self.id)])
     
     def _unescape_markdown(self, text):
-        """ Removes HTML escape characters from given text for 
-        certain markdown features to work properly, which are > for blockquotes, 
-        and any contents within the <code></code> tags. Then returns the result.
+        """ Removes HTML escape characters from given text for <code> tags 
+        in markdown to work properly: any contents within the <code></code> tags
+        gets decoded. Then returns the result.
         
         """
-        # To enable block quotes in markdown.
-        tmp = text.replace('&gt;', '>')
+        tmp = text
         # Anything within <code></code> will be decoded.
         parser = HTMLParser.HTMLParser()
         # Split by the commonmark generated tags (they're not user generated).
@@ -52,10 +51,13 @@ class Post(models.Model):
         """
         safe_text = html.conditional_escape(self.content)
         if self.markdown:
-            markdowned = self._unescape_markdown(CommonMark.commonmark(safe_text))
-            return markdowned
-        return safe_text
-    
+            # To enable block quotes in markdown.
+            mark = safe_text.replace('&gt;', '>')
+            mark = CommonMark.commonmark(mark)
+            markdowned = self._unescape_markdown(mark)
+            return markdowned.replace('\n', '<br/>')
+        return safe_text.replace('\n', '<br/>')
+    # block quotes fix because dont work.
     def view_content(self):
         """ Retrieves content to be displayed as html, it is assumed safe 
         due to get_converted_content() upon form submitting.
