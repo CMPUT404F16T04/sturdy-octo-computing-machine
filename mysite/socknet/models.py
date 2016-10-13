@@ -57,12 +57,12 @@ class Post(models.Model):
             markdowned = self._unescape_markdown(mark)
             return markdowned.replace('\n', '<br/>')
         return safe_text.replace('\n', '<br/>')
-    # block quotes fix because dont work.
+        
     def view_content(self):
         """ Retrieves content to be displayed as html, it is assumed safe 
-        due to get_converted_content() upon form submitting.
+        due to get_converted_content() applies HTML escapes already.
         """
-        return self.content
+        return self.get_converted_content()
         
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
