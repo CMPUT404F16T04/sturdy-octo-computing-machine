@@ -19,7 +19,6 @@ class PostsTests(TestCase):
         model = Post()
         model.content = test_content
         model.markdown = False
-        model.content = model.get_converted_content()
         self.assertEqual(model.view_content(), test_expect)
         
     def test_is_markdown(self):
@@ -31,8 +30,10 @@ class PostsTests(TestCase):
         model = Post()
         model.content = test_content
         model.markdown = True
-        model.content = model.get_converted_content()
+        # Content is converted to markdown on viewing.
         self.assertEqual(model.view_content(), test_expect)
+        # Content inside post is actually still original.
+        self.assertEqual(model.content, test_content)
         
     def test_accepts_weird_characters(self):
         lennyeh = unicode("( ͡° ͜ʖ ͡°) \n¯\_ツ_/¯")
@@ -40,6 +41,5 @@ class PostsTests(TestCase):
         model = Post()
         model.content = lennyeh
         model.markdown = False
-        model.content = model.get_converted_content()
         self.assertEqual(model.view_content(), lenny_result)
         
