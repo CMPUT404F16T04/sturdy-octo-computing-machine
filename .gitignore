@@ -89,3 +89,18 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Temporaries
+~*
+*~
+
+# MacOS generated files
+.DS_Store
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Windows Folder config file
+Desktop.ini
+

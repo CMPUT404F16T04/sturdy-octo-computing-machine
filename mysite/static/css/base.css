@@ -1,0 +1,54 @@
+body {
+	background: white;
+}
+
+.feed {
+	list-style-type: none;
+}
+
+li.post {
+	padding: 5pt;
+}
+li.post:nth-child(even) {
+	background: rgb(245, 245, 245);
+}
+
+.authordate {
+	margin-top: 0;
+}
+
+article.content {
+	padding-left: 10pt;
+	padding-right: 10pt; 
+	margin-bottom: 5pt;	
+}
+
+.post > blockquote {
+	border-left-style: solid;
+	border-left-width: 5pt;
+	border-left-color: lightgray;
+	padding-left: 10pt;
+	margin-left: 10pt;
+	margin-top: 0;
+	margin-bottom: 0;	
+}
+
+code {
+	padding: 2pt;
+	line-height: 1.6em;
+	border: solid 1pt lightgray;
+	border-radius: 4pt;	
+	background-color: rgb(230, 230, 230);
+}
+
+pre {
+	margin-top: 5pt;
+	padding: 5pt;
+	border: solid 1pt lightgray;
+	border-radius: 4pt;
+	background-color: rgb(230, 230, 230);
+}
+
+pre > code {
+	border-style: none;	
+}

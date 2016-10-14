@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
     <h2>Post List</h2>
-    <ol>
+    <ol class="feed">
         {% for post in object_list %}
-            <li>Author: {{ post.author }}<br/>Created On (UTC): {{ post.created_on }}</br>Content: {{ post.content }}</li>
+            <li class="post">
+            	<p class="authordate">
+	            	Author: {{ post.author }}<br/>
+	            	Created On (UTC): {{ post.created_on }}
+	            </p>
+	            <article class="content">
+	            	{{post.view_content|safe}}
+	            </article>
+            </li>
         {% endfor %}
     </ol>
     <a href="{% url 'create_post' %}">New Post</a>
