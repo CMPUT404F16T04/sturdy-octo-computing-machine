@@ -26,6 +26,5 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
-        print("Inside form valid!")
         form.instance.author = self.request.user
         return super(CreatePost, self).form_valid(form)
