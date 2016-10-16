@@ -10,9 +10,7 @@
         <!-- Author is viewing someone else's profile, display follow button -->
         <button id="followButton" type="button" name="follow">Follow</button>
     {% endif %}
-
 {% endblock %}
-
 {% block scripts %}
 <script type="text/javascript">
     $(document).ready(function() {
@@ -23,7 +21,7 @@
             console.log("Author wants to follow this author!");
             var authorUUID = "{{ user.author.uuid }}";
             var friendUUID = "{{ profile_author.uuid }}";
-            var csrftoken = getCookie('csrftoken');
+            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
             var jsonData = {
                 "query": "friendrequest",
                 "author": {
@@ -42,36 +40,16 @@
                 url: "{% url 'profile' authorUUID=user.author.uuid %}",
                 data: jsonStr,
                 contentType: "application/json",
-                success: followSuccess,
+                success: followSuccess(),
                 beforeSend: function(xhr) {
                     xhr.setRequestHeader("X-CSRFToken", csrftoken);
                 }
             });
         });
 
-
-
         function followSuccess() {
             console.log("Follow Success!");
             $("#followButton").prop("disabled", true);
-        }
-
-        // This function is from https://docs.djangoproject.com/en/1.10/ref/csrf/#ajax
-        // It allows us to set the value of X-CSRFToken header to the value of the token
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
         }
 
     });

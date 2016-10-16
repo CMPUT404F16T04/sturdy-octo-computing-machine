@@ -46,8 +46,8 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     def post(self, request, *args, **kwargs):
         if request.is_ajax():
             # We are sending ajax POSTs from "follow" button
-            decodedJson = json.loads(request.body)
-            friend_uuid = decodedJson['friend']['id']
+            decoded_json = json.loads(request.body)
+            friend_uuid = decoded_json['friend']['id']
             friend = Author.objects.get(uuid=friend_uuid)
             return HttpResponse(status=200)
         else:
@@ -60,11 +60,28 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
     login_url = '/login/' # For login mixin
 
     def get(self, request, *args, **kwargs):
-        print("Manage Friends... checking permissions")
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
         # Convert uuid from url into a proper UUID field
         authorUUID = uuid.UUID(authorUUID)
         if authorUUID != self.request.user.author.uuid:
             raise PermissionDenied
-        print("Permissions OK")
         return super(ManageFriends, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
+        # Convert uuid from url into a proper UUID field
+        authorUUID = uuid.UUID(authorUUID)
+        # Ensure that someone else is not trying to edit our friends
+        if authorUUID != self.request.user.author.uuid:
+            raise PermissionDenied
+        if request.is_ajax():
+            decoded_json = json.loads(request.body)
+            action_type = decoded_json['action']
+            friend_uuid = decoded_json['friend']['id']
+            friend = Author.objects.get(uuid=friend_uuid)
+            if action_type == "unfriend":
+                print("Unfriending " + friend.user.username)
+                return HttpResponse(status=200)
+            else:
+                print("MANAGE FRIEND POST: Unknown action")
+                return HttpResponse(status=500)
