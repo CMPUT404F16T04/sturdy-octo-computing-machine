@@ -65,9 +65,11 @@ class AuthorTests(TestCase):
     def test_follow(self):
         # Test that follow is not bi-directional
         self.assertQuerysetEqual(self.author1.followers.all(), [])
-        self.author1.followers.add(self.author2)
+        self.author2.follow(self.author1)
         self.assertQuerysetEqual(self.author1.followers.all(), ['<Author: user2>'])
         self.assertQuerysetEqual(self.author1.follower_of.all(), [])
+        self.author2.unfollow(self.author1)
+        self.assertQuerysetEqual(self.author1.followers.all(), [])
 
     def test_pending_friend_request_with_ignore(self):
         # No friend requests

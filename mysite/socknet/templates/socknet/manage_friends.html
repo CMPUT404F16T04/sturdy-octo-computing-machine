@@ -18,14 +18,12 @@
 {% block scripts %}
 {% load static from staticfiles %}
 <script src="{% static 'js/friend_request_handler.js' %}"></script>
-
 <script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
     var authorUUID = "{{ user.author.uuid }}";
     var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
-
     $(document).ready(function() {
         console.log("Manage Friends Loaded");
     });
-
 </script>
 {% endblock scripts %}

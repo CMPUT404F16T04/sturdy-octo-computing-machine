@@ -79,17 +79,22 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             action_type = decoded_json['action']
             friend_uuid = decoded_json['friend']['id']
             friend = Author.objects.get(uuid=friend_uuid)
+            author = request.user.author
             if action_type == "unfriend":
                 print("Unfriending " + friend.user.username)
+                author.delete_friend(friend)
                 return HttpResponse(status=200)
             elif action_type == "unfollow":
                 print("Unfollowing " + friend.user.username)
+                author.unfollow(friend)
                 return HttpResponse(status=200)
             elif action_type == "follow":
                 print("Following " + friend.user.username)
+                author.follow(friend)
                 return HttpResponse(status=200)
             elif action_type == "accept_friend_request":
                 print("Accepting Friend Request of: " + friend.user.username)
+                author.accept_friend_request(friend)
                 return HttpResponse(status=200)
             else:
                 print("MANAGE FRIEND POST: Unknown action")

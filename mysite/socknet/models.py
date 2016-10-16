@@ -37,6 +37,8 @@ class Author(models.Model):
             self.friends.add(requester)
         if self not in requester.followers.all():
             requester.followers.add(self)
+        self.save()
+        requester.save()
         return
 
     def decline_friend_request(self, requester):
@@ -45,13 +47,24 @@ class Author(models.Model):
         our ignore queue (all this means is it won't show up in our friend requests).
         """
         self.ignore.add(requester)
+        self.save()
         return
 
     def delete_friend(self, friend):
         """ When we remove a friend, we unfriend and unfollow them. """
         self.friends.remove(friend)
         friend.followers.remove(self)
+        self.save()
+        friend.save()
         return
+
+    def follow(self, friend):
+        friend.followers.add(self)
+        friend.save()
+
+    def unfollow(self, friend):
+        friend.followers.remove(self)
+        friend.save()
 
 class Post(models.Model):
     """ Represents a post made by a user """
