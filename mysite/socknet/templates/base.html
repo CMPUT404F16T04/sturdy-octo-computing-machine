@@ -10,7 +10,8 @@
 <body>
   <script src="{% static 'js/base.js' %}"></script>
   <a href="{% url 'logged_out' %}">Logout</a>
-  <a href="{% url 'profile' authorId=user.author.id %}">My Profile</a>
+  <a href="{% url 'profile' authorUUID=user.author.uuid %}">My Profile</a>
+  <a href="{% url 'manage_friends' authorUUID=user.author.uuid %}">My Friends</a>
   {% block content %}{% endblock %}
 </body>
 

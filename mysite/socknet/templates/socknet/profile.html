@@ -39,7 +39,7 @@
             console.log(jsonStr);
             $.ajax({
                 type: "POST",
-                url: "{% url 'profile' authorId=user.author.id %}",
+                url: "{% url 'profile' authorUUID=user.author.uuid %}",
                 data: jsonStr,
                 contentType: "application/json",
                 success: followSuccess,
