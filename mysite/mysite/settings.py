@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -103,3 +102,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_FOLDER = os.path.abspath(os.path.join(BASE_DIR, 'static'))
 STATICFILES_DIRS = (STATIC_FOLDER, )
+
+LOGIN_REDIRECT_URL = '/'

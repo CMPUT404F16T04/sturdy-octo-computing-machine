@@ -2,7 +2,7 @@
 {% block content %}
   <h1>Post Id: {{post.id}}</h1>
   <p class="authordate">
-    Author: {{post.author}}<br/>
+    Author: {{post.author.user.username}}<br/>
     Created On (UTC): {{post.created_on}}
   </p>
   <article class="content">{{post.view_content|safe}}</article>
