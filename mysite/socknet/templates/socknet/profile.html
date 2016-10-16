@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>{{ profile_author.user.username }}'s Profile!</h1>
+
+    {% if profile_author.uuid == user.author.uuid %}
+        <!-- Author is viewing their own profile, display edit button -->
+        <p>This button doesn't go anywhere right now.</p>
+        <input type="submit" name="editProfile" value="Edit Profile"/>
+    {% else %}
+        <!-- Author is viewing someone else's profile, display follow button -->
+        <button id="followButton" type="button" name="follow">Follow</button>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        console.log("Profile is loaded");
+
+        // Send a friend request with ajax so we don't have to reload the page.
+        $("#followButton").click(function() {
+            console.log("Author wants to follow this author!");
+            var authorUUID = "{{ user.author.uuid }}";
+            var friendUUID = "{{ profile_author.uuid }}";
+            var csrftoken = getCookie('csrftoken');
+            var jsonData = {
+                "query": "friendrequest",
+                "author": {
+                    "id": authorUUID
+                    // host and displayName to be added for remote friends
+                },
+                "friend": {
+                    "id": friendUUID
+                    // host, displayName, url to be added for remote friends
+                }
+            };
+            var jsonStr = JSON.stringify(jsonData)
+            console.log(jsonStr);
+            $.ajax({
+                type: "POST",
+                url: "{% url 'profile' authorUUID=user.author.uuid %}",
+                data: jsonStr,
+                contentType: "application/json",
+                success: followSuccess,
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            });
+        });
+
+
+
+        function followSuccess() {
+            console.log("Follow Success!");
+            $("#followButton").prop("disabled", true);
+        }
+
+        // This function is from https://docs.djangoproject.com/en/1.10/ref/csrf/#ajax
+        // It allows us to set the value of X-CSRFToken header to the value of the token
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+    });
+</script>
+
+{% endblock scripts %}

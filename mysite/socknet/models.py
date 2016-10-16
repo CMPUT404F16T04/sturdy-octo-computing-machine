@@ -4,10 +4,58 @@ from django.contrib.auth.models import User
 from django.utils import html
 import CommonMark
 import HTMLParser
+import uuid
+
+class Author(models.Model):
+    """ Represents an author """
+    user = models.OneToOneField(User)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+
+    # Friends and followers a separate --> I can be both a friend and a follower
+    # Ignore is for friend requests you have declined, just means it won't show up as pending
+    friends = models.ManyToManyField("self", related_name="friend_of", blank=True)
+    followers = models.ManyToManyField("self", related_name="follower_of", symmetrical=False, blank=True)
+    ignore = models.ManyToManyField("self", related_name="ignored_by", symmetrical=False, blank=True)
+
+    def __str__(self):
+        return self.user.get_username()
+
+    def get_pending_friend_requests(self):
+        pending = self.followers.all()
+        pending = pending.exclude(pk__in=self.ignore.all()) # Ignore requests we have declined
+        pending = pending.exclude(pk__in=self.friends.all()) # Ignore people we are already friends with
+        return pending
+
+    def accept_friend_request(self, requester):
+        """
+        When a friend request is excepted, both authors will be considered
+        followers of each other and friends of each other.
+        """
+        if requester not in self.followers.all():
+            raise ValueError("Attempted to accept friend request when requester is no longer following!")
+        if requester not in self.friends.all():
+            self.friends.add(requester)
+        if self not in requester.followers.all():
+            requester.followers.add(self)
+        return
+
+    def decline_friend_request(self, requester):
+        """
+        When we decline a friend request we simply move the requester into
+        our ignore queue (all this means is it won't show up in our friend requests).
+        """
+        self.ignore.add(requester)
+        return
+
+    def delete_friend(self, friend):
+        """ When we remove a friend, we unfriend and unfollow them. """
+        self.friends.remove(friend)
+        friend.followers.remove(self)
+        return
 
 class Post(models.Model):
     """ Represents a post made by a user """
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(Author, related_name="author")
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
@@ -17,12 +65,12 @@ class Post(models.Model):
         Will be of the format .../post/<id>/
         """
         return reverse('view_post', args=[str(self.id)])
-    
+
     def _unescape_markdown(self, text):
-        """ Removes HTML escape characters from given text for <code> tags 
+        """ Removes HTML escape characters from given text for <code> tags
         in markdown to work properly: any contents within the <code></code> tags
         gets decoded. Then returns the result.
-        
+
         """
         tmp = text
         # Anything within <code></code> will be decoded.
@@ -43,9 +91,9 @@ class Post(models.Model):
             else:
                 code_tag_contents.append(each)
         return '<'.join(code_tag_contents)
-    
+
     def get_converted_content(self):
-        """ Converts and returns the instance's content appropriately whether post 
+        """ Converts and returns the instance's content appropriately whether post
         is in markdown or in plain text. It escapes user generated content first before
         applying markdown (if applicable) and returning it.
         """
@@ -57,13 +105,13 @@ class Post(models.Model):
             markdowned = self._unescape_markdown(mark)
             return markdowned.replace('\n', '<br/>')
         return safe_text.replace('\n', '<br/>')
-        
+
     def view_content(self):
-        """ Retrieves content to be displayed as html, it is assumed safe 
+        """ Retrieves content to be displayed as html, it is assumed safe
         due to get_converted_content() applies HTML escapes already.
         """
         return self.get_converted_content()
-        
+
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
