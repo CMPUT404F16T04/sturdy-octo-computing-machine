@@ -6,61 +6,26 @@
         {% for friend in user.author.friends.all %}
             <div>
                 {{friend.user.username}}
-                <a id="{{ friend.uuid }}_unfriend" href="#" data-uuid="{{ friend.uuid }}" data-username="{{ friend.user.username }}" data-status="friends">Unfriend</a>
+                <a id="{{ friend.uuid }}_unfriend" href="#" class="friend-anchor"
+                data-uuid="{{ friend.uuid }}" data-username="{{ friend.user.username }}" data-status="unfriend">Unfriend</a>
             </div>
         {% endfor %}
     </div>
+
+
 {% endblock %}
 
 {% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
+
 <script type="text/javascript">
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+
     $(document).ready(function() {
         console.log("Manage Friends Loaded");
-
-        $('a').click(function () {
-            var id = $(this).attr('id');
-            var status = $(this).data("status");
-            //if (id.indexOf("unfriend")>=0) {
-            if (status == "friends") {
-                console.log("Author wants to unfriend: "+$(this).data("username"));
-
-                // Unfriend with ajax so we don't have to reload the page.
-                var authorUUID = "{{ user.author.uuid }}";
-                var friendUUID = $(this).data("uuid");
-                var csrftoken = getCookie('csrftoken'); // From js/cookie.js
-                var jsonData = {
-                    "action": "unfriend",
-                    "author": {
-                        "id": authorUUID
-                    },
-                    "friend": {
-                        "id": friendUUID
-                    }
-                };
-                var jsonStr = JSON.stringify(jsonData)
-                console.log(jsonStr);
-                $.ajax({
-                    type: "POST",
-                    url: "{% url 'manage_friends' authorUUID=user.author.uuid %}",
-                    data: jsonStr,
-                    contentType: "application/json",
-                    success: unfriendSuccess(id),
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    }
-                });
-
-            } // End if unfriend
-            else if (status == "notFriends") {
-                console.log("These users are not friends")
-            }
-        });
-
-        function unfriendSuccess(id) {
-            console.log("Unfriend successful!");
-            $('#'+id).text("Send Friend Request");
-            $('#'+id).data("status" , "notFriends");
-        }
     });
+
 </script>
 {% endblock scripts %}

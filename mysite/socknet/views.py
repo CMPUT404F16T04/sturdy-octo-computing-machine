@@ -82,6 +82,15 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             if action_type == "unfriend":
                 print("Unfriending " + friend.user.username)
                 return HttpResponse(status=200)
+            elif action_type == "unfollow":
+                print("Unfollowing " + friend.user.username)
+                return HttpResponse(status=200)
+            elif action_type == "follow":
+                print("Following " + friend.user.username)
+                return HttpResponse(status=200)
+            elif action_type == "accept_friend_request":
+                print("Accepting Friend Request of: " + friend.user.username)
+                return HttpResponse(status=200)
             else:
                 print("MANAGE FRIEND POST: Unknown action")
                 return HttpResponse(status=500)
