@@ -115,4 +115,4 @@ class Post(models.Model):
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
-        return self.author.username + ": " + self.content
+        return self.author.user.username + ": " + self.content
