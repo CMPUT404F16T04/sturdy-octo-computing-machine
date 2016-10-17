@@ -1,17 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>{{ user.username }}'s Friends!</h1>
+    <h3>My Friends</h3>
     <div>
-        My Friends
         {% for friend in user.author.friends.all %}
             <div>
                 {{friend.user.username}}
-                <a id="{{ friend.uuid }}_unfriend" href="#" class="friend-anchor"
+                <a id="{{ friend.uuid}}_button" href="#" class="friend-anchor"
                 data-uuid="{{ friend.uuid }}" data-username="{{ friend.user.username }}" data-status="unfriend">Unfriend</a>
             </div>
         {% endfor %}
     </div>
-
 
 {% endblock %}
 

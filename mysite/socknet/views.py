@@ -1,7 +1,7 @@
 import json
 import uuid
 
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
@@ -40,7 +40,28 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ViewProfile, self).get_context_data(**kwargs)
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
-        context['profile_author'] = Author.objects.get(uuid=authorUUID)
+        #profile_author = Author.objects.get(uuid=authorUUID)
+        # Raise 404 if we try to view an author who doesn't exist
+        profile_author = get_object_or_404(Author, uuid=authorUUID)
+        context['profile_author'] = profile_author
+
+        if authorUUID != self.request.user.author.uuid:
+            author = self.request.user.author
+            # We are viewing someone elses page, determine what our relationship with
+            # them is so we know which relationship button to load (follow, unfollow, ect)
+            if profile_author in author.friends.all():
+                # They are out friend, display unfriend button
+                context['button_action'] = "unfriend"
+            elif author in profile_author.followers.all():
+                # We are following them, display unfollow button
+                context['button_action'] = "unfollow"
+            elif profile_author in author.get_pending_friend_requests():
+                # We aren't friends, but they are following me
+                context['button_action'] = "accept_friend_request"
+            else:
+                # No relationship, display follow button
+                context['button_action'] = "follow"
+
         return context
 
     def post(self, request, *args, **kwargs):
@@ -82,7 +103,7 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             author = request.user.author
             if action_type == "unfriend":
                 print("Unfriending " + friend.user.username)
-                author.delete_friend(friend)
+                author._friend(friend)
                 return HttpResponse(status=200)
             elif action_type == "unfollow":
                 print("Unfollowing " + friend.user.username)

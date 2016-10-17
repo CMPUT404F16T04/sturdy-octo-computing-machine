@@ -7,15 +7,35 @@
         <p>This button doesn't go anywhere right now.</p>
         <input type="submit" name="editProfile" value="Edit Profile"/>
     {% else %}
-        <!-- Author is viewing someone else's profile, display follow button -->
-        <button id="followButton" type="button" name="follow">Follow</button>
+        <!-- Author is viewing someone else's profile, display button that allows
+             them to follow, unfollow, unfriend, etc. -->
+        <a id="friend_anchor" href="#" class="friend-anchor"
+        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}">Unfriend</a>
     {% endif %}
 {% endblock %}
 {% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
 <script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+
     $(document).ready(function() {
         console.log("Profile is loaded");
-
+        if ("{{ user.author.uuid }}" !== "{{ profile_author.uuid }}") {
+            // Set text of friend button based on current relationship
+            if("{{ button_action }}" === "unfriend") {
+                $('#friend_anchor').text("Unfriend");
+            } else if ("{{ button_action }}" === "follow") {
+                $('#friend_anchor').text("Follow");
+            } else if ("{{ button_action }}" === "accept_friend_request") {
+                $('#friend_anchor').text("Accept Friend Request");
+            } else if ("{{ button_action }}" === "unfollow") {
+                $('#friend_anchor').text("Unfriend");
+            }
+        }
+        /*
         // Send a friend request with ajax so we don't have to reload the page.
         $("#followButton").click(function() {
             console.log("Author wants to follow this author!");
@@ -51,6 +71,7 @@
             console.log("Follow Success!");
             $("#followButton").prop("disabled", true);
         }
+        */
 
     });
 </script>
