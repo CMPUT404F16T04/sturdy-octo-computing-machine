@@ -10,8 +10,9 @@ urlpatterns = [
     url(r'^posts/create/$', views.CreatePost.as_view(), name='create_post'),
 
     # Comments
-    url(r'^posts/(?P<post_pk>[0-9]+)/comments/$', views.ViewComments.as_view(), name='view_comments'),
-    url(r'^posts/(?P<post_pk>[0-9]+)/comments/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='view_comment'),
+    url(r'^posts/(?P<post_pk>[0-9]+)/comments/$', views.ViewComments.as_view(), name='list_comments'),
+    url(r'^posts/(?P<post_pk>[0-9]+)/comments/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='comment'),
+    url(r'^posts/(?P<post_pk>[0-9]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
     
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ViewProfile.as_view(), name='profile'),

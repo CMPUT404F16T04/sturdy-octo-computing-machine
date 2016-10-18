@@ -24,14 +24,12 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
 class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new post """
     model = Post
-    #model = Comment
     template_name = 'socknet/create_post.html'
     fields = ['content', 'markdown']
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
         form.instance.author = self.request.user.author
-        #form.instance.post_id = Post(id=116)
         return super(CreatePost, self).form_valid(form)
         
 class ViewComments(LoginRequiredMixin, generic.ListView):
@@ -52,6 +50,27 @@ class ViewComment(LoginRequiredMixin, generic.ListView):
     template_name = 'socknet/comment.html'
     login_url = '/login/' # For login mixin
     
+class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
+    """ Displays a form for creating a new comment """
+    model = Comment
+    template_name = 'socknet/create_comment.html'
+    fields = ['content', 'markdown']
+    login_url = '/login/' # For login mixin
+    post_pk = 0
+        
+    def get_context_data(self, **kwargs):
+        context = super(CreateComment, self).get_context_data(**kwargs)
+        #form.instance.post_id = Post(id=116)
+        post_pk = Post(id=self.kwargs.get('post_pk', self.request.user.author.uuid))
+        context['profile_author'] = Author.objects.get(uuid=authorUUID)
+        return context
+        
+    def form_valid(self, form):
+        print str(self.post_pk)
+        form.instance.author = self.request.user.author
+        form.instance.parent = Post(id=self.kwargs.get('post_pk', self.request.user.author.uuid))
+        return super(CreateComment, self).form_valid(form)
+        
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
     template_name = "socknet/profile.html"
