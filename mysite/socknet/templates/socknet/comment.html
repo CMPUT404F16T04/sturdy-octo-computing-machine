@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Parent Post id: {{post.id}} Comment Id: {{comment.id}}</h1>
+  <p class="authordate">
+    Author: {{comment.author.user.username}}<br/>
+    Created On (UTC): {{comment.created_on}}
+  </p>
+  <article class="content">{{comment.view_content|safe}}</article>
+  <a href="{% url 'list_comments' %}">Return to Post List</a>
+{% endblock %}

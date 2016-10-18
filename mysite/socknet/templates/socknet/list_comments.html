@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Comments List on post {{post.id}}</h2>
+    <!-- <a href="{% url 'create_post' %}">New Post</a> -->
+    <ol class="feed">
+        {% for comment in object_list %}
+            <li class="post">
+            	<p class="authordate">
+	            	Author: {{ comment.author.user.username }}<br/>
+	            	Created On (UTC): {{ comment.created_on }}
+	            </p>
+	            <article class="content">
+	            	{{comment.view_content|safe}}
+	            </article>
+            </li>
+        {% endfor %}
+    </ol>
+{% endblock %}

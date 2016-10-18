@@ -24,14 +24,34 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
 class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new post """
     model = Post
+    #model = Comment
     template_name = 'socknet/create_post.html'
     fields = ['content', 'markdown']
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
         form.instance.author = self.request.user.author
+        #form.instance.post_id = Post(id=116)
         return super(CreatePost, self).form_valid(form)
+        
+class ViewComments(LoginRequiredMixin, generic.ListView):
+    """ Displays a list of all comments for the post 
+    How to use foreign keys in URL taken from Michael http://stackoverflow.com/a/18533475
+    """
+    model = Comment
+    post_pk = Post
+    template_name = 'socknet/list_comments.html'
+    login_url = '/login/' # For login mixin
 
+class ViewComment(LoginRequiredMixin, generic.ListView):
+    """ Displays a specific comment for the post 
+    How to use foreign keys in URL taken from Michael http://stackoverflow.com/a/18533475
+    """
+    model = Comment
+    post_pk = Post
+    template_name = 'socknet/comment.html'
+    login_url = '/login/' # For login mixin
+    
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
     template_name = "socknet/profile.html"
