@@ -1,5 +1,12 @@
+html {
+  font-family: sans-serif;
+  -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+   background-color: #A7D2CB
+}
+
 body {
-	background: white;
+	  background-color: #A7D2CB
 }
 
 .feed {
@@ -7,7 +14,10 @@ body {
 }
 
 li.post {
-	padding: 5pt;
+	padding: 10pt;
+	background:#BCDCD7;
+	margin-top:10px;
+
 }
 li.post:nth-child(even) {
 	background: rgb(245, 245, 245);
@@ -51,4 +61,57 @@ pre {
 
 pre > code {
 	border-style: none;	
+}
+.navbar-inverse{
+	  color: white;
+	  border-color:#F2D388;
+}
+.navbar-brand{
+	 background-color: #874C62;
+	 border-color:#F2D388;
+	 border:3px;
+	 color:white;
+}
+.navbar-inverse .navbar-nav > li > a{
+	color:#F2D388;
+}
+.navbar-inverse .navbar-brand {
+	color:#F2D388;
+}
+.postList{ 
+	margin-top:50px;
+	margin-right:20px;
+}
+h2{
+	margin-left:40px;
+	text-shadow: 1px 1px #F2D388;;
+}
+h1{ 
+	margin-left:40px;
+	text-shadow: 1px 1px #F2D388;
+}
+.createPost{
+	margin-top:50px;
+	margin-left:20px;
+}
+input[type=submit] {
+    padding:5px 15px; 
+    background:#874C62; 
+    color:lightgrey;
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px; 
+}
+.loginButton a{
+	margin-left:40px;
+	padding:5px 15px; 
+    background:#874C62; 
+    color:lightgrey;
+    cursor:pointer; 
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+.loginform{
+	margin-left:40px;
 }
