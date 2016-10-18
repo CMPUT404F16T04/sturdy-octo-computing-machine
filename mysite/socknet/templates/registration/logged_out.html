@@ -1,7 +1,20 @@
+{% load staticfiles %}
+
 <!DOCTYPE html>
+<head>
+{% load staticfiles %}
+  <meta charset="utf-8S"/>
+  <title>Socknet</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
+</head>
+
 <html>
 <body>
 <h1>You have logged out!</h1>
+<div class="loginButton">
 <a href="{% url 'login' %}">Login</a>
+</div>
 </body>
 </html>
+
