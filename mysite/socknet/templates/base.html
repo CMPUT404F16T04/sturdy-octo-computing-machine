@@ -1,20 +1,42 @@
+
 {% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% load staticfiles %}
-  <meta charset="utf-8"/>
-  <title>socknet</title>
-  <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
+    {% load staticfiles %}
+    <meta charset="utf-8S"/>
+    <title>Socknet</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
 </head>
 <body>
+
   <script src="{% static 'js/base.js' %}"></script>
   <script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
   <script src="{% static 'js/cookie.js' %}"></script>
-  <a href="{% url 'logged_out' %}">Logout</a>
-  <a href="{% url 'profile' authorUUID=user.author.uuid %}">My Profile</a>
-  <a href="{% url 'manage_friends' authorUUID=user.author.uuid %}">My Friends</a>
-  {% block content %}{% endblock %}
-  {% block scripts %}{% endblock %}
+    <script src="{% static 'js/base.js' %}"></script>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'list_posts' %}">Socknet</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{% url 'profile' authorUUID=user.author.uuid %}">Profile</a></li>
+                    <li><a href="#">Search</a></li>
+                    <li><a href="{% url 'create_post' %}">New Post</a></li>
+                    <li><a href="{% url 'manage_friends' authorUUID=user.author.uuid %}">Friends</a></li>
+                </ul>
+
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="{% url 'logged_out' %}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div id="workspace" class="container-fluid">
+        {% block content %}{% endblock %}
+    </div>
+    {% block scripts %}{% endblock %}
 </body>
 </html>
