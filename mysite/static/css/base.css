@@ -29,8 +29,8 @@ li.post:nth-child(even) {
 
 article.content {
 	padding-left: 10pt;
-	padding-right: 10pt; 
-	margin-bottom: 5pt;	
+	padding-right: 10pt;
+	margin-bottom: 5pt;
 }
 
 .post > blockquote {
@@ -40,14 +40,14 @@ article.content {
 	padding-left: 10pt;
 	margin-left: 10pt;
 	margin-top: 0;
-	margin-bottom: 0;	
+	margin-bottom: 0;
 }
 
 code {
 	padding: 2pt;
 	line-height: 1.6em;
 	border: solid 1pt lightgray;
-	border-radius: 4pt;	
+	border-radius: 4pt;
 	background-color: rgb(230, 230, 230);
 }
 
@@ -60,7 +60,7 @@ pre {
 }
 
 pre > code {
-	border-style: none;	
+	border-style: none;
 }
 .navbar-inverse{
 	  color: white;
@@ -78,7 +78,7 @@ pre > code {
 .navbar-inverse .navbar-brand {
 	color:#F2D388;
 }
-.postList{ 
+.postList{
 	margin-top:50px;
 	margin-right:20px;
 }
@@ -86,7 +86,7 @@ h2{
 	margin-left:40px;
 	text-shadow: 1px 1px #F2D388;;
 }
-h1{ 
+h1{
 	margin-left:40px;
 	text-shadow: 1px 1px #F2D388;
 }
@@ -95,23 +95,27 @@ h1{
 	margin-left:20px;
 }
 input[type=submit] {
-    padding:5px 15px; 
-    background:#874C62; 
+    padding:5px 15px;
+    background:#874C62;
     color:lightgrey;
     border:0 none;
     cursor:pointer;
     -webkit-border-radius: 5px;
-    border-radius: 5px; 
+    border-radius: 5px;
 }
 .loginButton a{
 	margin-left:40px;
-	padding:5px 15px; 
-    background:#874C62; 
+	padding:5px 15px;
+    background:#874C62;
     color:lightgrey;
-    cursor:pointer; 
+    cursor:pointer;
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
 .loginform{
 	margin-left:40px;
+}
+
+#workspace {
+    padding-top: 40pt;
 }
