@@ -7,11 +7,13 @@ python:
 # Uncomment the following line to allow dependencies to be installed
 # install: "pip install -r requirements.txt"
 
+before_script:
+    - python mysite/manage.py makemigrations
+    - python mysite/manage.py migrate
+
 # command to run tests
 script: python mysite/manage.py test socknet
 
 # Slack integration
 notifications:
   slack: cmput404team4:HT0av7nWQe41caTypBBG2ht4
-    
-  
