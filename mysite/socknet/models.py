@@ -7,11 +7,19 @@ import HTMLParser
 import uuid
 
 class Author(models.Model):
-    """ Represents an author """
+    """
+    Represents an author
+
+    Friends, followers, and friend Requests need to be designed such that:
+    - Querying for friends or followers is quick
+    - Friends of friends is easy to compute
+    - It is easy to decline friend requests
+    - Querying pending friend requests is quick
+    """
     user = models.OneToOneField(User)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
-    # Friends and followers a separate --> I can be both a friend and a follower
+    # Friends and followers are separate --> I can be both a friend and a follower
     # Ignore is for friend requests you have declined, just means it won't show up as pending
     friends = models.ManyToManyField("self", related_name="friend_of", blank=True)
     followers = models.ManyToManyField("self", related_name="follower_of", symmetrical=False, blank=True)

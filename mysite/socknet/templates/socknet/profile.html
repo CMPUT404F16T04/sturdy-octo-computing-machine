@@ -10,7 +10,7 @@
         <!-- Author is viewing someone else's profile, display button that allows
              them to follow, unfollow, unfriend, etc. -->
         <a id="friend_anchor" href="#" class="friend-anchor"
-        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}">Unfriend</a>
+        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}"></a>
     {% endif %}
 {% endblock %}
 {% block scripts %}
@@ -23,6 +23,7 @@
 
     $(document).ready(function() {
         console.log("Profile is loaded");
+        console.log("Action button: "+"{{ button_action }}")
         if ("{{ user.author.uuid }}" !== "{{ profile_author.uuid }}") {
             // Set text of friend button based on current relationship
             if("{{ button_action }}" === "unfriend") {
@@ -32,47 +33,9 @@
             } else if ("{{ button_action }}" === "accept_friend_request") {
                 $('#friend_anchor').text("Accept Friend Request");
             } else if ("{{ button_action }}" === "unfollow") {
-                $('#friend_anchor').text("Unfriend");
+                $('#friend_anchor').text("Unfollow");
             }
         }
-        /*
-        // Send a friend request with ajax so we don't have to reload the page.
-        $("#followButton").click(function() {
-            console.log("Author wants to follow this author!");
-            var authorUUID = "{{ user.author.uuid }}";
-            var friendUUID = "{{ profile_author.uuid }}";
-            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
-            var jsonData = {
-                "query": "friendrequest",
-                "author": {
-                    "id": authorUUID
-                    // host and displayName to be added for remote friends
-                },
-                "friend": {
-                    "id": friendUUID
-                    // host, displayName, url to be added for remote friends
-                }
-            };
-            var jsonStr = JSON.stringify(jsonData)
-            console.log(jsonStr);
-            $.ajax({
-                type: "POST",
-                url: "{% url 'profile' authorUUID=user.author.uuid %}",
-                data: jsonStr,
-                contentType: "application/json",
-                success: followSuccess(),
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            });
-        });
-
-        function followSuccess() {
-            console.log("Follow Success!");
-            $("#followButton").prop("disabled", true);
-        }
-        */
-
     });
 </script>
 

@@ -115,8 +115,8 @@ $('.friend-anchor').click(function () {
 
 function unfriendSuccess(id) {
     console.log("Unfriend successful!");
-    $('#'+id).text("Follow");
-    $('#'+id).data("status" , "follow");
+    $('#'+id).text("Accept Friend Request");
+    $('#'+id).data("status" , "accept_friend_request");
 }
 
 function followSuccess(id) {
