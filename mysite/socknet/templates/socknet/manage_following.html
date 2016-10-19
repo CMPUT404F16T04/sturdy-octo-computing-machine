@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Who {{ user.username }} is following!</h1>
+    <div>
+        {% for follower_of in user.author.who_im_following.all %}
+            <div>
+                {{follower_of.user.username}}
+                <a id="{{ follower_of.uuid}}_button" href="#" class="friend-anchor"
+                data-uuid="{{ follower_of.uuid }}" data-username="{{ follower_of.user.username }}" data-status="unfollow">Unfollow</a>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
+<script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+    $(document).ready(function() {
+        console.log("Manage Following Loaded");
+    });
+</script>
+{% endblock scripts %}

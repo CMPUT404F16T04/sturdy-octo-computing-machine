@@ -49,15 +49,21 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
             author = self.request.user.author
             # We are viewing someone elses page, determine what our relationship with
             # them is so we know which relationship button to load (follow, unfollow, ect)
+            x = profile_author in author.get_pending_friend_requests()
+            y = profile_author in author.friends.all()
+            z = profile_author in author.who_im_following.all()
+            print("Is in friends? "+str(y))
+            print("Is in pending FR? "+str(x))
+            print("Am i following? "+str(z))
             if profile_author in author.friends.all():
                 # They are out friend, display unfriend button
                 context['button_action'] = "unfriend"
-            elif author in profile_author.followers.all():
-                # We are following them, display unfollow button
-                context['button_action'] = "unfollow"
             elif profile_author in author.get_pending_friend_requests():
                 # We aren't friends, but they are following me
                 context['button_action'] = "accept_friend_request"
+            elif profile_author in author.who_im_following.all():
+                # We are following them, display unfollow button
+                context['button_action'] = "unfollow"
             else:
                 # No relationship, display follow button
                 context['button_action'] = "follow"
@@ -120,3 +126,29 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             else:
                 print("MANAGE FRIEND POST: Unknown action")
                 return HttpResponse(status=500)
+
+class ManageFollowing(LoginRequiredMixin, generic.base.TemplateView):
+    """ Manage who an author is following """
+    template_name = "socknet/manage_following.html"
+    login_url = '/login/' # For login mixin
+
+    def get(self, request, *args, **kwargs):
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
+        # Convert uuid from url into a proper UUID field
+        authorUUID = uuid.UUID(authorUUID)
+        if authorUUID != self.request.user.author.uuid:
+            raise PermissionDenied
+        return super(ManageFollowing, self).get(request, *args, **kwargs)
+
+class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
+    """ Accept and decline pending friend requests """
+    template_name = "socknet/manage_friend_requests.html"
+    login_url = '/login/' # For login mixin
+
+    def get(self, request, *args, **kwargs):
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
+        # Convert uuid from url into a proper UUID field
+        authorUUID = uuid.UUID(authorUUID)
+        if authorUUID != self.request.user.author.uuid:
+            raise PermissionDenied
+        return super(ManageFriendRequests, self).get(request, *args, **kwargs)

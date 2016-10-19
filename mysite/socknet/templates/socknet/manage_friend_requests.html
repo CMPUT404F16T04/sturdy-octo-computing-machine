@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Pending Friend Requests</h1>
+    <div>
+        {% for friend_request in user.author.get_pending_friend_requests.all %}
+            <div>
+                {{friend_request.user.username}}
+                <!-- TODO: Add 1 button for accept, add 1 button for decline. Don't use handler since these are static -->
+                <!-- Remove element regardless of actions -->
+                <a id="{{ friend_request.uuid}}_button" href="#" class="friend-anchor"
+                data-uuid="{{ friend_request.uuid }}" data-username="{{ friend_request.user.username }}" data-status="unfollow">Unfollow</a>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
+<script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+    $(document).ready(function() {
+        console.log("Manage Following Loaded");
+    });
+</script>
+{% endblock scripts %}
