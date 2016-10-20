@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>{{ profile_author.user.username }}'s Profile!</h1>
 
+    <h1>{{ profile_author.user.username }}'s Profile!</h1>
+<div class = "profileInfo">
     {% if profile_author.uuid == user.author.uuid %}
         <!-- Author is viewing their own profile, display edit button -->
         <p>This button doesn't go anywhere right now.</p>
@@ -10,10 +11,32 @@
         <!-- Author is viewing someone else's profile, display follow button -->
         <button id="followButton" type="button" name="follow">Follow</button>
     {% endif %}
-
+</div>
+<div class="postList">
+    <h2>My Post List</h2>
+    <ol class="feed">
+        {% for post in context_list %}
+        {% if post.author.uuid == profile_author.uuid %}
+            <li class="post">
+            {% if profile_author.uuid == user.author.uuid %}
+            <a class = "delete" href="{% url 'author_check_delete' pk=post.pk %}">x</a>
+            {% endif %}
+              <p class="authordate">
+                Author: {{ post.author.user.username }}<br/>
+                Created On (UTC): {{ post.created_on }}
+              </p>
+              <article class="content">
+                {{post.view_content|safe}}
+              </article>
+            </li>
+        {% endif %}
+        {% endfor %}
+    </ol>
+  </div>
 {% endblock %}
 
 {% block scripts %}
+
 <script type="text/javascript">
     $(document).ready(function() {
         console.log("Profile is loaded");

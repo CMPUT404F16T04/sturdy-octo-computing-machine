@@ -119,3 +119,12 @@ input[type=submit] {
 #workspace {
     padding-top: 40pt;
 }
+a.delete{ 
+	width:100%; 
+	display:inline-block;
+	text-align: right;
+}
+
+#profileInfo{ 
+	padding-left:40px;
+}
