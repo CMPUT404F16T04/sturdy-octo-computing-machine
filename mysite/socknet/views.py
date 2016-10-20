@@ -6,6 +6,8 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
+from django.views.generic.edit import DeleteView
+from django.urls import reverse_lazy
 
 from socknet.models import *
 
@@ -31,6 +33,15 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user.author
         return super(CreatePost, self).form_valid(form)
+
+class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
+    """ Deletes Post """
+    model = Post
+    template_name = 'socknet/author_check_delete.html'
+    login_url = '/login/' # For login mixin
+    success_url=('/')
+    def form_valid(self, form):
+        return super(DeletePost, self).form_valid(form)
 
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """

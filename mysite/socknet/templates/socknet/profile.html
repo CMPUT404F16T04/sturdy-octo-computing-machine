@@ -11,6 +11,24 @@
         <button id="followButton" type="button" name="follow">Follow</button>
     {% endif %}
 
+<div class="postList">
+    <h2>My Post List</h2>
+    <ol class="feed">
+        {% for post in object_list %}
+            {% if post.author.user.username == "Larry" %}
+            <li class="post">
+              <p class="authordate">
+                Author: {{ post.author.user.username }}<br/>
+                Created On (UTC): {{ post.created_on }}
+              </p>
+              <article class="content">
+                {{post.view_content|safe}}
+              </article>
+            </li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+  </div>
 {% endblock %}
 
 {% block scripts %}

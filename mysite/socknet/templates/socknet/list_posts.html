@@ -5,6 +5,8 @@
     <ol class="feed">
         {% for post in object_list %}
             <li class="post">
+              <a class = "delete" href="{% url 'author_check_delete' pk=post.pk %}">x</a>
+              <p> {{post.pk}}</p>
               <p class="authordate">
                 Author: {{ post.author.user.username }}<br/>
                 Created On (UTC): {{ post.created_on }}

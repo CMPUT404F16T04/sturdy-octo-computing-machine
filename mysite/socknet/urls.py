@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^$', views.ListPosts.as_view(), name='list_posts'),
     url(r'^post/(?P<pk>[0-9]+)/$', views.ViewPost.as_view(), name='view_post'),
     url(r'^post/create/$', views.CreatePost.as_view(), name='create_post'),
+    url(r'^post/(?P<pk>[0-9]+)/delete$', views.DeletePost.as_view(), name='author_check_delete'),
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ViewProfile.as_view(), name='profile'),
