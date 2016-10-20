@@ -152,3 +152,28 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
         if authorUUID != self.request.user.author.uuid:
             raise PermissionDenied
         return super(ManageFriendRequests, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
+        # Convert uuid from url into a proper UUID field
+        authorUUID = uuid.UUID(authorUUID)
+        # Ensure that someone else is not trying to edit our friends
+        if authorUUID != self.request.user.author.uuid:
+            raise PermissionDenied
+        if request.is_ajax():
+            decoded_json = json.loads(request.body)
+            action_type = decoded_json['action']
+            friend_uuid = decoded_json['friend']['id']
+            friend = Author.objects.get(uuid=friend_uuid)
+            author = request.user.author
+            if action_type == "decline_friend_request":
+                print("Decling Friend Request of: " + friend.user.username)
+                author.decline_friend_request(friend)
+                return HttpResponse(status=200)
+            elif action_type == "accept_friend_request":
+                print("Accepting Friend Request of: " + friend.user.username)
+                author.accept_friend_request(friend)
+                return HttpResponse(status=200)
+            else:
+                print("MANAGE FRIEND REQUEST POST: Unknown action")
+                return HttpResponse(status=500)

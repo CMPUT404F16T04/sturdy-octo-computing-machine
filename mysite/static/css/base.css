@@ -139,6 +139,17 @@ input[type=submit] {
     align-items: center;
 }
 
+.friend-request-box {
+    border: 2px solid #EEEEEE;
+    width: 48%;
+    min-width: 500px;
+    position: relative;
+    margin-right: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
 .friend-profile-pic {
     display: block;
     position: relative;
@@ -160,4 +171,8 @@ input[type=submit] {
     text-align: right;
     margin-right: 20px;
     font-size: 15px;
+}
+
+.friend-button-2 {
+    margin-right: 10px;
 }

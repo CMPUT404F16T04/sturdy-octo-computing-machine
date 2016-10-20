@@ -1,4 +1,4 @@
-// Handles ajax calls when follow and friend buttons are selected
+// Handles ajax calls when follow and friend buttons are selected on a user's profile or manage friends/following page
 
 $('.friend-anchor').click(function () {
     var id = $(this).attr('id');
