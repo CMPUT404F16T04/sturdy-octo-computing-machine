@@ -116,15 +116,73 @@ input[type=submit] {
 	margin-left:40px;
 }
 
+/* Space between workspace and navigation bar so that it does not overlap */
 #workspace {
     padding-top: 40pt;
 }
-a.delete{ 
-	width:100%; 
+
+a.delete{
+	width:100%;
 	display:inline-block;
 	text-align: right;
 }
 
-#profileInfo{ 
+#profileInfo{
 	padding-left:40px;
+
+
+/* STYLING FOR FRIEND MANAGEMENT */
+.friend-title {
+    font-size: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.friend-box {
+    border: 2px solid #EEEEEE;
+    width: 48%;
+    min-width: 500px;
+    position: relative;
+    margin-right: 10px;
+    margin-bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.friend-request-box {
+    border: 2px solid #EEEEEE;
+    width: 48%;
+    min-width: 500px;
+    position: relative;
+    margin-right: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.friend-profile-pic {
+    display: block;
+    position: relative;
+    float: left;
+    height: 100px;
+}
+
+.friend-name {
+    display: inline-block;
+    width: 50%;
+    margin-left: 20px;
+    font-size: 20px;
+    word-wrap: break-word;
+}
+
+.friend-button {
+    display: inline-block;
+    width: 50%;
+    text-align: right;
+    margin-right: 20px;
+    font-size: 15px;
+}
+
+.friend-button-2 {
+    margin-right: 10px;
 }

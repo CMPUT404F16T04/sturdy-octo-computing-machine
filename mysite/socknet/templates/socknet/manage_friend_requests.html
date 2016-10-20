@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static from staticfiles %}
+    <div class="friend-title">Pending Friend Requests</div>
+        {% for friend_request in user.author.get_pending_friend_requests.all %}
+            <div id="{{ friend_request.uuid}}_box" class="friend-request-box">
+                <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
+                <div class="friend-name">
+                    {{friend_request.user.username}}
+                </div>
+                <a href="#" class="friend-button-2 btn btn-success"
+                data-uuid="{{ friend_request.uuid }}" data-username="{{ friend_request.user.username }}"
+                data-status="accept_friend_request">Accept</a>
+                <a href="#" class="friend-button-2 btn btn-danger"
+                data-uuid="{{ friend_request.uuid }}" data-username="{{ friend_request.user.username }}"
+                data-status="decline_friend_request">Decline</a>
+            </div>
+        {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        console.log("Manage Friend Requests Loaded");
+
+        $('.friend-button-2').click(function () {
+            var url = "{% url 'manage_friend_requests' authorUUID=user.author.uuid %}";
+            var status = $(this).data("status");
+            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
+            var friendUUID = $(this).data("uuid");
+            var authorUUID = "{{ user.author.uuid }}";
+            // Handle Accept Friend Request
+            if (status == "accept_friend_request") {
+                console.log("This author wants to accept the friend request of: "+$(this).data('username'));
+                // Accept friend request with ajax so we don't have to reload the page.
+                var jsonData = {
+                    "action": "accept_friend_request",
+                    "author": {
+                        "id": authorUUID
+                    },
+                    "friend": {
+                        "id": friendUUID
+                    }
+                };
+                var jsonStr = JSON.stringify(jsonData)
+                console.log(jsonStr);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: jsonStr,
+                    contentType: "application/json",
+                    success: removeRow(friendUUID),
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                });
+            }
+            // Handle decline friend request
+            else if (status == "accept_friend_request") {
+                console.log("This author wants to decline the friend request of: "+$(this).data('username'));
+                // Accept friend request with ajax so we don't have to reload the page.
+                var jsonData = {
+                    "action": "decline_friend_request",
+                    "author": {
+                        "id": authorUUID
+                    },
+                    "friend": {
+                        "id": friendUUID
+                    }
+                };
+                var jsonStr = JSON.stringify(jsonData)
+                console.log(jsonStr);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: jsonStr,
+                    contentType: "application/json",
+                    success: removeRow(friendUUID),
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                });
+            }
+        });
+
+        function removeRow(friendUUID) {
+            console.log("Removing FR From Page")
+            $('#'+friendUUID+'_box').remove();
+        }
+
+    });
+</script>
+{% endblock scripts %}
