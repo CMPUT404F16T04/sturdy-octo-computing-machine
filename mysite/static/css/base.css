@@ -124,3 +124,7 @@ a.delete{
 	display:inline-block;
 	text-align: right;
 }
+
+#profileInfo{ 
+	padding-left:40px;
+}
