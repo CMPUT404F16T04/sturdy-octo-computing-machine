@@ -1,16 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Who {{ user.username }} is following!</h1>
-    <div>
-        {% for follower_of in user.author.who_im_following.all %}
-            <div>
+{% load static from staticfiles %}
+    <div class="friend-title">People I Follow</div>
+    <!-- Only display people I am following who are NOT also my friends -->
+    {% for follower_of in user.author.get_following_only %}
+        <div class="friend-box">
+            <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
+            <div class="friend-name">
                 {{follower_of.user.username}}
-                <a id="{{ follower_of.uuid}}_button" href="#" class="friend-anchor"
+            </div>
+            <div class="friend-button">
+                <a id="{{ follower_of.uuid}}_button" href="#" class="friend-anchor btn btn-danger"
                 data-uuid="{{ follower_of.uuid }}" data-username="{{ follower_of.user.username }}" data-status="unfollow">Unfollow</a>
             </div>
-        {% endfor %}
-    </div>
-
+        </div>
+    {% endfor %}
+    {% if user.author.get_following_only.count < 1 %}
+    <div>You haven't followed anybody yet!</div>
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

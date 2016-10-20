@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Pending Friend Requests</h1>
+    <h1>Under Construction</h1>
     <div>
         {% for friend_request in user.author.get_pending_friend_requests.all %}
             <div>
-                {{friend_request.user.username}}
+                <!--  {{friend_request.user.username}} -->
                 <!-- TODO: Add 1 button for accept, add 1 button for decline. Don't use handler since these are static -->
                 <!-- Remove element regardless of actions -->
+                <!--
                 <a id="{{ friend_request.uuid}}_button" href="#" class="friend-anchor"
-                data-uuid="{{ friend_request.uuid }}" data-username="{{ friend_request.user.username }}" data-status="unfollow">Unfollow</a>
+                data-uuid="{{ friend_request.uuid }}" data-username="{{ friend_request.user.username }}" data-status="unfollow">Unfollow</a -->
             </div>
         {% endfor %}
     </div>

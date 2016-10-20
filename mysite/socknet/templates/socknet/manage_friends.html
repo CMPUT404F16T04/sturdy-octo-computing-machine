@@ -1,16 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>{{ user.username }}'s Friends!</h1>
-    <h3>My Friends</h3>
-    <div>
-        {% for friend in user.author.friends.all %}
-            <div>
+{% load static from staticfiles %}
+    <div class="friend-title">My Friends</div>
+    {% for friend in user.author.friends.all %}
+        <div class="friend-box">
+            <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
+            <div class="friend-name">
                 {{friend.user.username}}
-                <a id="{{ friend.uuid}}_button" href="#" class="friend-anchor"
+            </div>
+            <div class="friend-button">
+                <a id="{{ friend.uuid}}_button" href="#" class="friend-anchor btn btn-danger"
                 data-uuid="{{ friend.uuid }}" data-username="{{ friend.user.username }}" data-status="unfriend">Unfriend</a>
             </div>
-        {% endfor %}
-    </div>
+        </div>
+    {% endfor %}
+    {% if user.author.friends.all.count < 1 %}
+    <div>You haven't made friends yet!</div>
+    {% endif %}
 
 {% endblock %}
 

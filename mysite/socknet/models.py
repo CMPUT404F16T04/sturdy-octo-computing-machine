@@ -75,6 +75,12 @@ class Author(models.Model):
         self.who_im_following.remove(friend)
         friend.save()
 
+    def get_following_only(self):
+        """ Get who I am following excluding friends """
+        following = self.who_im_following.all()
+        following = following.exclude(pk__in=self.friends.all())
+        return following
+
 class Post(models.Model):
     """ Represents a post made by a user """
     author = models.ForeignKey(Author, related_name="author")
