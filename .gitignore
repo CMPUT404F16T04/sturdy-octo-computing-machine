@@ -106,4 +106,3 @@ Desktop.ini
 
 # Ignore project DB
 *db.sqlite3
-migrations/
