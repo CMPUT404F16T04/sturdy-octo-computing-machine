@@ -106,7 +106,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     """ Represents a comment made by a user """
-    parent = models.ForeignKey(Post, related_name="parent_post")
+    parent_post = models.ForeignKey(Post, related_name="comment_parent_post")
     author = models.ForeignKey(Author, related_name="comment_author")
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
@@ -116,7 +116,7 @@ class Comment(models.Model):
         """ Gets the canonical URL for a Post
         Will be of the format .../posts/<id>/comment/<id>
         """
-        return reverse('view_comment', args=[str(self.parent.id), str(self.id)])
+        return reverse('view_comment', args=[str(self.parent_post.id), str(self.id)])
 
     def view_content(self):
         """ Retrieves content to be displayed as html, it is assumed safe
@@ -127,4 +127,4 @@ class Comment(models.Model):
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
-        return self.author.user.username + ": " + self.content
+        return "parent post:"+ self.parent_post + " author:" + self.author.user.username + ": " + self.content

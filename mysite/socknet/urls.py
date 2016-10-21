@@ -11,10 +11,10 @@ urlpatterns = [
     url(r'^post/(?P<pk>[0-9]+)/delete$', views.DeletePost.as_view(), name='author_check_delete'),
 
     # Comments
-    url(r'^post/(?P<post_pk>[0-9]+)/comments/$', views.ViewComments.as_view(), name='list_comments'),
-    url(r'^post/(?P<post_pk>[0-9]+)/comments/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='comment'),
+    url(r'^post/(?P<post_pk>[0-9]+)/comments/$', views.ListComments.as_view(), name='list_comments'),
+    url(r'^post/(?P<post_pk>[0-9]+)/comments/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='view_comment'),
     url(r'^post/(?P<post_pk>[0-9]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
-    
+
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ViewProfile.as_view(), name='profile'),
 

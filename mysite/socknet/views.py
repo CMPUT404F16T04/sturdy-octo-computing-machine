@@ -43,23 +43,29 @@ class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
     def form_valid(self, form):
         return super(DeletePost, self).form_valid(form)
 
-class ViewComments(LoginRequiredMixin, generic.ListView):
+class ListComments(LoginRequiredMixin, generic.ListView):
     """ Displays a list of all comments for the post
-    How to use foreign keys in URL taken from Michael http://stackoverflow.com/a/18533475
     """
     model = Comment
-    post_pk = Post
     template_name = 'socknet/list_comments.html'
     login_url = '/login/' # For login mixin
 
-class ViewComment(LoginRequiredMixin, generic.ListView):
+class ViewComment(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays a specific comment for the post
-    How to use foreign keys in URL taken from Michael http://stackoverflow.com/a/18533475
     """
     model = Comment
-    post_pk = Post
     template_name = 'socknet/comment.html'
     login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewComment, self).get_context_data(**kwargs)
+        parent = self.kwargs.get('post_pk')
+        post_obj = Post(id=parent)
+        comment_obj = Comment(id=self.kwargs.get('pk'))
+        print comment_obj.content
+        context['parent'] = post_obj
+        context['comment'] = comment_obj
+        return context
 
 class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new comment """
@@ -67,20 +73,18 @@ class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
     template_name = 'socknet/create_comment.html'
     fields = ['content', 'markdown']
     login_url = '/login/' # For login mixin
-    post_pk = 0
 
     def get_context_data(self, **kwargs):
         context = super(CreateComment, self).get_context_data(**kwargs)
-        #form.instance.post_id = Post(id=116)
-        post_pk = Post(id=self.kwargs.get('post_pk'))
-        post_obj = get_object_or_404(Post, id=post_pk)
+        parent_key = int(self.kwargs.get('post_pk'))
+        post_obj = get_object_or_404(Post, id=parent_key)
         context['comments'] = post_obj
         return context
 
     def form_valid(self, form):
-        print str(self.post_pk)
         form.instance.author = self.request.user.author
-        form.instance.parent = Post(id=self.kwargs.get('post_pk', self.request.user.author.uuid))
+        parent_key = (self.kwargs.get('post_pk'))
+        form.instance.parent_post = Post(id=parent_key)
         return super(CreateComment, self).form_valid(form)
 
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
