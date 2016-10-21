@@ -17,6 +17,11 @@ class ListPosts(LoginRequiredMixin, generic.ListView):
     template_name = 'socknet/list_posts.html'
     login_url = '/login/' # For login mixin
 
+    def get_context_data(self, **kwargs):
+        context = super(ListPosts, self).get_context_data(**kwargs)
+        context['posts_list'] = Post.objects.order_by('-created_on')
+        return context
+
 class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
     """ Displays the details of a single post """
     model = Post
@@ -40,8 +45,61 @@ class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
     template_name = 'socknet/author_check_delete.html'
     login_url = '/login/' # For login mixin
     success_url=('/')
+
     def form_valid(self, form):
         return super(DeletePost, self).form_valid(form)
+
+class ListComments(LoginRequiredMixin, generic.ListView):
+    """ Displays a list of all comments for the post
+    """
+    model = Comment
+    template_name = 'socknet/list_comments.html'
+    login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(ListComments, self).get_context_data(**kwargs)
+        parent_post = Post(id=int(self.kwargs.get('post_pk')))
+        context['parent'] = parent_post
+        context['comments'] = Comment.objects.all_comments_for_post(parent_post.id, True)
+        return context
+
+class ViewComment(LoginRequiredMixin, generic.base.TemplateView):
+    """ Displays a specific comment for the post
+    """
+    model = Comment
+    template_name = 'socknet/comment.html'
+    login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewComment, self).get_context_data(**kwargs)
+        # Todo: why does it not load the comment object properly?!
+        # This causes the comment view page to crash! aaa. it does not load contents, nor authorm nor parent_post!
+        comment_obj = Comment(id=int(self.kwargs.get('pk')))
+        print(comment_obj.id)
+        post_obj = Post(id=int(comment_obj.parent_post))
+        context['parent_id'] = post_obj
+        context['comment'] = comment_obj
+        return context
+
+class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
+    """ Displays a form for creating a new comment """
+    model = Comment
+    template_name = 'socknet/create_comment.html'
+    fields = ['content', 'markdown']
+    login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateComment, self).get_context_data(**kwargs)
+        parent_key = int(self.kwargs.get('post_pk'))
+        post_obj = get_object_or_404(Post, id=parent_key)
+        context['comments'] = post_obj
+        return context
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user.author
+        parent_key = (self.kwargs.get('post_pk'))
+        form.instance.parent_post = Post(id=parent_key)
+        return super(CreateComment, self).form_valid(form)
 
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
