@@ -6,15 +6,15 @@ from socknet import views
 urlpatterns = [
     # Posts
     url(r'^$', views.ListPosts.as_view(), name='list_posts'),
-    url(r'^post/(?P<pk>[0-9]+)/$', views.ViewPost.as_view(), name='view_post'),
-    url(r'^post/create/$', views.CreatePost.as_view(), name='create_post'),
-    url(r'^post/(?P<pk>[0-9]+)/delete$', views.DeletePost.as_view(), name='author_check_delete'),
+    url(r'^posts/(?P<pk>[0-9]+)/$', views.ViewPost.as_view(), name='view_post'),
+    url(r'^posts/create/$', views.CreatePost.as_view(), name='create_post'),
+    url(r'^posts/(?P<pk>[0-9]+)/delete$', views.DeletePost.as_view(), name='author_check_delete'),
 
     # Comments
-    url(r'^post/(?P<post_pk>[0-9]+)/comments/$', views.ListComments.as_view(), name='list_comments'),
-    url(r'^post/(?P<post_pk>[0-9]+)/comments/\#(?P<pk>[0-9]+)$', views.ListComments.as_view(), name='list_comments_anchor'),
+    url(r'^posts/(?P<post_pk>[0-9]+)/comments/$', views.ListComments.as_view(), name='list_comments'),
+    url(r'^posts/(?P<post_pk>[0-9]+)/comments/\#(?P<pk>[0-9]+)$', views.ListComments.as_view(), name='list_comments_anchor'),
     url(r'^comment/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='view_comment'),
-    url(r'^post/(?P<post_pk>[0-9]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
+    url(r'^posts/(?P<post_pk>[0-9]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ViewProfile.as_view(), name='profile'),
