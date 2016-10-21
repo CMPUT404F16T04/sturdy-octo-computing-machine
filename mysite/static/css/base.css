@@ -139,9 +139,9 @@ input[type=submit] {
 }
 
 a.delete{
-	width:100%;
 	display:inline-block;
 	text-align: right;
+  margin-left: 100%;
 }
 
 #profileInfo{

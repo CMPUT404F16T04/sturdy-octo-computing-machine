@@ -79,7 +79,6 @@ class Author(models.Model):
         following = following.exclude(pk__in=self.friends.all())
         return following
 
-
 class Post(models.Model):
     """ Represents a post made by a user """
     author = models.ForeignKey(Author, related_name="author")
@@ -104,8 +103,32 @@ class Post(models.Model):
     def __unicode__(self):
         return self.author.user.username + ": " + self.content
 
+class CommentQuerySet(models.QuerySet):
+    """ Query operations for the Comments table. """
+    def all_comments_for_post(self, post_pk, ordered):
+        # Retrieve only post specific comments
+        results = self.filter(parent_post_id=post_pk)
+        # Order it with latest date on top
+        if(ordered):
+            results = results.order_by('-created_on',)
+        return results
+
+    def comments_count_post(self, post_pk):
+        result = self.filter(parent_post_id=post_pk).count()
+        return results
+
+    def all_comments_for_author(self, author_pk, ordered):
+        # Retrieve only post specific comments
+        results = self.filter(author_id=author_pk)
+        # Order it with latest date on top
+        if(ordered):
+            results = results.order_by('-created_on',)
+        return results
+
 class Comment(models.Model):
     """ Represents a comment made by a user """
+    objects = CommentQuerySet.as_manager()
+    # Should really use model inheritance, found out about it too late though, https://docs.djangoproject.com/en/1.10/topics/db/models/#model-inheritance
     parent_post = models.ForeignKey(Post, related_name="comment_parent_post")
     author = models.ForeignKey(Author, related_name="comment_author")
     content = models.TextField(max_length=512)
@@ -116,7 +139,11 @@ class Comment(models.Model):
         """ Gets the canonical URL for a Post
         Will be of the format .../posts/<id>/comment/<id>
         """
-        return reverse('view_comment', args=[str(self.parent_post.id), str(self.id)])
+        # This aint even in the user stories. Could skip???
+        #return reverse('view_comment', args=[str(self.id)])
+
+        # Redirects to previous list of comments with the anchor of the created post.
+        return reverse('list_comments_anchor', args=[str(self.parent_post.id), str(self.id)]).replace('%23', '#')
 
     def view_content(self):
         """ Retrieves content to be displayed as html, it is assumed safe

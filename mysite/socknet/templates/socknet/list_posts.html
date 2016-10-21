@@ -3,10 +3,11 @@
 <div class="postList">
     <h2>Post List</h2>
     <ol class="feed">
-        {% for post in object_list %}
+        {% for post in posts_list %}
             <li class="post">
-              <a class = "delete" href="{% url 'author_check_delete' pk=post.pk %}">x</a>
-              <p> {{post.pk}}</p>
+              <!-- PLEASE make delete link instead of padding, do a margin -->
+              <a class = "delete" href="{% url 'author_check_delete' pk=post.pk %}"><b>x</b></a><br/>
+              <p> <a href="{% url 'view_post' pk=post.pk %}">{{post.pk}}</a></p>
               <p class="authordate">
                 Author: {{ post.author.user.username }}<br/>
                 Created On (UTC): {{ post.created_on }}
@@ -14,6 +15,10 @@
               <article class="content">
                 {{post.view_content|safe}}
               </article>
+              <p>
+                <a href="{% url 'list_comments' post_pk=post.pk %}">View Comments</a><br/>
+                <a href="{% url 'create_comment' post_pk=post.pk %}">New Comment</a>
+              </p>
             </li>
         {% endfor %}
     </ol>

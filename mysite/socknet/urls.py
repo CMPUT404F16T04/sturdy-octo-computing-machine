@@ -12,7 +12,8 @@ urlpatterns = [
 
     # Comments
     url(r'^post/(?P<post_pk>[0-9]+)/comments/$', views.ListComments.as_view(), name='list_comments'),
-    url(r'^post/(?P<post_pk>[0-9]+)/comments/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='view_comment'),
+    url(r'^post/(?P<post_pk>[0-9]+)/comments/\#(?P<pk>[0-9]+)$', views.ListComments.as_view(), name='list_comments_anchor'),
+    url(r'^comment/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='view_comment'),
     url(r'^post/(?P<post_pk>[0-9]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
 
     # Profile
