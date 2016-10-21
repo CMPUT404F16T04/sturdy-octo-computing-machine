@@ -78,7 +78,7 @@ $('.friend-anchor').click(function () {
             url: url,
             data: jsonStr,
             contentType: "application/json",
-            success: functino() { unfollowSuccess(id); },
+            success: function() { unfollowSuccess(id); },
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
