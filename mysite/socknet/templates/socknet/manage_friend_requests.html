@@ -16,6 +16,9 @@
                 data-status="decline_friend_request">Decline</a>
             </div>
         {% endfor %}
+        {% if user.author.get_pending_friend_requests.count < 1 %}
+        <div>You don't have any pending friend requests!</div>
+        {% endif %}
 {% endblock %}
 
 {% block scripts %}
