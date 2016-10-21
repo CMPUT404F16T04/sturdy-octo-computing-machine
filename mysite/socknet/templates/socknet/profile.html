@@ -1,79 +1,66 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>{{ profile_author.user.username }}'s Profile!</h1>
 
+<h1>{{ profile_author.user.username }}'s Profile!</h1>
+<div class = "profileInfo">
     {% if profile_author.uuid == user.author.uuid %}
         <!-- Author is viewing their own profile, display edit button -->
         <p>This button doesn't go anywhere right now.</p>
         <input type="submit" name="editProfile" value="Edit Profile"/>
     {% else %}
-        <!-- Author is viewing someone else's profile, display follow button -->
-        <button id="followButton" type="button" name="follow">Follow</button>
+        <!-- Author is viewing someone else's profile, display button that allows
+             them to follow, unfollow, unfriend, etc. -->
+        <a id="friend_anchor" href="#" class="friend-anchor"
+        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}"></a>
     {% endif %}
 
+</div>
+<div class="postList">
+    <h2>My Post List</h2>
+    <ol class="feed">
+        {% for post in context_list %}
+        {% if post.author.uuid == profile_author.uuid %}
+            <li class="post">
+            {% if profile_author.uuid == user.author.uuid %}
+            <a class = "delete" href="{% url 'author_check_delete' pk=post.pk %}">x</a>
+            {% endif %}
+              <p class="authordate">
+                Author: {{ post.author.user.username }}<br/>
+                Created On (UTC): {{ post.created_on }}
+              </p>
+              <article class="content">
+                {{post.view_content|safe}}
+              </article>
+            </li>
+        {% endif %}
+        {% endfor %}
+    </ol>
+  </div>
 {% endblock %}
 
 {% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
 <script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+
     $(document).ready(function() {
         console.log("Profile is loaded");
-
-        // Send a friend request with ajax so we don't have to reload the page.
-        $("#followButton").click(function() {
-            console.log("Author wants to follow this author!");
-            var authorUUID = "{{ user.author.uuid }}";
-            var friendUUID = "{{ profile_author.uuid }}";
-            var csrftoken = getCookie('csrftoken');
-            var jsonData = {
-                "query": "friendrequest",
-                "author": {
-                    "id": authorUUID
-                    // host and displayName to be added for remote friends
-                },
-                "friend": {
-                    "id": friendUUID
-                    // host, displayName, url to be added for remote friends
-                }
-            };
-            var jsonStr = JSON.stringify(jsonData)
-            console.log(jsonStr);
-            $.ajax({
-                type: "POST",
-                url: "{% url 'profile' authorUUID=user.author.uuid %}",
-                data: jsonStr,
-                contentType: "application/json",
-                success: followSuccess,
-                beforeSend: function(xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            });
-        });
-
-
-
-        function followSuccess() {
-            console.log("Follow Success!");
-            $("#followButton").prop("disabled", true);
-        }
-
-        // This function is from https://docs.djangoproject.com/en/1.10/ref/csrf/#ajax
-        // It allows us to set the value of X-CSRFToken header to the value of the token
-        function getCookie(name) {
-            var cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                var cookies = document.cookie.split(';');
-                for (var i = 0; i < cookies.length; i++) {
-                    var cookie = jQuery.trim(cookies[i]);
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+        console.log("Action button: "+"{{ button_action }}")
+        if ("{{ user.author.uuid }}" !== "{{ profile_author.uuid }}") {
+            // Set text of friend button based on current relationship
+            if("{{ button_action }}" === "unfriend") {
+                $('#friend_anchor').text("Unfriend");
+            } else if ("{{ button_action }}" === "follow") {
+                $('#friend_anchor').text("Follow");
+            } else if ("{{ button_action }}" === "accept_friend_request") {
+                $('#friend_anchor').text("Accept Friend Request");
+            } else if ("{{ button_action }}" === "unfollow") {
+                $('#friend_anchor').text("Unfollow");
             }
-            return cookieValue;
         }
-
     });
 </script>
 

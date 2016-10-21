@@ -1,20 +1,73 @@
+
 {% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-{% load staticfiles %}
-  <meta charset="utf-8"/>
-  <title>socknet</title>
-  <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
+    {% load staticfiles %}
+    <meta charset="utf-8S"/>
+    <title>Socknet</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
 </head>
 <body>
-  <script src="{% static 'js/base.js' %}"></script>
-  <a href="{% url 'logged_out' %}">Logout</a>
-  <a href="{% url 'profile' authorUUID=user.author.uuid %}">My Profile</a>
-  <a href="{% url 'manage_friends' authorUUID=user.author.uuid %}">My Friends</a>
-  {% block content %}{% endblock %}
-</body>
+    <script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
+    <script src="{% static 'js/base.js' %}"></script>
+    <script src="{% static 'js/cookie.js' %}"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-<script src="{% static "js/jquery-3.1.1.min.js" %}"></script>
-{% block scripts %}{% endblock %}
-</html>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'list_posts' %}">Socknet</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="{% url 'profile' authorUUID=user.author.uuid %}">
+                            <div class="glyphicon glyphicon-user navbar-icon"></div>
+                            Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <div class="glyphicon glyphicon-search navbar-icon"></div>
+                            Search
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'create_post' %}">
+                            <div class="glyphicon glyphicon-pencil navbar-icon"></div>
+                            New Post
+                        </a>
+                    </li>
+                    <!-- Friends is a dropdown that allows you to go to separate pages for friends, who you're Following
+                    and viewing friend requests -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <div class="glyphicon glyphicon-heart navbar-icon">
+                                {% if user.author.get_pending_friend_requests.count > 0 %}
+                                <span id="fr-label" class="navbar-fr-label">{{ user.author.get_pending_friend_requests.count }}</span>
+                                {% endif %}
+                            </div>
+                            Friends
+                            <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'manage_friend_requests' authorUUID=user.author.uuid %}">View Friend Requests</a></li>
+                            <li><a href="{% url 'manage_friends' authorUUID=user.author.uuid %}">Manage Friends</a></li>
+                            <li><a href="{% url 'manage_following' authorUUID=user.author.uuid %}">Manage Following</a></li>
+                        </ul>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li><a href="{% url 'logged_out' %}"><span class="glyphicon glyphicon-log-in navbar-icon"></span> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div id="workspace" class="container">
+            {% block content %}{% endblock %}
+        </div>
+        {% block scripts %}{% endblock %}
+    </body>
+    </html>

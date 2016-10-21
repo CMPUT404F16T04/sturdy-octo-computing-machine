@@ -1,10 +1,20 @@
 <!DOCTYPE html>
+<head>
+    {% load staticfiles %}
+    <meta charset="utf-8S"/>
+    <title>Socknet</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
+</head>
+
 <html>
 <body>
-<h1>Login</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <input type="submit" value="Login"/>
-</body>
-</html>
+    <h1>Login</h1>
+    <div class="loginform">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Login"/>
+        </div>
+    </body>
+    </html>

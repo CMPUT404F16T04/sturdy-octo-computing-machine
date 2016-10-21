@@ -104,3 +104,5 @@ ehthumbs.db
 # Windows Folder config file
 Desktop.ini
 
+# Ignore the DB
+db.sqlite3
