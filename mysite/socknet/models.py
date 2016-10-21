@@ -154,4 +154,4 @@ class Comment(models.Model):
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
-        return "parent post:"+ self.parent_post + " author:" + self.author.user.username + ": " + self.content
+        return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.user.username + ": " + self.content
