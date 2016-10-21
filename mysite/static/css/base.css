@@ -169,11 +169,18 @@ input[type=submit] {
     display: block;
 }
 
+
 .login-center-wrapper {
     display: flex;
     width: 100%;
     justify-content: center;
     margin-top: 100px;
+}
+
+a.delete{
+	display:inline-block;
+	text-align: right;
+    margin-left: 100%;
 }
 
 /* PROFILE PAGE */

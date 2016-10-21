@@ -6,5 +6,7 @@
     Created On (UTC): {{post.created_on}}
   </p>
   <article class="content">{{post.view_content|safe}}</article>
+  <a href="{% url 'list_comments' post_pk=post.pk %}">View Comments</a><br/>
+  <a href="{% url 'create_comment' post_pk=post.pk %}">New Comment</a><br/>
   <a href="{% url 'list_posts' %}">Return to Post List</a>
 {% endblock %}

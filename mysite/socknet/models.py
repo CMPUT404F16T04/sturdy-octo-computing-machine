@@ -1,10 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
-from django.utils import html
-import CommonMark
-import HTMLParser
 import uuid
+from socknet.utils import HTMLsafe
 
 class Author(models.Model):
     """
@@ -90,57 +88,70 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post
-        Will be of the format .../post/<id>/
+        Will be of the format .../posts/<id>/
         """
         return reverse('view_post', args=[str(self.id)])
 
-    def _unescape_markdown(self, text):
-        """ Removes HTML escape characters from given text for <code> tags
-        in markdown to work properly: any contents within the <code></code> tags
-        gets decoded. Then returns the result.
-
-        """
-        tmp = text
-        # Anything within <code></code> will be decoded.
-        parser = HTMLParser.HTMLParser()
-        # Split by the commonmark generated tags (they're not user generated).
-        tmp = tmp.split('<')
-        starts = 0
-        ends = 0
-        code_tag_contents = []
-        for each in tmp:
-            if each.replace(' ','').startswith('code>'):
-                starts += 1
-            if each.replace(' ','').startswith('/code>'):
-                ends += 1
-            # if currently within a <code> tag, decode html escape chars.
-            if starts > ends:
-                code_tag_contents.append(parser.unescape(each))
-            else:
-                code_tag_contents.append(each)
-        return '<'.join(code_tag_contents)
-
-    def get_converted_content(self):
-        """ Converts and returns the instance's content appropriately whether post
-        is in markdown or in plain text. It escapes user generated content first before
-        applying markdown (if applicable) and returning it.
-        """
-        safe_text = html.conditional_escape(self.content)
-        if self.markdown:
-            # To enable block quotes in markdown.
-            mark = safe_text.replace('&gt;', '>')
-            mark = CommonMark.commonmark(mark)
-            markdowned = self._unescape_markdown(mark)
-            return markdowned.replace('\n', '<br/>')
-        return safe_text.replace('\n', '<br/>')
-
     def view_content(self):
         """ Retrieves content to be displayed as html, it is assumed safe
-        due to get_converted_content() applies HTML escapes already.
+        due to HTMLsafe's get_converted_content() applies HTML escapes already.
         """
-        return self.get_converted_content()
+        return HTMLsafe.get_converted_content(self.markdown, self.content)
 
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
         return self.author.user.username + ": " + self.content
+
+class CommentQuerySet(models.QuerySet):
+    """ Query operations for the Comments table. """
+    def all_comments_for_post(self, post_pk, ordered):
+        # Retrieve only post specific comments
+        results = self.filter(parent_post_id=post_pk)
+        # Order it with latest date on top
+        if(ordered):
+            results = results.order_by('-created_on',)
+        return results
+
+    def comments_count_post(self, post_pk):
+        result = self.filter(parent_post_id=post_pk).count()
+        return results
+
+    def all_comments_for_author(self, author_pk, ordered):
+        # Retrieve only post specific comments
+        results = self.filter(author_id=author_pk)
+        # Order it with latest date on top
+        if(ordered):
+            results = results.order_by('-created_on',)
+        return results
+
+class Comment(models.Model):
+    """ Represents a comment made by a user """
+    objects = CommentQuerySet.as_manager()
+    # Should really use model inheritance, found out about it too late though, https://docs.djangoproject.com/en/1.10/topics/db/models/#model-inheritance
+    parent_post = models.ForeignKey(Post, related_name="comment_parent_post")
+    author = models.ForeignKey(Author, related_name="comment_author")
+    content = models.TextField(max_length=512)
+    created_on = models.DateTimeField(auto_now=True)
+    markdown = models.BooleanField()
+
+    def get_absolute_url(self):
+        """ Gets the canonical URL for a Post
+        Will be of the format .../posts/<id>/comment/<id>
+        """
+        # This aint even in the user stories. Could skip???
+        #return reverse('view_comment', args=[str(self.id)])
+
+        # Redirects to previous list of comments with the anchor of the created post.
+        return reverse('list_comments_anchor', args=[str(self.parent_post.id), str(self.id)]).replace('%23', '#')
+
+    def view_content(self):
+        """ Retrieves content to be displayed as html, it is assumed safe
+        due to HTMLsafe's get_converted_content() applies HTML escapes already.
+        """
+        return HTMLsafe.get_converted_content(self.markdown, self.content)
+
+    # enable weird characters like lenny faces taken from:
+    #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
+    def __unicode__(self):
+        return "parent post:"+ self.parent_post + " author:" + self.author.user.username + ": " + self.content

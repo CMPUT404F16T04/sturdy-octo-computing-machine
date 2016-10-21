@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Comments for Post {{parent.id}}</h2>
+    <a href="{% url 'view_post' pk=parent.id %}">View Post</a><br/>
+    <a href="{% url 'create_comment' post_pk=parent.id %}">New Comment</a>
+    <ol class="feed">
+        {% for comment in comments %}
+          <li class="post">
+            <!--<a href="{{ comment.get_absolute_url }}">View Comment</a>-->
+          	<p class="authordate">
+              <a name="{{ comment.id }}" href="#{{ comment.id }}">{{ comment.id }}<br/></a>
+            	Author: {{ comment.author.user.username }}<br/>
+            	Created On (UTC): {{ comment.created_on }}
+            </p>
+            <article class="content">
+            	{{comment.view_content|safe}}
+            </article>
+          </li>
+        {% endfor %}
+    </ol>
+{% endblock %}
