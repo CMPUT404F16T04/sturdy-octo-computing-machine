@@ -104,3 +104,8 @@ STATIC_FOLDER = os.path.abspath(os.path.join(BASE_DIR, 'static'))
 STATICFILES_DIRS = (STATIC_FOLDER, )
 
 LOGIN_REDIRECT_URL = '/'
+
+# Uploaded files, basically images by users.
+# https://docs.djangoproject.com/en/1.10/topics/files/
+MEDIA_URL = '/images/'
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'images'))

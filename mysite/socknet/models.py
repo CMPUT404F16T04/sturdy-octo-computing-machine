@@ -155,3 +155,9 @@ class Comment(models.Model):
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
         return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.user.username + ": " + self.content
+
+class Image(models.Model):
+    # Supports only bytes binaries
+    image = models.ImageField(upload_to='images')
+    author = models.ForeignKey(Author, related_name="image_author")
+    created_on = models.DateTimeField(auto_now=True)
