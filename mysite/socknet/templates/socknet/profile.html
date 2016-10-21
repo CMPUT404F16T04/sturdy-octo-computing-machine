@@ -15,19 +15,24 @@
     {% endif %}
 
 </div>
+
+<!-- The stream for the profile's author -->
 <div class="postList">
-    <h2>My Post List</h2>
     <ol class="feed">
         {% for post in context_list %}
-        {% if post.author.uuid == profile_author.uuid %}
+        {% if user.author.uuid == profile_author.uuid %}
             <li class="post">
-            {% if profile_author.uuid == user.author.uuid %}
-            <a class = "delete" href="{% url 'author_check_delete' pk=post.pk %}">x</a>
-            {% endif %}
-              <p class="authordate">
-                Author: {{ post.author.user.username }}<br/>
+                <div class="first-line">
+                    <div class="author-label">Author: {{ post.author.user.username }}</div>
+                    {% if profile_author.uuid == user.author.uuid %}
+                        <a class = "delete" href="{% url 'author_check_delete' pk=post.pk %}">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </a>
+                    {% endif %}
+                </div>
+              <div class="author-date">
                 Created On (UTC): {{ post.created_on }}
-              </p>
+            </div>
               <article class="content">
                 {{post.view_content|safe}}
               </article>

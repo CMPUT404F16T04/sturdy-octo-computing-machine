@@ -1,15 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2>Post List</h2>
     <ol class="feed">
         {% for post in object_list %}
         <li class="post">
             <div class="first-line">
                 <div>
-                    <!-- <span class="author-label">Author:</span> -->
                     <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
                 </div>
-                    <a class="delete" href="{% url 'author_check_delete' pk=post.pk %}">x</a>
+                {% if post.author.uuid == user.author.uuid %}
+                    <a class="delete" href="{% url 'author_check_delete' pk=post.pk %}">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </a>
+                {% endif %}
             </div>
             <div class="author-date">
                 {{ post.created_on }} UTC

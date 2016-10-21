@@ -1,3 +1,16 @@
+/* COLOUR LIST (Incase anyone needs them)
+Light grey (background): #F5F5F5
+
+Light Orange (nav bar brand): #FFC857
+Orange (Author Names, Friend Request Notification): #FF8C00
+
+Light Blue (Some buttons): 75D7FF
+Blue (Created On Date): #006993
+Dark Blue (Box shadow colour): rgb(230, 230, 230)
+
+Roboto is the font I am using for labels / headings to make them thicker.
+*/
+
 @import url('https://fonts.googleapis.com/css?family=Catamaran');
 @import url('https://fonts.googleapis.com/css?family=Roboto:500');
 
@@ -12,6 +25,11 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Roboto', sans-serif;
+}
+
+/* Space between workspace and navigation bar so that it does not overlap */
+#workspace {
+    padding-top: 80px;
 }
 
 /* POST LIST */
@@ -44,7 +62,6 @@ a.delete{
      font-family: 'Roboto', sans-serif;
      font-size: 20px;
      color: #FF8C00;
-     margin-right: 5px;
 }
 
 .author-name {
@@ -127,31 +144,39 @@ pre > code {
 }
 input[type=submit] {
     padding:5px 15px;
-    background:#874C62;
-    color:lightgrey;
+    background:#75D7FF;
+    color:white;
+    font-size: 16pt;
     border:0 none;
     cursor:pointer;
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
+
+/* LOGIN AND LOGOUT */
 .loginButton a{
 	margin-left:40px;
 	padding:5px 15px;
-    background:#874C62;
-    color:lightgrey;
+    background:#75D7FF;
+    color: white;
+    font-size: 16pt;
     cursor:pointer;
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
+
 .loginform{
-	margin-left:40px;
+    display: block;
 }
 
-/* Space between workspace and navigation bar so that it does not overlap */
-#workspace {
-    padding-top: 40pt;
+.login-center-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 100px;
 }
 
+/* PROFILE PAGE */
 #profileInfo{
 	padding-left:40px;
 }
@@ -164,14 +189,18 @@ input[type=submit] {
 }
 
 .friend-box {
-    border: 2px solid #EEEEEE;
-    width: 48%;
+    /* border: 2px solid #FFC857; */
+    background-color: #FFFFFF;
+    width: 46%;
     min-width: 500px;
     position: relative;
-    margin-right: 10px;
-    margin-bottom: 12px;
+    margin-right: 2%;
+    margin-bottom: 2%;
     display: inline-flex;
     align-items: center;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
 }
 
 .friend-request-box {
@@ -194,15 +223,17 @@ input[type=submit] {
 
 .friend-name {
     display: inline-block;
-    width: 50%;
+    width: 40%;
     margin-left: 20px;
     font-size: 20px;
     word-wrap: break-word;
+    color: #006993;
+    font-family: 'Roboto', sans-serif;
 }
 
 .friend-button {
     display: inline-block;
-    width: 50%;
+    width: 60%;
     text-align: right;
     margin-right: 20px;
     font-size: 15px;
