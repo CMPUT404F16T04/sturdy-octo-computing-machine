@@ -78,6 +78,23 @@ pre > code {
 .navbar-inverse .navbar-brand {
 	color:#F2D388;
 }
+
+.navbar-fr-label {
+    /* Thank you facebook for helping me make this icon :) */
+    display: inline-block;
+    font-size: 10px;
+    border-radius: 2px;
+    padding: 0px 2px 2px 2px;
+    background-color: #874C62;
+    position: absolute;;
+    top: -10px;
+    right: -8px;
+}
+
+.navbar-icon {
+    margin-right: 5px;
+}
+
 .postList{
 	margin-top:50px;
 	margin-right:20px;
