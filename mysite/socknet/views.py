@@ -1,7 +1,7 @@
 import json
 import uuid
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
@@ -31,9 +31,9 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user.author
         return super(CreatePost, self).form_valid(form)
-        
+
 class ViewComments(LoginRequiredMixin, generic.ListView):
-    """ Displays a list of all comments for the post 
+    """ Displays a list of all comments for the post
     How to use foreign keys in URL taken from Michael http://stackoverflow.com/a/18533475
     """
     model = Comment
@@ -42,14 +42,14 @@ class ViewComments(LoginRequiredMixin, generic.ListView):
     login_url = '/login/' # For login mixin
 
 class ViewComment(LoginRequiredMixin, generic.ListView):
-    """ Displays a specific comment for the post 
+    """ Displays a specific comment for the post
     How to use foreign keys in URL taken from Michael http://stackoverflow.com/a/18533475
     """
     model = Comment
     post_pk = Post
     template_name = 'socknet/comment.html'
     login_url = '/login/' # For login mixin
-    
+
 class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new comment """
     model = Comment
@@ -57,20 +57,21 @@ class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
     fields = ['content', 'markdown']
     login_url = '/login/' # For login mixin
     post_pk = 0
-        
+
     def get_context_data(self, **kwargs):
         context = super(CreateComment, self).get_context_data(**kwargs)
         #form.instance.post_id = Post(id=116)
-        post_pk = Post(id=self.kwargs.get('post_pk', self.request.user.author.uuid))
-        context['profile_author'] = Author.objects.get(uuid=authorUUID)
+        post_pk = Post(id=self.kwargs.get('post_pk'))
+        post_obj = get_object_or_404(Post, id=post_pk)
+        context['comments'] = post_obj
         return context
-        
+
     def form_valid(self, form):
         print str(self.post_pk)
         form.instance.author = self.request.user.author
         form.instance.parent = Post(id=self.kwargs.get('post_pk', self.request.user.author.uuid))
         return super(CreateComment, self).form_valid(form)
-        
+
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
     template_name = "socknet/profile.html"
