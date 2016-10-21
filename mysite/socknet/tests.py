@@ -10,25 +10,25 @@ from socknet.models import *
 
 class PostsTests(TestCase):
 
-    def test_is_plaintext_safe(self):
+    def _is_plaintext_safe(self, model_to_test):
         """ Test if plaintext is safe: converts < > to &lt; &gt; etc.
         Additionally ignores \n it does not convert that to <br/>
         because the templates which use "linebreaksbr" already take care of that.
         """
         test_content = '#testing<b>\nno'
         test_expect = '#testing&lt;b&gt;<br/>no'
-        model = Post()
+        model = model_to_test
         model.content = test_content
         model.markdown = False
         self.assertEqual(model.view_content(), test_expect)
 
-    def test_is_markdown(self):
+    def _is_markdown(self, model_to_test):
         """ Tests markdown if it works, i.e. changes # to <h1> and still ignores
         the \n since not needed due to html template's "linebreaksbr"
         """
         test_content = '# testing\n<b>\n>test-block'
         test_expect = '<h1>testing</h1><br/><p>&lt;b&gt;</p><br/><blockquote><br/><p>test-block</p><br/></blockquote><br/>'
-        model = Post()
+        model = model_to_test
         model.content = test_content
         model.markdown = True
         # Content is converted to markdown on viewing.
@@ -36,13 +36,25 @@ class PostsTests(TestCase):
         # Content inside post is actually still original.
         self.assertEqual(model.content, test_content)
 
-    def test_accepts_weird_characters(self):
+    def _accepts_weird_characters(self, model_to_test):
         lennyeh = unicode("( ͡° ͜ʖ ͡°) \n¯\_ツ_/¯")
         lenny_result = unicode("( ͡° ͜ʖ ͡°) <br/>¯\_ツ_/¯")
-        model = Post()
+        model = model_to_test
         model.content = lennyeh
         model.markdown = False
         self.assertEqual(model.view_content(), lenny_result)
+
+    def test_posts(self):
+        model = Post()
+        self._is_plaintext_safe(model)
+        self._is_markdown(model)
+        self._accepts_weird_characters(model)
+
+    def test_comments(self):
+        model = Comment()
+        self._is_plaintext_safe(model)
+        self._is_markdown(model)
+        self._accepts_weird_characters(model)
 
 class AuthorTests(TestCase):
     def setUp(self):
