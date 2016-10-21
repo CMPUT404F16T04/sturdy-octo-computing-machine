@@ -1,36 +1,65 @@
+@import url('https://fonts.googleapis.com/css?family=Catamaran');
+@import url('https://fonts.googleapis.com/css?family=Roboto:500');
+
 html {
-  font-family: sans-serif;
   -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
-   background-color: #A7D2CB
+  -ms-text-size-adjust: 100%;
 }
 
 body {
-	  background-color: #A7D2CB
+    background-color: #F5F5F5;
 }
 
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Roboto', sans-serif;
+}
+
+/* POST LIST */
 .feed {
 	list-style-type: none;
+    padding: 0;
 }
 
 li.post {
-	padding: 10pt;
-	background:#BCDCD7;
-	margin-top:10px;
-
+	padding: 20px;
+	background:#FFFFFF;
+	margin-top:20px;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
 }
-li.post:nth-child(even) {
-	background: rgb(245, 245, 245);
+
+.first-line {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
 }
 
-.authordate {
-	margin-top: 0;
+a.delete{
+	display:inline-block;
+	text-align: right;
+}
+
+.author-label {
+     font-family: 'Roboto', sans-serif;
+     font-size: 20px;
+     color: #FF8C00;
+     margin-right: 5px;
+}
+
+.author-name {
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+}
+
+.author-date {
+    /* font-family: 'Roboto', sans-serif;
+    color: #8F8E8E; */
+    color: #006993;
 }
 
 article.content {
-	padding-left: 10pt;
-	padding-right: 10pt;
-	margin-bottom: 5pt;
+	padding: 10px;
 }
 
 .post > blockquote {
@@ -62,51 +91,36 @@ pre {
 pre > code {
 	border-style: none;
 }
-.navbar-inverse{
-	  color: white;
-	  border-color:#F2D388;
+
+/* NAV BAR */
+.navbar-colored {
+    background-color: #FFFFFF;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+
 }
+
 .navbar-brand{
-	 background-color: #874C62;
-	 border-color:#F2D388;
-	 border:3px;
-	 color:white;
-}
-.navbar-inverse .navbar-nav > li > a{
-	color:#F2D388;
-}
-.navbar-inverse .navbar-brand {
-	color:#F2D388;
+	 background-color: #FFC857;
+     font-size: 25px;
+	 color: black;
 }
 
 .navbar-fr-label {
-    /* Thank you facebook for helping me make this icon :) */
-    display: inline-block;
-    font-size: 10px;
-    border-radius: 2px;
-    padding: 0px 2px 2px 2px;
-    background-color: #874C62;
+    font-size: 15px;
+    font-family: 'Catamaran', sans-serif;
+    background-color: #FF8C00;
     position: absolute;;
-    top: -10px;
-    right: -8px;
+    top: -4px;
+    right: -4px;
 }
 
 .navbar-icon {
     margin-right: 5px;
 }
 
-.postList{
-	margin-top:50px;
-	margin-right:20px;
-}
-h2{
-	margin-left:40px;
-	text-shadow: 1px 1px #F2D388;;
-}
-h1{
-	margin-left:40px;
-	text-shadow: 1px 1px #F2D388;
-}
+/* CREATE POST */
 .createPost{
 	margin-top:50px;
 	margin-left:20px;
@@ -136,12 +150,6 @@ input[type=submit] {
 /* Space between workspace and navigation bar so that it does not overlap */
 #workspace {
     padding-top: 40pt;
-}
-
-a.delete{
-	width:100%;
-	display:inline-block;
-	text-align: right;
 }
 
 #profileInfo{

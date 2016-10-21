@@ -15,7 +15,7 @@
     <script src="{% static 'js/cookie.js' %}"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar-colored navbar navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="{% url 'list_posts' %}">Socknet</a>
@@ -46,7 +46,7 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                             <div class="glyphicon glyphicon-heart navbar-icon">
                                 {% if user.author.get_pending_friend_requests.count > 0 %}
-                                <span id="fr-label" class="navbar-fr-label">{{ user.author.get_pending_friend_requests.count }}</span>
+                                <span id="fr-label" class="navbar-fr-label badge">{{ user.author.get_pending_friend_requests.count }}</span>
                                 {% endif %}
                             </div>
                             Friends
