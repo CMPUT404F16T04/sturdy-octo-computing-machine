@@ -185,7 +185,7 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
             elif action_type == "accept_friend_request":
                 print("Accepting Friend Request of: " + friend.user.username)
                 author.accept_friend_request(friend)
-                return HttpResponse(status=200)
+                return HttpResponse(status=200, content=len(author.get_pending_friend_requests()))
             else:
                 print("MANAGE FRIEND REQUEST POST: Unknown action")
                 return HttpResponse(status=500)

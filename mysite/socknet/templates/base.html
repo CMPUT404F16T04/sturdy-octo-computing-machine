@@ -32,7 +32,7 @@
 
                             <div class="glyphicon glyphicon-user navbar-icon">
                                 {% if user.author.get_pending_friend_requests.count > 0 %}
-                                <span class="navbar-fr-label">{{ user.author.get_pending_friend_requests.count }}</span>
+                                <span id="fr-label" class="navbar-fr-label">{{ user.author.get_pending_friend_requests.count }}</span>
                                 {% endif %}
                             </div>
                             Friends

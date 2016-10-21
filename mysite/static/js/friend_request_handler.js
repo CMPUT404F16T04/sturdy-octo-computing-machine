@@ -26,7 +26,7 @@ $('.friend-anchor').click(function () {
             url: url,
             data: jsonStr,
             contentType: "application/json",
-            success: unfriendSuccess(id),
+            success: function() { unfriendSuccess(id); },
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
@@ -52,7 +52,7 @@ $('.friend-anchor').click(function () {
             url: url,
             data: jsonStr,
             contentType: "application/json",
-            success: followSuccess(id),
+            success: function () { followSuccess(id); },
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
@@ -78,7 +78,7 @@ $('.friend-anchor').click(function () {
             url: url,
             data: jsonStr,
             contentType: "application/json",
-            success: unfollowSuccess(id),
+            success: functino() { unfollowSuccess(id); },
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
@@ -104,7 +104,7 @@ $('.friend-anchor').click(function () {
             url: url,
             data: jsonStr,
             contentType: "application/json",
-            success: acceptFriendRequestSuccess(id),
+            success: function() { acceptFriendRequestSuccess(id); },
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }

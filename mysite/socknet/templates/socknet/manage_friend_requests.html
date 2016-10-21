@@ -52,14 +52,17 @@
                     url: url,
                     data: jsonStr,
                     contentType: "application/json",
-                    success: removeRow(friendUUID),
+                    success:  function (fr_count) {
+                        removeRow(friendUUID);
+                        updateNavbar(fr_count);
+                    },
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     }
                 });
             }
             // Handle decline friend request
-            else if (status == "accept_friend_request") {
+            else if (status == "decline_friend_request") {
                 console.log("This author wants to decline the friend request of: "+$(this).data('username'));
                 // Accept friend request with ajax so we don't have to reload the page.
                 var jsonData = {
@@ -78,7 +81,10 @@
                     url: url,
                     data: jsonStr,
                     contentType: "application/json",
-                    success: removeRow(friendUUID),
+                    success:  function (fr_count) {
+                        removeRow(friendUUID);
+                        updateNavbar(fr_count);
+                    },
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     }
@@ -88,7 +94,17 @@
 
         function removeRow(friendUUID) {
             console.log("Removing FR From Page")
+            // Remove the row from the page
             $('#'+friendUUID+'_box').remove();
+        }
+
+        function updateNavbar(fr_count) {
+            // Update the navbar with the new count
+            if (fr_count > 0) {
+                    $('#fr-label').text(fr_count);
+            } else {
+                $('#fr-label').remove();
+            }
         }
 
     });
