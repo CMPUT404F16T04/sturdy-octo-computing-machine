@@ -1,5 +1,6 @@
 /* COLOUR LIST (Incase anyone needs them)
 Light grey (background): #F5F5F5
+Medium grey (post #): #8F8E8E;
 
 Light Orange (nav bar brand): #FFC857
 Orange (Author Names, Friend Request Notification): #FF8C00
@@ -70,9 +71,11 @@ a.delete{
 }
 
 .author-date {
-    /* font-family: 'Roboto', sans-serif;
-    color: #8F8E8E; */
     color: #006993;
+}
+
+.post-id-label {
+    color: #8F8E8E;
 }
 
 article.content {

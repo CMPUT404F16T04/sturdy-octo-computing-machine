@@ -81,6 +81,7 @@ class Author(models.Model):
 
 class Post(models.Model):
     """ Represents a post made by a user """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(Author, related_name="author")
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
@@ -127,6 +128,7 @@ class CommentQuerySet(models.QuerySet):
 
 class Comment(models.Model):
     """ Represents a comment made by a user """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     objects = CommentQuerySet.as_manager()
     # Should really use model inheritance, found out about it too late though, https://docs.djangoproject.com/en/1.10/topics/db/models/#model-inheritance
     parent_post = models.ForeignKey(Post, related_name="comment_parent_post")
