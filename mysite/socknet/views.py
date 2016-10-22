@@ -58,7 +58,7 @@ class ListComments(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListComments, self).get_context_data(**kwargs)
-        parent_post = Post(id=int(self.kwargs.get('post_pk')))
+        parent_post = Post(id=self.kwargs.get('post_pk'))
         context['parent'] = parent_post
         context['comments'] = Comment.objects.all_comments_for_post(parent_post.id, True)
         return context
@@ -74,9 +74,9 @@ class ViewComment(LoginRequiredMixin, generic.base.TemplateView):
         context = super(ViewComment, self).get_context_data(**kwargs)
         # Todo: why does it not load the comment object properly?!
         # This causes the comment view page to crash! aaa. it does not load contents, nor authorm nor parent_post!
-        comment_obj = Comment(id=int(self.kwargs.get('pk')))
+        comment_obj = Comment(id=self.kwargs.get('pk'))
         print(comment_obj.id)
-        post_obj = Post(id=int(comment_obj.parent_post))
+        post_obj = Post(id=comment_obj.parent_post)
         context['parent_id'] = post_obj
         context['comment'] = comment_obj
         return context
@@ -90,7 +90,7 @@ class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateComment, self).get_context_data(**kwargs)
-        parent_key = int(self.kwargs.get('post_pk'))
+        parent_key = self.kwargs.get('post_pk')
         post_obj = get_object_or_404(Post, id=parent_key)
         context['comments'] = post_obj
         return context

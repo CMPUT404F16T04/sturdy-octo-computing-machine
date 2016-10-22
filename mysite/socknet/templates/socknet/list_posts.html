@@ -13,6 +13,7 @@
                     </a>
                 {% endif %}
             </div>
+            <a class="post-id-label" href="{% url 'view_post' pk=post.pk %}"># {{post.id}}</a>
             <div class="author-date">
                 {{ post.created_on }} UTC
             </div>
