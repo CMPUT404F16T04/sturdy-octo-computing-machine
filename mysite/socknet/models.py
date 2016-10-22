@@ -86,7 +86,7 @@ class Post(models.Model):
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
-    imguuid = models.CharField(max_length=32)
+    imglink = models.CharField(max_length=256)
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post
@@ -170,7 +170,7 @@ class ImageManager(models.Manager):
 class ImageServ(models.Model):
     """ Represents an image uploaded by the user. """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    image = models.ImageField(upload_to='user_images')
+    image = models.ImageField(upload_to='user_images', max_length=256)
     author = models.ForeignKey(Author, related_name="image_author")
     created_on = models.DateTimeField(auto_now=True)
     objects = ImageManager()

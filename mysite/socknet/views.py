@@ -44,9 +44,9 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
         # https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest
         if not self.request.FILES == {}:
             img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author)
-            form.instance.imguuid = str(img.id).replace("-", "")
+            form.instance.imglink = img.image
         else:
-            form.instance.imguuid = ""
+            form.instance.imglink = ""
         form.instance.author = self.request.user.author
         print form.instance.content
         return super(CreatePost, self).form_valid(form)

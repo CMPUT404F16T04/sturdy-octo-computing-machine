@@ -20,12 +20,15 @@
             <article class="content">
                 {{post.view_content|safe}}
             </article>
+            {% if post.imglink != "" %}
+              <p><a href="/images/{{post.imglink}}">View Attached Image</a></p>
+            {% endif %}
             <div class="post-actions">
                 <div class="action">
-                    <a href="{% url 'list_comments' post_pk=post.pk %}">View Comments</a>
+                    <a href="{% url 'list_comments' post_pk=post.pk %}">Comments</a>
                 </div>
                 <div class="action">
-                    <a href="{% url 'create_comment' post_pk=post.pk %}">New Comment</a>
+                    <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
                 </div>
             </div>
         </li>
