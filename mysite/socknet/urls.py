@@ -20,7 +20,9 @@ urlpatterns = [
     # Images
     url(r'^images/upload$', views.UploadImage.as_view(), name='upload_image'),
     url(r'^images/(?P<img>[0-9A-Za-z-_./\\]+)$', views.ViewImage.as_view(), name='view_image'),
-    
+    # Redirect static access through Authentication first.
+    url(r'^media/(?P<img>[0-9A-Za-z-_./\\]+)$', views.ViewRawImage.as_view(), name='view_raw_image'),
+
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ViewProfile.as_view(), name='profile'),
 
@@ -32,6 +34,6 @@ urlpatterns = [
     #  Authentication
     url(r'^login/$', auth_view.login, name='login'),
     url(r'^logged_out/$', auth_view.logout, name='logged_out'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # ^ static() This helper function works only in debug mode, and only if the given prefix is local and not an URL.
 # https://docs.djangoproject.com/en/1.10/howto/static-files/#serving-uploaded-files-in-development

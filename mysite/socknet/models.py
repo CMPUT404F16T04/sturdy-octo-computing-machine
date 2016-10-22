@@ -158,18 +158,16 @@ class Comment(models.Model):
     def __unicode__(self):
         return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.user.username + ": " + self.content
 
-class Image(models.Model):
-    # https://docs.djangoproject.com/en/1.10/ref/models/fields/#django.db.models.ImageField
-    # Trying to use this for access control?  https://github.com/johnsensible/django-sendfile
-    # or this? http://racingtadpole.com/blog/private-media-with-django/
-    # https://github.com/RacingTadpole/django-private-media
-    # https://pypi.python.org/pypi/django-private-media
-    image = models.ImageField(upload_to='images')
+class ImageServ(models.Model):
+    """ Represents an image uploaded by the user. """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.ImageField(upload_to='user_images')
     author = models.ForeignKey(Author, related_name="image_author")
     created_on = models.DateTimeField(auto_now=True)
 
     def get_absolute_url(self):
-        """ Gets the canonical URL for an image
+        """ Gets the canonical URL for an image.
+        Will be of the format .../images/<id>/comment/<id>
         """
         return reverse('view_image', args=[str(self.image)])
 

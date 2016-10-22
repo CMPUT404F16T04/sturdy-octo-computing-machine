@@ -8,8 +8,12 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
-
 from socknet.models import *
+# For images
+import os
+from mysite.settings import MEDIA_ROOT
+from PIL import Image, ImageFile
+import base64
 
 class ListPosts(LoginRequiredMixin, generic.ListView):
     """ Displays a list of all posts in the system """
@@ -102,18 +106,35 @@ class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
         return super(CreateComment, self).form_valid(form)
 
 class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
-    model= Image
+    """ Get the normal image view. """
+    model= ImageServ
     template_name = "socknet/image.html"
     login_url = '/login/' # For login mixin
     def get_context_data(self, **kwargs):
         context = super(ViewImage, self).get_context_data(**kwargs)
         parent_key = self.kwargs.get('img')
-        context['image_loc'] = get_object_or_404(Image, image=parent_key)
+        context['image_loc'] = get_object_or_404(ImageServ, image=parent_key)
+        return context
+
+class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
+    """ After authentication verification it opens image as blob and then
+    encode it to base64 and put that in the html.
+    """
+    model= ImageServ
+    template_name = "socknet/imager.html"
+    login_url = '/login/' # For login mixin
+    def get_context_data(self, **kwargs):
+        context = super(ViewRawImage, self).get_context_data(**kwargs)
+        parent_key = self.kwargs.get('img')
+        filetype = parent_key.split('.')[-1]
+        path = os.path.join(MEDIA_ROOT, parent_key)
+        blob = open(path, 'rb')
+        context['b64'] = "data:image/" + filetype + ";base64," + base64.b64encode(blob.read())
         return context
 
 class UploadImage(LoginRequiredMixin, generic.edit.CreateView):
     """ Form for uploading an Image """
-    model = Image
+    model = ImageServ
     template_name = 'socknet/upload_image.html'
     fields = ['image']
     login_url = '/login/' # For login mixin

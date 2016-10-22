@@ -23,6 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'sh&+ah81hyo-uk=i9dpu@3v#)*)nb%7m=a5u0cq8b%ig3$&hr$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+#!!Bootstrap and our css don't work if false because we use local urls /static/ ?
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
@@ -109,4 +110,4 @@ LOGIN_REDIRECT_URL = '/'
 # https://docs.djangoproject.com/en/1.10/topics/files/
 MEDIA_URL = '/media/'
 #MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static'))
-MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'uploads'))
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static'))
