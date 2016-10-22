@@ -160,7 +160,10 @@ class Comment(models.Model):
 
 class Image(models.Model):
     # https://docs.djangoproject.com/en/1.10/ref/models/fields/#django.db.models.ImageField
-    # Trying to use this for access??  https://github.com/johnsensible/django-sendfile
+    # Trying to use this for access control?  https://github.com/johnsensible/django-sendfile
+    # or this? http://racingtadpole.com/blog/private-media-with-django/
+    # https://github.com/RacingTadpole/django-private-media
+    # https://pypi.python.org/pypi/django-private-media
     image = models.ImageField(upload_to='images')
     author = models.ForeignKey(Author, related_name="image_author")
     created_on = models.DateTimeField(auto_now=True)
