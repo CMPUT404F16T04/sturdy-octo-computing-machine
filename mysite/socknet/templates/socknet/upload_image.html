@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<div class ="createPost">
-<h1>Create Post</h1>
+<h1>Upload Image</h1>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-     <p><label for="id_image">Attach Image (optional):</label> <input id="id_image" name="image" type="file" /></p>
     <input type="submit" value="Finish"/>
 </form>
-</div>
 {% endblock %}

@@ -86,6 +86,7 @@ class Post(models.Model):
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
+    imglink = models.CharField(max_length=256)
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post
@@ -157,3 +158,32 @@ class Comment(models.Model):
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
         return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.user.username + ": " + self.content
+
+class ImageManager(models.Manager):
+    """ Helps creating an image object.
+    Taken from https://docs.djangoproject.com/en/1.10/ref/models/instances/#creating-objects
+    """
+    def create_image(self, img, au):
+        img = self.create(image=img, author=au)
+        return img
+
+class ImageServ(models.Model):
+    """ Represents an image uploaded by the user. """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.ImageField(upload_to='user_images', max_length=256)
+    author = models.ForeignKey(Author, related_name="image_author")
+    created_on = models.DateTimeField(auto_now=True)
+    objects = ImageManager()
+
+    def ImageServ(self, image, author):
+        self.image = image
+        self.author = author
+
+    def get_absolute_url(self):
+        """ Gets the canonical URL for an image.
+        Will be of the format .../images/<id>/comment/<id>
+        """
+        return reverse('view_image', args=[str(self.image)])
+
+    def __unicode__(self):
+        return "Author:" + self.author.user.username + " : " + str(self.image)
