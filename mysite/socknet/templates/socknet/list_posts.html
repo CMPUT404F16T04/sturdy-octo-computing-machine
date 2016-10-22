@@ -20,10 +20,14 @@
             <article class="content">
                 {{post.view_content|safe}}
             </article>
-            <p>
-              <a href="{% url 'list_comments' post_pk=post.pk %}">View Comments</a><br/>
-              <a href="{% url 'create_comment' post_pk=post.pk %}">New Comment</a>
-            </p>
+            <div class="post-actions">
+                <div class="action">
+                    <a href="{% url 'list_comments' post_pk=post.pk %}">View Comments</a>
+                </div>
+                <div class="action">
+                    <a href="{% url 'create_comment' post_pk=post.pk %}">New Comment</a>
+                </div>
+            </div>
         </li>
         {% endfor %}
     </ol>

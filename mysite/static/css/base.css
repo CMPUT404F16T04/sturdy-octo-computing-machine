@@ -82,6 +82,15 @@ article.content {
 	padding: 10px;
 }
 
+.post-actions {
+    display:inline-flex;
+}
+
+.action {
+    margin-right: 10px;
+    display:inline-block;
+}
+
 .post > blockquote {
 	border-left-style: solid;
 	border-left-width: 5pt;
