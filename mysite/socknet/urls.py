@@ -7,15 +7,15 @@ from socknet import views
 urlpatterns = [
     # Posts
     url(r'^$', views.ListPosts.as_view(), name='list_posts'),
-    url(r'^posts/(?P<pk>[0-9]+)/$', views.ViewPost.as_view(), name='view_post'),
+    url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', views.ViewPost.as_view(), name='view_post'),
     url(r'^posts/create/$', views.CreatePost.as_view(), name='create_post'),
-    url(r'^posts/(?P<pk>[0-9]+)/delete$', views.DeletePost.as_view(), name='author_check_delete'),
+    url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/delete/$', views.DeletePost.as_view(), name='author_check_delete'),
 
     # Comments
-    url(r'^posts/(?P<post_pk>[0-9]+)/comments/$', views.ListComments.as_view(), name='list_comments'),
-    url(r'^posts/(?P<post_pk>[0-9]+)/comments/\#(?P<pk>[0-9]+)$', views.ListComments.as_view(), name='list_comments_anchor'),
-    url(r'^comment/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='view_comment'),
-    url(r'^posts/(?P<post_pk>[0-9]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
+    url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/$', views.ListComments.as_view(), name='list_comments'),
+    url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/\#(?P<pk>[0-9A-Fa-f-]+)$', views.ListComments.as_view(), name='list_comments_anchor'),
+    url(r'^comment/(?P<pk>[0-9A-Fa-f-]+)/$', views.ViewComment.as_view(), name='view_comment'),
+    url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
 
     # Images
     url(r'^images/upload$', views.UploadImage.as_view(), name='upload_image'),
