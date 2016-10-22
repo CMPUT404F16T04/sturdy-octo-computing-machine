@@ -157,7 +157,15 @@ class Comment(models.Model):
         return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.user.username + ": " + self.content
 
 class Image(models.Model):
-    # Supports only bytes binaries
+    # https://docs.djangoproject.com/en/1.10/ref/models/fields/#django.db.models.ImageField
     image = models.ImageField(upload_to='images')
     author = models.ForeignKey(Author, related_name="image_author")
     created_on = models.DateTimeField(auto_now=True)
+
+    def get_absolute_url(self):
+        """ Gets the canonical URL for an image
+        """
+        return reverse('view_image', args=[str(self.image)])
+
+    def __unicode__(self):
+        return "Author:" + self.author.user.username + " : " + str(self.image)

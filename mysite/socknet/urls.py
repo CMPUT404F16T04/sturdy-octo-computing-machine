@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from django.contrib.auth import views as auth_view
-
+from django.conf import settings
+from django.conf.urls.static import static
 from socknet import views
 
 urlpatterns = [
@@ -16,6 +17,10 @@ urlpatterns = [
     url(r'^comment/(?P<pk>[0-9]+)/$', views.ViewComment.as_view(), name='view_comment'),
     url(r'^posts/(?P<post_pk>[0-9]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
 
+    # Images
+    url(r'^images/upload$', views.UploadImage.as_view(), name='upload_image'),
+    url(r'^images/(?P<img>[0-9A-Za-z-_./\\]+)$', views.ViewImage.as_view(), name='view_image'),
+    
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ViewProfile.as_view(), name='profile'),
 
@@ -27,4 +32,6 @@ urlpatterns = [
     #  Authentication
     url(r'^login/$', auth_view.login, name='login'),
     url(r'^logged_out/$', auth_view.logout, name='logged_out'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# ^ static() This helper function works only in debug mode, and only if the given prefix is local and not an URL.
+# https://docs.djangoproject.com/en/1.10/howto/static-files/#serving-uploaded-files-in-development

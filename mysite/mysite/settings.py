@@ -25,7 +25,7 @@ SECRET_KEY = 'sh&+ah81hyo-uk=i9dpu@3v#)*)nb%7m=a5u0cq8b%ig3$&hr$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -107,5 +107,6 @@ LOGIN_REDIRECT_URL = '/'
 
 # Uploaded files, basically images by users.
 # https://docs.djangoproject.com/en/1.10/topics/files/
-MEDIA_URL = '/images/'
-MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'images'))
+MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static'))
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'uploads'))

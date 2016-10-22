@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+{{image_loc.id}}<br/>
+{{image_loc.author.user.username}}<br/>
+{{image_loc.created_on}}<br/>
+{{image_loc.image}}<br/>
+<img src="../../media/{{image_loc.image}}">
+
+{% endblock %}

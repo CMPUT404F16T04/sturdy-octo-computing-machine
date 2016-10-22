@@ -101,6 +101,27 @@ class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
         form.instance.parent_post = Post(id=parent_key)
         return super(CreateComment, self).form_valid(form)
 
+class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
+    model= Image
+    template_name = "socknet/image.html"
+    login_url = '/login/' # For login mixin
+    def get_context_data(self, **kwargs):
+        context = super(ViewImage, self).get_context_data(**kwargs)
+        parent_key = self.kwargs.get('img')
+        context['image_loc'] = get_object_or_404(Image, image=parent_key)
+        return context
+
+class UploadImage(LoginRequiredMixin, generic.edit.CreateView):
+    """ Form for uploading an Image """
+    model = Image
+    template_name = 'socknet/upload_image.html'
+    fields = ['image']
+    login_url = '/login/' # For login mixin
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user.author
+        return super(UploadImage, self).form_valid(form)
+
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
     model= Post
