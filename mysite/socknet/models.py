@@ -160,7 +160,7 @@ class Comment(models.Model):
 
 class Image(models.Model):
     # https://docs.djangoproject.com/en/1.10/ref/models/fields/#django.db.models.ImageField
-    # Trying to use https://github.com/johnsensible/django-sendfile
+    # Trying to use this for access??  https://github.com/johnsensible/django-sendfile
     image = models.ImageField(upload_to='images')
     author = models.ForeignKey(Author, related_name="image_author")
     created_on = models.DateTimeField(auto_now=True)
