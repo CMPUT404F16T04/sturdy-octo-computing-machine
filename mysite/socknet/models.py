@@ -86,6 +86,7 @@ class Post(models.Model):
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
+    imguuid = models.CharField(max_length=32)
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post
@@ -158,12 +159,25 @@ class Comment(models.Model):
     def __unicode__(self):
         return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.user.username + ": " + self.content
 
+class ImageManager(models.Manager):
+    """ Helps creating an image object.
+    Taken from https://docs.djangoproject.com/en/1.10/ref/models/instances/#creating-objects
+    """
+    def create_image(self, img, au):
+        img = self.create(image=img, author=au)
+        return img
+
 class ImageServ(models.Model):
     """ Represents an image uploaded by the user. """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     image = models.ImageField(upload_to='user_images')
     author = models.ForeignKey(Author, related_name="image_author")
     created_on = models.DateTimeField(auto_now=True)
+    objects = ImageManager()
+
+    def ImageServ(self, image, author):
+        self.image = image
+        self.author = author
 
     def get_absolute_url(self):
         """ Gets the canonical URL for an image.

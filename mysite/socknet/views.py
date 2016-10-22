@@ -40,7 +40,15 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
+        # If there was an image, make image object
+        # https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest
+        if not self.request.FILES == {}:
+            img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author)
+            form.instance.imguuid = str(img.id).replace("-", "")
+        else:
+            form.instance.imguuid = ""
         form.instance.author = self.request.user.author
+        print form.instance.content
         return super(CreatePost, self).form_valid(form)
 
 class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
