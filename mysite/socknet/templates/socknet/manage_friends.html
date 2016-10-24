@@ -15,7 +15,7 @@
         </div>
     {% endfor %}
     {% if user.author.friends.all.count < 1 %}
-    <div>You haven't made friends yet!</div>
+    <div class="no-content">You haven't made friends yet!</div>
     {% endif %}
 
 {% endblock %}

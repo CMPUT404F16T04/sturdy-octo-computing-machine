@@ -17,7 +17,7 @@
             </div>
         {% endfor %}
         {% if user.author.get_pending_friend_requests.count < 1 %}
-        <div>You don't have any pending friend requests!</div>
+        <div class="no-content">You don't have any pending friend requests!</div>
         {% endif %}
 {% endblock %}
 

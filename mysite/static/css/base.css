@@ -33,6 +33,17 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 80px;
 }
 
+/* Box around "No Content" messages */
+
+.no-content {
+    padding: 20px;
+    background-color: #FFFFFF;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+
+}
+
 /* POST LIST */
 .feed {
 	list-style-type: none;

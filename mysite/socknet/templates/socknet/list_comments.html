@@ -7,15 +7,22 @@
         {% for comment in comments %}
           <li class="post">
             <!--<a href="{{ comment.get_absolute_url }}">View Comment</a>-->
-          	<p class="authordate">
-              <a name="{{ comment.id }}" href="#{{ comment.id }}">{{ comment.id }}<br/></a>
-            	Author: {{ comment.author.user.username }}<br/>
-            	Created On (UTC): {{ comment.created_on }}
-            </p>
+            <div>
+                <a class="author-label" href="{% url 'profile' authorUUID=comment.author.uuid %}">{{ comment.author.user.username }}</a>
+            </div>
+            <div>
+              <a class="post-id-label" name="{{ comment.id }}" href="#{{ comment.id }}"># {{ comment.id }}</a>
+          </div>
+            <div class="author-date">
+                {{ comment.created_on }} UTC
+            </div>
             <article class="content">
             	{{comment.view_content|safe}}
             </article>
           </li>
         {% endfor %}
     </ol>
+    {% if comments.count < 1 %}
+    <div class="no-content">There are no comments on this post.</div>
+    {% endif %}
 {% endblock %}

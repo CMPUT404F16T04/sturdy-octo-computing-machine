@@ -16,7 +16,7 @@
         </div>
     {% endfor %}
     {% if user.author.get_following_only.count < 1 %}
-    <div>You haven't followed anybody yet!</div>
+    <div class="no-content">You haven't followed anybody yet!</div>
     {% endif %}
 {% endblock %}
 
