@@ -106,3 +106,6 @@ Desktop.ini
 
 # Ignore the DB
 db.sqlite3
+
+# Ignore peoples images
+static/user-images/

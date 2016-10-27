@@ -5,9 +5,6 @@
     <div>
         <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
     </div>
-    <div class="post-id-label">
-        # {{post.id}}
-    </div>
     <div class="author-date">
         {{ post.created_on }} UTC
     </div>
