@@ -108,4 +108,4 @@ Desktop.ini
 db.sqlite3
 
 # Ignore peoples images
-static/user-images/
+user_images/
