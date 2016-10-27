@@ -1,15 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Post Id: {{post.id}}</h1>
-  <p class="authordate">
-    Author: {{post.author.user.username}}<br/>
-    Created On (UTC): {{post.created_on}}
-  </p>
-  <article class="content">{{post.view_content|safe}}</article>
-  {% if post.imglink != "" %}
+<div class="content-box">
+    <h2>Post {{post.id}}</h2>
+    <div>
+        <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
+    </div>
+    <div class="post-id-label">
+        # {{post.id}}
+    </div>
+    <div class="author-date">
+        {{ post.created_on }} UTC
+    </div>
+    <article class="content">{{post.view_content|safe}}</article>
+    {% if post.imglink != "" %}
     <p><a href="../../images/{{post.imglink}}">View Attached Image</a></p>
-  {% endif %}
-  <a href="{% url 'list_comments' post_pk=post.pk %}">Comments</a><br/>
-  <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a><br/>
-  <a href="{% url 'list_posts' %}">Return to Post List</a>
+    {% endif %}
+    <div class="post-actions">
+        <div class="action">
+            <a href="{% url 'list_comments' post_pk=post.pk %}">Comments</a>
+        </div>
+        <div class="action">
+            <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
+        </div>
+            <div class="action">
+        <a href="{% url 'list_posts' %}">Return to Post List</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

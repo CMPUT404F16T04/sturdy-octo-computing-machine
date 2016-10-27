@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2>Comments for Post {{parent.id}}</h2>
-    <a href="{% url 'view_post' pk=parent.id %}">View Post</a><br/>
-    <a href="{% url 'create_comment' post_pk=parent.id %}">New Comment</a>
+    <h2>Comments for Post{{parent.id}}</h2>
+    <div class="post-actions">
+        <div class="action">
+            <a href="{% url 'view_post' pk=parent.id %}">View Post</a>
+        </div>
+        <div class="action">
+            <a href="{% url 'create_comment' post_pk=parent.id %}">New Comment</a>
+        </div>
+    </div>
     <ol class="feed">
         {% for comment in comments %}
           <li class="post">
@@ -23,6 +29,6 @@
         {% endfor %}
     </ol>
     {% if comments.count < 1 %}
-    <div class="no-content">There are no comments on this post.</div>
+    <div class="content-box">There are no comments on this post.</div>
     {% endif %}
 {% endblock %}

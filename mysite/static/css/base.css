@@ -26,6 +26,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
 	font-family: 'Roboto', sans-serif;
+    margin-top: 0;
 }
 
 /* Space between workspace and navigation bar so that it does not overlap */
@@ -35,7 +36,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Box around "No Content" messages */
 
-.no-content {
+.content-box {
     padding: 20px;
     background-color: #FFFFFF;
     -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
@@ -98,7 +99,7 @@ article.content {
 }
 
 .action {
-    margin-right: 10px;
+    margin-right: 20px;
     display:inline-block;
 }
 
