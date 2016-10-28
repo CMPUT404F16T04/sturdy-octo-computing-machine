@@ -209,19 +209,29 @@ input[type=submit] {
 }
 
 /* LOGIN AND LOGOUT */
-.loginButton a{
-	margin-left:40px;
-	padding:5px 15px;
+.login-button {
+    padding:5px 15px;
     background:#75D7FF;
-    color: white;
+    color:white;
     font-size: 16pt;
+    border:0 none;
     cursor:pointer;
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
 
+a.login-button:hover {
+    /* Don't underline the link when mouse hovers over */
+    color: white !important;
+    text-decoration: none !important;
+}
+
+
 .loginform{
     display: block;
+    padding: 35px 100px;
+    background-color: white;
+    border-radius: 10px;
 }
 
 
@@ -230,6 +240,17 @@ input[type=submit] {
     width: 100%;
     justify-content: center;
     margin-top: 100px;
+}
+
+.login-field {
+    width: 360px;
+}
+
+.form-error {
+    text-align: center;
+    color: red;
+    background-color: #F2DEDE;
+    padding: 15px;
 }
 
 /* PROFILE PAGE */

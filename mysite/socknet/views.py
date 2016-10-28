@@ -3,12 +3,15 @@ import uuid
 
 from django.shortcuts import get_object_or_404
 from django.views import generic
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from socknet.models import *
+from socknet.forms import *
+
 # For images
 import os
 from mysite.settings import MEDIA_ROOT
@@ -291,3 +294,14 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
             else:
                 print("MANAGE FRIEND REQUEST POST: Unknown action")
                 return HttpResponse(status=500)
+
+class RegistrationView(generic.edit.FormView):
+    template_name = "registration/registration.html"
+    form_class = RegistrationForm
+    success_url = '/login/'
+
+    def form_valid(self, form):
+        form.save()
+        # Display a notification
+        messages.add_message(self.request, messages.SUCCESS, "Registration Successful. An administrator will approve you account.")
+        return super(RegistrationView, self).form_valid(form)
