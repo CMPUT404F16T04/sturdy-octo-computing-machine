@@ -49,9 +49,7 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
                 # taken from Dtephen Paulger http://stackoverflow.com/a/20762344
                 Image.open(self.request.FILES['image']).verify()
             except IOError:
-                #raise ValidationError("Unsupported file type. Upload an image type please.", code='invalid')
-                reverse('list_posts', args=[])
-                return
+                raise ValidationError("Unsupported file type. Upload an image type please.", code='invalid')
             img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author, form.instance)
             form.instance.imglink = img.image
         else:
