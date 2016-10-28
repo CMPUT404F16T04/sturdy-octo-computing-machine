@@ -43,7 +43,7 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
         # If there was an image, make image object
         # https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest
         if not self.request.FILES == {}:
-            img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author)
+            img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author, form.instance)
             form.instance.imglink = img.image
         else:
             form.instance.imglink = ""
