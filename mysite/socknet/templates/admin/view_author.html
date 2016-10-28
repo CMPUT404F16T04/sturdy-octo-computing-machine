@@ -1,0 +1,12 @@
+<html>
+<body>
+    <h1>This is a debugging screen.</h1>
+    <table>
+        {% for field in adminform.form %}
+        <tr>
+            <td>{{ field.label_tag }}</td><td>{{ field.value }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
