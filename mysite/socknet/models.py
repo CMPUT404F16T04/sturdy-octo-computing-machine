@@ -3,6 +3,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 import uuid
 from socknet.utils import HTMLsafe
+# for images auto delete
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 class Author(models.Model):
     """
@@ -163,8 +166,8 @@ class ImageManager(models.Manager):
     """ Helps creating an image object.
     Taken from https://docs.djangoproject.com/en/1.10/ref/models/instances/#creating-objects
     """
-    def create_image(self, img, au):
-        img = self.create(image=img, author=au)
+    def create_image(self, img, au, pst):
+        img = self.create(image=img, author=au, parent_post=pst)
         return img
 
 class ImageServ(models.Model):
@@ -172,12 +175,23 @@ class ImageServ(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     image = models.ImageField(upload_to='user_images', max_length=256)
     author = models.ForeignKey(Author, related_name="image_author")
+    parent_post = models.ForeignKey(Post, related_name="image_parent_post")
     created_on = models.DateTimeField(auto_now=True)
     objects = ImageManager()
 
-    def ImageServ(self, image, author):
+    def ImageServ(self, image, author, parent_post):
         self.image = image
         self.author = author
+        self.parent_post = parent_post
+
+    # Django does not remove images automatically anymore upon DB removal.
+    # Taken from darrinm http://stackoverflow.com/a/14310174
+    # automatically remove image that was removed in DB
+    @receiver(pre_delete)
+    def ImageServ_delete(sender, instance, **kwargs):
+        # Pass false so FileField doesn't save the model.
+        if type(instance) == ImageServ:
+            instance.image.delete(False)
 
     def get_absolute_url(self):
         """ Gets the canonical URL for an image.
