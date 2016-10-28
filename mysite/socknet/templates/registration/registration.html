@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}"/>
 </head>
 <body>
+    <!-- Display validation errors -->
     {% if form.errors %}
         {% for field in form %}
             {% for error in field.errors %}
@@ -16,6 +17,7 @@
             {% endfor %}
         {% endfor %}
     {% endif %}
+    
     <div class="login-center-wrapper">
         <div class="loginform">
             <h1>Registration</h1>

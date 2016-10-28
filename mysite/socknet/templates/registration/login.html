@@ -9,6 +9,15 @@
 
 <html>
 <body>
+    <!-- Display validation errors -->
+    {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+            <div class="form-error">
+                {{ error|escape }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <div class="login-center-wrapper">
         <div class="loginform">
             {% if messages %}
