@@ -14,6 +14,8 @@ import os
 from mysite.settings import MEDIA_ROOT
 from PIL import Image, ImageFile
 import base64
+from django.core.exceptions import ValidationError
+
 
 class ListPosts(LoginRequiredMixin, generic.ListView):
     """ Displays a list of all posts in the system """
@@ -43,12 +45,18 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
         # If there was an image, make image object
         # https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest
         if not self.request.FILES == {}:
+            try:
+                # taken from Dtephen Paulger http://stackoverflow.com/a/20762344
+                Image.open(self.request.FILES['image']).verify()
+            except IOError:
+                #raise ValidationError("Unsupported file type. Upload an image type please.", code='invalid')
+                reverse('list_posts', args=[])
+                return
             img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author, form.instance)
             form.instance.imglink = img.image
         else:
             form.instance.imglink = ""
         form.instance.author = self.request.user.author
-        print form.instance.content
         return super(CreatePost, self).form_valid(form)
 
 class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
@@ -139,17 +147,6 @@ class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
         blob = open(path, 'rb')
         context['b64'] = "data:image/" + filetype + ";base64," + base64.b64encode(blob.read())
         return context
-
-class UploadImage(LoginRequiredMixin, generic.edit.CreateView):
-    """ Form for uploading an Image """
-    model = ImageServ
-    template_name = 'socknet/upload_image.html'
-    fields = ['image']
-    login_url = '/login/' # For login mixin
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user.author
-        return super(UploadImage, self).form_valid(form)
 
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
