@@ -45,7 +45,7 @@ class UserAdmin(admin.ModelAdmin):
             message_bit = "1 user was"
         else:
             message_bit = "%s users were" % rows_updated
-            self.message_user(request, "%s successfully approved." % message_bit)
+        self.message_user(request, "%s successfully approved." % message_bit)
     approve_users.short_description = "Approve Selected Users"
 
 class AuthorAdmin(admin.ModelAdmin):

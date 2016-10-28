@@ -32,7 +32,6 @@ urlpatterns = [
 
     #  Authentication
     url(r'^login/$', auth_view.login, name='login'),
-    url(r'^logged_out/$', auth_view.logout, name='logged_out'),
     url(r'^register/$', views.RegistrationView.as_view(), name='registration'),
 ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # ^ static() This helper function works only in debug mode, and only if the given prefix is local and not an URL.
