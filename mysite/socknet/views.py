@@ -9,8 +9,12 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
+
+from rest_framework import viewsets
+
 from socknet.models import *
 from socknet.forms import *
+from socknet.serializers import PostSerializer
 
 # For images
 import os
@@ -300,3 +304,12 @@ class RegistrationView(generic.edit.FormView):
         # Display a notification
         messages.add_message(self.request, messages.SUCCESS, "Registration Successful. An administrator will approve you account.")
         return super(RegistrationView, self).form_valid(form)
+
+# API VIEWSETS
+
+class PostViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows posts to be viewed or edited.
+    """
+    queryset = Post.objects.all().order_by('-created_on')
+    serializer_class = PostSerializer

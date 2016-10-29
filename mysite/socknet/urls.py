@@ -1,8 +1,13 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib.auth import views as auth_view
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework import routers
 from socknet import views
+
+# API Routes
+router = routers.DefaultRouter()
+router.register(r'posts', views.PostViewSet)
 
 urlpatterns = [
     # Posts
@@ -36,3 +41,5 @@ urlpatterns = [
 ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # ^ static() This helper function works only in debug mode, and only if the given prefix is local and not an URL.
 # https://docs.djangoproject.com/en/1.10/howto/static-files/#serving-uploaded-files-in-development
+
+urlpatterns += router.urls
