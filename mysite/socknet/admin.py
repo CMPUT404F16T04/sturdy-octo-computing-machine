@@ -14,7 +14,7 @@ class UserAdmin(admin.ModelAdmin):
     # Field sets control which fields are displayed on the admin "add" and "change" pages
     fieldsets = (
         (None, {
-            'fields': ('username',)
+            'fields': ('username', 'is_active')
         }),
         ('Permissions', {
             'fields': ('is_superuser',)

@@ -3,6 +3,7 @@ from django.contrib.auth import views as auth_view
 from django.conf import settings
 from django.conf.urls.static import static
 from socknet import views
+from socknet.forms import CustomAuthenticationForm
 
 urlpatterns = [
     # Posts
@@ -31,7 +32,8 @@ urlpatterns = [
     url(r'^friend_requests/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ManageFriendRequests.as_view(), name='manage_friend_requests'),
 
     #  Authentication
-    url(r'^login/$', auth_view.login, name='login'),
+    url(r'^login/$', auth_view.login, {'authentication_form': CustomAuthenticationForm}, name='login'),
+    url(r'^logout/$', auth_view.logout, {'next_page': '/login/'}, name='logout'),
     url(r'^register/$', views.RegistrationView.as_view(), name='registration'),
 ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # ^ static() This helper function works only in debug mode, and only if the given prefix is local and not an URL.

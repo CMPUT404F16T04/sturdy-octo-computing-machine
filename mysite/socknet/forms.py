@@ -1,5 +1,7 @@
 from django.forms import ModelForm , PasswordInput, ValidationError, CharField
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate
 
 class RegistrationForm(ModelForm):
     """
@@ -43,3 +45,24 @@ class RegistrationForm(ModelForm):
         if commit:
             user.save()
         return user
+
+class CustomAuthenticationForm(AuthenticationForm):
+    """
+    Display account inactive error over invalid username and password.
+    This allows a user to know that they are signed up, but awaiting approval.
+    """
+
+    def find_user(self, username):
+        try:
+            return User.objects.get(username=username)
+        except User.DoesNotExist:
+            return None
+
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        user = self.find_user(username)
+        if (user and user.is_active == False):
+            raise ValidationError("This account has not been approved yet.")
+        return super(CustomAuthenticationForm, self).clean()
