@@ -90,6 +90,12 @@ class Post(models.Model):
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
     imglink = models.CharField(max_length=256)
+    visibility = models.CharField(default='PUBLIC', max_length=255, choices=[
+        ('PUBLIC', 'PUBLIC'),
+        ('FOAF', 'FOAF'),
+        ('FRIENDS', 'FRIENDS'),
+        ('PRIVATE', 'PRIVATE'),
+        ('SERVERONLY', 'SERVERONLY')])
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post

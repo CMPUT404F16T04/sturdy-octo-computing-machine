@@ -41,7 +41,7 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new post """
     model = Post
     template_name = 'socknet/create_post.html'
-    fields = ['content', 'markdown']
+    fields = ['content', 'markdown', 'visibility']
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
