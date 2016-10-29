@@ -38,6 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'socknet.apps.SocknetConfig',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (
