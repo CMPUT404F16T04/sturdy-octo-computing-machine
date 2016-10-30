@@ -1,8 +1,8 @@
-CommonMark==0.7.2
 Django==1.10.2
 django-filter==0.15.3
 djangorestframework==3.5.1
 future==0.16.0
+CommonMark==0.7.2
 Markdown==2.6.7
 Pillow==3.4.0
 psycopg2==2.6.2
