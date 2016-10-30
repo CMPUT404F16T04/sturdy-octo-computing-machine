@@ -109,6 +109,22 @@ class Post(models.Model):
         """
         return HTMLsafe.get_converted_content(self.markdown, self.content)
 
+    def getFullEnglishVisibility(self):
+        ''' Gets the full, written out English phrase
+        for the visibility string'''
+        if (self.visibility == 'PUBLIC'):
+            return 'Public'
+        elif (self.visibility == 'FOAF'):
+            return 'Friend of Friends'
+        elif (self.visibility == 'FRIENDS'):
+            return 'Friends'
+        elif (self.visibility == 'PRIVATE'):
+            return 'Private'
+        elif (self.visibility == 'SERVERONLY'):
+            return 'Server Only'
+        else:
+            return 'Unknown'
+
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
