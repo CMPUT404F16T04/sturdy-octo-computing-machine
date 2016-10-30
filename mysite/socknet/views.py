@@ -28,7 +28,7 @@ class ListPosts(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListPosts, self).get_context_data(**kwargs)
-        context['posts_list'] = Post.objects.order_by('-created_on')
+        context['posts_list'] = Post.objects.filter(visibility='PUBLIC').order_by('-created_on')
         return context
 
 class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
