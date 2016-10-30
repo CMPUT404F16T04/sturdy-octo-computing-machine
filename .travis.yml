@@ -12,6 +12,7 @@ services:
 
 before_script:
     - psql -c "CREATE USER django WITH PASSWORD 'django';" -U postgres
+    - psql -c 'create database django_db;' -U postgres
     - python mysite/manage.py migrate
 
 # command to run tests
