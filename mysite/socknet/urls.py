@@ -10,6 +10,9 @@ router = routers.DefaultRouter()
 router.register(r'posts', views.PostViewSet)
 
 urlpatterns = [
+    # API
+    url(r'^api/', include(router.urls)),
+
     # Posts
     url(r'^$', views.ListPosts.as_view(), name='list_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', views.ViewPost.as_view(), name='view_post'),
@@ -41,5 +44,3 @@ urlpatterns = [
 ] + static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # ^ static() This helper function works only in debug mode, and only if the given prefix is local and not an URL.
 # https://docs.djangoproject.com/en/1.10/howto/static-files/#serving-uploaded-files-in-development
-
-urlpatterns += router.urls
