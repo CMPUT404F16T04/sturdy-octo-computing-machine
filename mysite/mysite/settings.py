@@ -77,20 +77,21 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASES['default'] =  dj_database_url.config()
+DATABASES = {}
+if (os.environ.get('DATABASE_URL')):
+    DATABASES['default'] =  dj_database_url.config()
+else :
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'django_db',
+            'USER': 'django',
+            'PASSWORD': 'django',
+            'HOST': 'localhost',
 
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'django_db',
-        'USER': 'django',
-        'PASSWORD': 'django',
-        'HOST': os.environ.get('DATABASE_URL','localhost')
-
+        }
     }
-}
-"""
+
 
 
 # Internationalization
