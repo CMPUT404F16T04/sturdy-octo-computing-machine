@@ -79,7 +79,9 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': 'django_db',
+        'USER': 'django',
+        'PASSWORD': 'django',
         'HOST': 'localhost', # We need TCP sockets to communicate with other machines
 
     }
