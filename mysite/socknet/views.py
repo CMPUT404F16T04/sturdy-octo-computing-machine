@@ -9,8 +9,12 @@ from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
+
+from rest_framework import viewsets
+
 from socknet.models import *
 from socknet.forms import *
+from socknet.serializers import *
 
 # For images
 import os
@@ -28,7 +32,7 @@ class ListPosts(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super(ListPosts, self).get_context_data(**kwargs)
-        context['posts_list'] = Post.objects.order_by('-created_on')
+        context['posts_list'] = Post.objects.filter(visibility='PUBLIC').order_by('-created_on')
         return context
 
 class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
@@ -41,7 +45,7 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new post """
     model = Post
     template_name = 'socknet/create_post.html'
-    fields = ['content', 'markdown']
+    fields = ['content', 'markdown', 'visibility']
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
@@ -300,3 +304,26 @@ class RegistrationView(generic.edit.FormView):
         # Display a notification
         messages.add_message(self.request, messages.SUCCESS, "Registration Successful. An administrator will approve you account.")
         return super(RegistrationView, self).form_valid(form)
+
+# API VIEWSETS
+
+class AuthorPostsViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that
+    """
+    queryset = Author.objects.all()
+    serializer_class = AuthorPostsSerializer
+
+class PostsViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows posts to be viewed or edited.
+    """
+    queryset = Post.objects.all().order_by('-created_on')
+    serializer_class = PostsSerializer
+
+class AuthorViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that
+    """
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer

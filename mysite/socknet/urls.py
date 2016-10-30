@@ -1,11 +1,30 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib.auth import views as auth_view
 from django.conf import settings
 from django.conf.urls.static import static
+from rest_framework import routers
 from socknet import views
 from socknet.forms import CustomAuthenticationForm
 
+# API Routes
+router = routers.DefaultRouter()
+
+# http://service/author/posts (posts that are visible to the currently authenticated user)
+router.register(r'author/posts', views.AuthorPostsViewSet)
+# http://service/posts (all posts marked as public on the server)
+# http://service/posts/{POST_ID} access to a single post with id = {POST_ID}
+router.register(r'posts', views.PostsViewSet)
+# http://service/author/{AUTHOR_ID}/posts (all posts made by {AUTHOR_ID} visible to the currently authenticated user)
+router.register(r'author', views.AuthorViewSet)
+# http://service/posts/{post_id}/comments access to the comments in a post
+# TODO
+# router.register(r'', views.)
+
+
 urlpatterns = [
+    # API
+    url(r'^api/', include(router.urls)),
+
     # Posts
     url(r'^$', views.ListPosts.as_view(), name='list_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', views.ViewPost.as_view(), name='view_post'),

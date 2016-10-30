@@ -14,6 +14,13 @@
         </label>
         <!-- Fill in the filename when a file is selected -->
         <span id="filename"></span>
+        <select name="visibility">
+          <option value="PUBLIC" selected>Public</option>
+          <option value="FOAF">Friends of Friends</option>
+          <option value="FRIENDS">Friends</option>
+          <option value="PRIVATE">Private</option>
+          <option value="SERVERONLY">Server Only</option>
+        </select>
     </div>
     <textarea name="content" class="text-area" type="text" maxLength="512" required="true"></textarea>
     <input type="submit" value="Finish"/>

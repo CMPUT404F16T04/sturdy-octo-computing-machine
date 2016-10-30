@@ -90,6 +90,12 @@ class Post(models.Model):
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
     imglink = models.CharField(max_length=256)
+    visibility = models.CharField(default='PUBLIC', max_length=255, choices=[
+        ('PUBLIC', 'PUBLIC'),
+        ('FOAF', 'FOAF'),
+        ('FRIENDS', 'FRIENDS'),
+        ('PRIVATE', 'PRIVATE'),
+        ('SERVERONLY', 'SERVERONLY')])
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post
@@ -102,6 +108,22 @@ class Post(models.Model):
         due to HTMLsafe's get_converted_content() applies HTML escapes already.
         """
         return HTMLsafe.get_converted_content(self.markdown, self.content)
+
+    def getFullEnglishVisibility(self):
+        ''' Gets the full, written out English phrase
+        for the visibility string'''
+        if (self.visibility == 'PUBLIC'):
+            return 'Public'
+        elif (self.visibility == 'FOAF'):
+            return 'Friend of Friends'
+        elif (self.visibility == 'FRIENDS'):
+            return 'Friends'
+        elif (self.visibility == 'PRIVATE'):
+            return 'Private'
+        elif (self.visibility == 'SERVERONLY'):
+            return 'Server Only'
+        else:
+            return 'Unknown'
 
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8

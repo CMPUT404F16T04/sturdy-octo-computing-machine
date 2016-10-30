@@ -319,3 +319,7 @@ a.login-button:hover {
 .friend-button-2 {
     margin-right: 10px;
 }
+
+.visibility-select {
+  width: 100px;
+}
