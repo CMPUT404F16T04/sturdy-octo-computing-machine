@@ -82,7 +82,7 @@ DATABASES = {
         'NAME': 'django_db',
         'USER': 'django',
         'PASSWORD': 'django',
-        'HOST': 'localhost', # We need TCP sockets to communicate with other machines
+        'HOST': os.environ.get('DATABASE_URL','localhost')
 
     }
 }
