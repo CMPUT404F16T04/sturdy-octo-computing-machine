@@ -7,7 +7,18 @@ from socknet import views
 
 # API Routes
 router = routers.DefaultRouter()
-router.register(r'posts', views.PostViewSet)
+
+# http://service/author/posts (posts that are visible to the currently authenticated user)
+router.register(r'author/posts', views.AuthorPostsViewSet)
+# http://service/posts (all posts marked as public on the server)
+# http://service/posts/{POST_ID} access to a single post with id = {POST_ID}
+router.register(r'posts', views.PostsViewSet)
+# http://service/author/{AUTHOR_ID}/posts (all posts made by {AUTHOR_ID} visible to the currently authenticated user)
+router.register(r'author', views.AuthorViewSet)
+# http://service/posts/{post_id}/comments access to the comments in a post
+# TODO
+# router.register(r'', views.)
+
 
 urlpatterns = [
     # API
