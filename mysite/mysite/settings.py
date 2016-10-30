@@ -108,6 +108,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_FOLDER = os.path.abspath(os.path.join(BASE_DIR, 'static'))
 STATICFILES_DIRS = (STATIC_FOLDER, )
+STATIC_ROOT = "/var/www/socknet/static/"
 
 LOGIN_REDIRECT_URL = '/'
 
