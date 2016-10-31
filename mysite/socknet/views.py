@@ -167,7 +167,7 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
         # Raise 404 if we try to view an author who doesn't exist
         profile_author = get_object_or_404(Author, uuid=authorUUID)
         context['profile_author'] = profile_author
-        context['context_list'] = Post.objects.all()
+        context['context_list'] = Post.objects.filter(author=profile_author)
 
         if authorUUID != self.request.user.author.uuid:
             author = self.request.user.author

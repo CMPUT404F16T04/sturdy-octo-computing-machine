@@ -66,6 +66,16 @@
             </div>
         </nav>
         <div id="workspace" class="container">
+            <!-- Display validation errors -->
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="form-error">
+                            {{ error|escape }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
             {% block content %}{% endblock %}
         </div>
         {% block scripts %}{% endblock %}

@@ -20,7 +20,6 @@
 <div class="postList">
     <ol class="feed">
         {% for post in context_list %}
-        {% if user.author.uuid == profile_author.uuid %}
             <li class="post">
                 <div class="first-line">
                     <div class="author-label">Author: {{ post.author.user.username }}</div>
@@ -37,7 +36,6 @@
                 {{post.view_content|safe}}
               </article>
             </li>
-        {% endif %}
         {% endfor %}
     </ol>
   </div>
