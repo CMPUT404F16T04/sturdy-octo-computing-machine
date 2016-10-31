@@ -20,10 +20,6 @@ html {
   -ms-text-size-adjust: 100%;
 }
 
-select::-ms-expand {
-    display: none;
-}
-
 body {
     background-color: #F5F5F5;
 }
