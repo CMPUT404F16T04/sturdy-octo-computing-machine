@@ -49,6 +49,9 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
+        # Create the post object first.
+        form.instance.author = self.request.user.author
+        http_res_obj = super(CreatePost, self).form_valid(form)
         # If there was an image, make image object
         # https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest
         if not self.request.FILES == {}:
@@ -58,11 +61,10 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
             except IOError:
                 raise ValidationError("Unsupported file type. Upload an image type please.", code='invalid')
             img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author, form.instance)
+            # Update field of the created post with the image path.
             form.instance.imglink = img.image
-        else:
-            form.instance.imglink = ""
-        form.instance.author = self.request.user.author
-        return super(CreatePost, self).form_valid(form)
+            form.instance.save(update_fields=['imglink'])
+        return http_res_obj
 
 class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
     """ Displays a form for deleting posts  """
