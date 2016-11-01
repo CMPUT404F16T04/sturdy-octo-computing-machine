@@ -7,7 +7,7 @@
         <div class="friend-box">
             <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
             <div class="friend-name">
-                {{follower_of.user.username}}
+                <a href="{% url 'profile' authorUUID=follower_of.uuid %}">{{ follower_of.user.username }}</a>
             </div>
             <div class="friend-button">
                 <a id="{{ follower_of.uuid}}_button" href="#" class="friend-anchor btn btn-danger"

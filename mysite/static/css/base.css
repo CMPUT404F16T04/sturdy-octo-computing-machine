@@ -275,9 +275,7 @@ a.login-button:hover {
     margin-bottom: 2%;
     display: inline-flex;
     align-items: center;
-    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
-    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
-    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    border: 2px solid #EEEEEE;
 }
 
 .friend-request-box {
@@ -289,6 +287,7 @@ a.login-button:hover {
     margin-bottom: 12px;
     display: flex;
     align-items: center;
+    background-color: white;
 }
 
 .friend-profile-pic {

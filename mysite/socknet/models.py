@@ -1,11 +1,12 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
-import uuid
 from socknet.utils import HTMLsafe
 # for images auto delete
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+import uuid
+from itertools import chain
 
 class Author(models.Model):
     """
@@ -129,6 +130,33 @@ class Post(models.Model):
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
         return self.author.user.username + ": " + self.content
+
+class PostManager(models.Model):
+
+    def get_profile_posts(self, profile_author, current_author):
+        """
+        Returns the posts to display when viewing someone's profile.
+
+        FOAF and Server Only are NOT implemented yet.
+        """
+        # If someone is viewing their own page, they can see all posts
+        if profile_author == current_author:
+            return Post.objects.filter(author=profile_author).order_by('-created_on')
+
+        public_posts = Post.objects.filter(author=profile_author, visibility='PUBLIC')
+        friend_posts = {}
+        foaf_posts = {} # TODO IMPLEMENT FOAF
+        server_only_posts = {} # TODO IMPLEMENT SERVER ONLY
+
+        if current_author in profile_author.friends.all():
+            friend_posts = Post.objects.filter(author=profile_author, visibility='FRIENDS')
+
+        # Combine the query sets, sort by most recent
+        visible_posts = sorted(
+            chain(public_posts, friend_posts, foaf_posts, server_only_posts),
+            key=lambda instance: instance.created_on, reverse=True)
+
+        return visible_posts
 
 class CommentQuerySet(models.QuerySet):
     """ Query operations for the Comments table. """

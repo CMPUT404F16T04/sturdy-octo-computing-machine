@@ -6,7 +6,7 @@
             <div id="{{ friend_request.uuid}}_box" class="friend-request-box">
                 <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
                 <div class="friend-name">
-                    {{friend_request.user.username}}
+                    <a href="{% url 'profile' authorUUID=friend_request.uuid %}">{{ friend_request.user.username }}</a>
                 </div>
                 <a href="#" class="friend-button-2 btn btn-success"
                 data-uuid="{{ friend_request.uuid }}" data-username="{{ friend_request.user.username }}"
