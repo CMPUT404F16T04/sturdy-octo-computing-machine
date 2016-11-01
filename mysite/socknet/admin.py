@@ -58,12 +58,20 @@ class AuthorAdmin(admin.ModelAdmin):
     ordering = ['user']
 
     # Field sets control which fields are displayed on the admin "add" and "change" pages
-    readonly_fields=('user', 'friends', 'who_im_following')
+    readonly_fields=('friends', 'who_im_following')
     fieldsets = (
         (None, {
             'fields': ('user', 'about_me', 'birthday','github_url', 'friends', 'who_im_following')
         }),
     )
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Get the fields that are read-only. If we are making a new author, then allow user to be added.
+        """
+        if obj: # editing an existing object
+            return self.readonly_fields + ('user')
+        return self.readonly_fields
 
 # Unregister default user so that ours is used
 admin.site.unregister(User)
