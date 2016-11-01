@@ -26,7 +26,13 @@ class Author(models.Model):
     friends = models.ManyToManyField("self", related_name="my_friends", blank=True)
     who_im_following = models.ManyToManyField("self", related_name="my_followers", symmetrical=False, blank=True)
     ignored = models.ManyToManyField("self", related_name="ignored_by", symmetrical=False, blank=True)
+    github_url = models.TextField(blank=True)
+    about_me = models.CharField(max_length=1000, blank=True)
+    birthday = models.DateField(null=True, blank=True)
 
+
+
+   
     def __str__(self):
         return self.user.get_username()
 
@@ -82,6 +88,8 @@ class Author(models.Model):
         following = self.who_im_following.all()
         following = following.exclude(pk__in=self.friends.all())
         return following
+
+
 
 class Post(models.Model):
     """ Represents a post made by a user """
