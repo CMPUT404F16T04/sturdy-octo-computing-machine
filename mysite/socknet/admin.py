@@ -51,24 +51,19 @@ class UserAdmin(admin.ModelAdmin):
 class AuthorAdmin(admin.ModelAdmin):
     """
     A custom admin page for the Author model.
-    CURRENTLY CAN ONLY VIEW AUTHOR INFORMATION FOR TESTING PURPOSES
+    IMPORTANT: Friends and followers should not be editable in the admin console
+    because the system can be put into a weird state.
     """
     list_display = ['user']
     ordering = ['user']
-    change_form_template = 'admin/view_author.html'
 
-    # Remove the delete Admin Action for this Model
-    actions = None
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def save_model(self, request, obj, form, change):
-        #Return nothing to make sure user can't update any data
-        pass
+    # Field sets control which fields are displayed on the admin "add" and "change" pages
+    readonly_fields=('user', 'friends', 'who_im_following')
+    fieldsets = (
+        (None, {
+            'fields': ('user', 'about_me', 'birthday','github_url', 'friends', 'who_im_following')
+        }),
+    )
 
 # Unregister default user so that ours is used
 admin.site.unregister(User)
