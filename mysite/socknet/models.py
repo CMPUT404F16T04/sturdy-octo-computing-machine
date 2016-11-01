@@ -27,7 +27,7 @@ class Author(models.Model):
     ignored = models.ManyToManyField("self", related_name="ignored_by", symmetrical=False, blank=True)
     github_url = models.TextField(blank=True)
     about_me = models.CharField(max_length=1000, blank=True)
-    birthday = models.DateField(null=True, blank=True)
+    birthday = models.DateField(null=True,blank=True)
 
 
 
