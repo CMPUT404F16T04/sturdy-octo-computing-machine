@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="content-box">
-    {% comment %} Subtemplates taken from Simeon Visser http://stackoverflow.com/a/10985987 {% endcomment %}
-    {% include "socknet\subtemplate_post.html" %}
+    {% include "socknet/subtemplate_post.html" %}
     <div class="action">
         <a href="{% url 'list_posts' %}">Return to Post List</a>
     </div>

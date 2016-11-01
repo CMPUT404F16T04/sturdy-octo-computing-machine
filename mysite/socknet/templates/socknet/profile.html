@@ -26,8 +26,7 @@
     <ol class="feed">
         {% for post in context_list %}
             <li class="post">
-                {% comment %} Subtemplates taken from Simeon Visser http://stackoverflow.com/a/10985987 {% endcomment %}
-                {% include "socknet\subtemplate_post.html" %}
+                {% include "socknet/subtemplate_post.html" %}
             </li>
         {% endfor %}
     </ol>
