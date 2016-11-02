@@ -2,6 +2,7 @@ from django.forms import ModelForm , PasswordInput, ValidationError, CharField
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
+from socknet.models import Author
 
 class RegistrationForm(ModelForm):
     """
@@ -66,3 +67,8 @@ class CustomAuthenticationForm(AuthenticationForm):
         if (user and user.is_active == False):
             raise ValidationError("This account has not been approved yet.")
         return super(CustomAuthenticationForm, self).clean()
+
+class EditProfileForm(ModelForm):
+      class Meta:
+        model = Author
+        fields = ['github_url', 'about_me', 'birthday']

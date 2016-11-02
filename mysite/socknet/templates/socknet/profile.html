@@ -2,11 +2,16 @@
 {% block content %}
 
 <h1>{{ profile_author.user.username }}'s Profile!</h1>
-<div class = "profileInfo">
+<div class = "content-box">
+    <h5>Birthday: {{ profile_author.birthday }}</h5>
+    <h5>Github Url: {{ profile_author.github_url }}</h5>
+    <h5>About Me: {{ profile_author.about_me }}</h5>
+
     {% if profile_author.uuid == user.author.uuid %}
         <!-- Author is viewing their own profile, display edit button -->
-        <p>This button doesn't go anywhere right now.</p>
-        <input type="submit" name="editProfile" value="Edit Profile"/>
+        <form action="{% url 'editprofile' authorUUID=user.author.uuid %}">
+       <input type="submit" value="Edit Profile">
+    </form>
     {% else %}
         <!-- Author is viewing someone else's profile, display button that allows
              them to follow, unfollow, unfriend, etc. -->

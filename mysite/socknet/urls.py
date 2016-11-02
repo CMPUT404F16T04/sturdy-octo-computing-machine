@@ -44,6 +44,7 @@ urlpatterns = [
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ViewProfile.as_view(), name='profile'),
+    url(r'^edit_profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.EditProfile.as_view(), name='editprofile'),
 
     # Friend Management
     url(r'^friends/(?P<authorUUID>[0-9A-Fa-f-]+)/$', views.ManageFriends.as_view(), name='manage_friends'),

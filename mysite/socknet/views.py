@@ -308,6 +308,25 @@ class RegistrationView(generic.edit.FormView):
         messages.add_message(self.request, messages.SUCCESS, "Registration Successful. An administrator will approve you account.")
         return super(RegistrationView, self).form_valid(form)
 
+class EditProfile(LoginRequiredMixin,generic.edit.UpdateView): 
+    model = Author
+    template_name = "socknet/edit_profile.html"
+    success_url='/'
+    login_url = '/login/' # For login mixin
+    form_class = EditProfileForm
+
+
+    def get_object(self, queryset=None):
+        obj = Author.objects.get(uuid=self.kwargs['authorUUID'])
+        return obj
+    def get_context_data(self, **kwargs):
+        context = super(EditProfile, self).get_context_data(**kwargs)
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
+        # Raise 404 if we try to view an author who doesn't exist
+        profile_author = get_object_or_404(Author, uuid=authorUUID)
+        context['profile_author'] = profile_author
+        return context
+
 # API VIEWSETS
 
 class AuthorPostsViewSet(viewsets.ModelViewSet):
@@ -330,3 +349,5 @@ class AuthorViewSet(viewsets.ModelViewSet):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+
+
