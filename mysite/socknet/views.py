@@ -10,11 +10,8 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 
-from rest_framework import viewsets
-
 from socknet.models import *
 from socknet.forms import *
-from socknet.serializers import *
 
 # For images
 import os
@@ -340,26 +337,3 @@ class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
         profile_author = get_object_or_404(Author, uuid=authorUUID)
         context['profile_author'] = profile_author
         return context
-
-# API VIEWSETS
-
-class AuthorPostsViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorPostsSerializer
-
-class PostsViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows posts to be viewed or edited.
-    """
-    queryset = Post.objects.all().order_by('-created_on')
-    serializer_class = PostsSerializer
-
-class AuthorViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer

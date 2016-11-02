@@ -3,19 +3,19 @@ from django.contrib.auth import views as auth_view
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
-from socknet import views
+from socknet import views, views_api
 from socknet.forms import CustomAuthenticationForm
 
 # API Routes
 router = routers.DefaultRouter()
 
 # http://service/author/posts (posts that are visible to the currently authenticated user)
-router.register(r'author/posts', views.AuthorPostsViewSet)
+router.register(r'author/posts', views_api.AuthorPostsViewSet)
 # http://service/posts (all posts marked as public on the server)
 # http://service/posts/{POST_ID} access to a single post with id = {POST_ID}
-router.register(r'posts', views.PostsViewSet)
+router.register(r'posts', views_api.PostsViewSet)
 # http://service/author/{AUTHOR_ID}/posts (all posts made by {AUTHOR_ID} visible to the currently authenticated user)
-router.register(r'author', views.AuthorViewSet)
+router.register(r'author', views_api.AuthorViewSet)
 # http://service/posts/{post_id}/comments access to the comments in a post
 # TODO
 # router.register(r'', views.)
