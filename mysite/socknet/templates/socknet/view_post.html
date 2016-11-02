@@ -1,29 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="content-box">
-    <h2>Post {{post.id}}</h2>
-    <div>
-        <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
-    </div>
-    <div class="author-date">
-        {{ post.created_on }} UTC
-      </br>
-        Visible to: {{ post.getFullEnglishVisibility }}
-    </div>
-    <article class="content">{{post.view_content|safe}}</article>
-    {% if post.imglink != "" %}
-    <p><a href="../../images/{{post.imglink}}">View Attached Image</a></p>
-    {% endif %}
-    <div class="post-actions">
-        <div class="action">
-            <a href="{% url 'list_comments' post_pk=post.pk %}">Comments</a>
-        </div>
-        <div class="action">
-            <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
-        </div>
-            <div class="action">
+    {% comment %} Subtemplates taken from Simeon Visser http://stackoverflow.com/a/10985987 {% endcomment %}
+    {% include "socknet\subtemplate_post.html" %}
+    <div class="action">
         <a href="{% url 'list_posts' %}">Return to Post List</a>
-        </div>
     </div>
 </div>
 {% endblock %}
