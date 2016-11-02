@@ -323,3 +323,17 @@ a.login-button:hover {
 .visibility-select {
   width: 100px;
 }
+
+.profileInfo{
+    background-color: #FFFFFF;
+    width: 46%;
+    min-width: 500px;
+    position: relative;
+    margin-right: 2%;
+    margin-bottom: 2%;
+    display: inline-flex;
+    align-items: center;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+}
