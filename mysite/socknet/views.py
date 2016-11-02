@@ -315,6 +315,15 @@ class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     login_url = '/login/' # For login mixin
     form_class = EditProfileForm
 
+    def get(self, request, *args, **kwargs):
+        # First, get the authors UUID from the url
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
+        # Convert uuid from into a proper UUID field (otherwise it will be unicode or something)
+        authorUUID = uuid.UUID(authorUUID)
+        # Check if the logged in user's uuid matches the one we got from the url
+        if authorUUID != self.request.user.author.uuid:
+            raise PermissionDenied
+        return super(EditProfile, self).get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         obj = Author.objects.get(uuid=self.kwargs['authorUUID'])
