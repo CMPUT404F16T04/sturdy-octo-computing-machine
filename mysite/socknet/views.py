@@ -26,14 +26,11 @@ from django.core.exceptions import ValidationError
 
 class ListPosts(LoginRequiredMixin, generic.ListView):
     """ Displays a list of all posts in the system """
-    model = Post
+    queryset = Post.objects.order_by('-created_on')
     template_name = 'socknet/list_posts.html'
     login_url = '/login/' # For login mixin
-
-    def get_context_data(self, **kwargs):
-        context = super(ListPosts, self).get_context_data(**kwargs)
-        context['posts_list'] = Post.objects.filter(visibility='PUBLIC').order_by('-created_on')
-        return context
+    context_object_name = 'posts_list'
+    paginate_by = 10
 
 class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
     """ Displays the details of a single post """
@@ -308,7 +305,7 @@ class RegistrationView(generic.edit.FormView):
         messages.add_message(self.request, messages.SUCCESS, "Registration Successful. An administrator will approve you account.")
         return super(RegistrationView, self).form_valid(form)
 
-class EditProfile(LoginRequiredMixin,generic.edit.UpdateView): 
+class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     model = Author
     template_name = "socknet/edit_profile.html"
     success_url='/'
@@ -358,5 +355,3 @@ class AuthorViewSet(viewsets.ModelViewSet):
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
-
-
