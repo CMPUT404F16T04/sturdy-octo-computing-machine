@@ -4,7 +4,7 @@ import uuid
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.views.generic.edit import DeleteView
@@ -24,13 +24,21 @@ import base64
 from django.core.exceptions import ValidationError
 
 
-class ListPosts(LoginRequiredMixin, generic.ListView):
+class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     """ Displays a list of all posts in the system """
     queryset = Post.objects.order_by('-created_on')
     template_name = 'socknet/list_posts.html'
     login_url = '/login/' # For login mixin
     context_object_name = 'posts_list'
     paginate_by = 10
+
+    def test_func(self):
+        try:
+            self.request.user.author
+        except:
+            return False
+        else:
+            return True
 
 class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
     """ Displays the details of a single post """
