@@ -318,17 +318,14 @@ class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     def get_object(self, queryset=None):
         obj = Author.objects.get(uuid=self.kwargs['authorUUID'])
         return obj
-    # def form_valid(self,form): 
-    #     form.save()
-    #     return super(EditProfile,self).form_valid(form)
-    # def get(self, request, **kwargs):
-    #     authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
-    #     # Convert uuid from url into a proper UUID field
-    #     authorUUID = uuid.UUID(authorUUID)
-    #     form_class = self.get_form_class()
-    #     form = self.get_form(form_class)
-    #     context = self.get_context_data(uuid=authorUUID, form=form)
-    #     return self.render_to_response(context)
+    def get_context_data(self, **kwargs):
+        context = super(EditProfile, self).get_context_data(**kwargs)
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
+        # Raise 404 if we try to view an author who doesn't exist
+        profile_author = get_object_or_404(Author, uuid=authorUUID)
+        context['profile_author'] = profile_author
+        return context
+
 # API VIEWSETS
 
 class AuthorPostsViewSet(viewsets.ModelViewSet):

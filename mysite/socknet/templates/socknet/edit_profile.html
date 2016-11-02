@@ -10,6 +10,7 @@
             {% endfor %}
         {% endfor %}
     {% endif %}
+    {% if profile_author.uuid == user.author.uuid %}
 
         <div class="edit-profile-form">
             <h1>Edit your profile</h1>
@@ -30,6 +31,9 @@
                 <input type="submit" value="Edit">
             </form>
         </div>
+            {% else %}
+<h2> You are not logged in as this account. You can't edit a profile unless you are logged in </h2>
+  {% endif %}
 </body>
     
 {% endblock %}
