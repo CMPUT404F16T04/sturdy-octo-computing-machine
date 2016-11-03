@@ -99,6 +99,7 @@ h1, h2, h3, h4, h5, h6 {
 .post-title {
     overflow: hidden;
     overflow-wrap: break-word;
+    max-width: 96%; /* Keep icons from being displaced */
 }
 
 li.post {
