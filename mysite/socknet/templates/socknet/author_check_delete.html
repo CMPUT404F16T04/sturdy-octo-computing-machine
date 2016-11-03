@@ -8,6 +8,7 @@
 			</div>
 		</form>
 	{% else %}
-		<h2>Unable to delete this post. You are not this post's author.</h2>
+		<center><h2>Unable to delete this post. You are not this post's author.</h2></center>
+		{{ deny|safe }}
 	{% endif %}
 {% endblock %}

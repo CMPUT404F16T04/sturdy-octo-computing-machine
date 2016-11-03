@@ -6,9 +6,10 @@ from django.views import generic
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse
-from django.core.exceptions import PermissionDenied
+from socknet.utils import ForbiddenContent403
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
+from django import template
 
 from rest_framework import viewsets
 
@@ -94,6 +95,11 @@ class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
     login_url = '/login/' # For login mixin
     success_url=('/')
 
+    def get_context_data(self, **kwargs):
+        context = super(DeletePost, self).get_context_data(**kwargs)
+        context['deny'] = ForbiddenContent403.deniedhtml();
+        return context
+
     def form_valid(self, form):
         return super(DeletePost, self).form_valid(form)
 
@@ -104,6 +110,11 @@ class UpdatePost(LoginRequiredMixin, generic.edit.UpdateView):
     login_url = '/login/' # For login mixin
     success_url = '/'
     fields = ('__all__')
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdatePost, self).get_context_data(**kwargs)
+        context['deny'] = ForbiddenContent403.deniedhtml();
+        return context
 
     def get_object(self, queryset=None):
         obj = Post.objects.get(id=self.kwargs['pk'])
@@ -229,7 +240,7 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
         # Convert uuid from url into a proper UUID field
         authorUUID = uuid.UUID(authorUUID)
         if authorUUID != self.request.user.author.uuid:
-            raise PermissionDenied
+            return ForbiddenContent403.denied()
         return super(ManageFriends, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -238,7 +249,7 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
         authorUUID = uuid.UUID(authorUUID)
         # Ensure that someone else is not trying to edit our friends
         if authorUUID != self.request.user.author.uuid:
-            raise PermissionDenied
+            return ForbiddenContent403.denied()
         if request.is_ajax():
             decoded_json = json.loads(request.body)
             action_type = decoded_json['action']
@@ -275,7 +286,7 @@ class ManageFollowing(LoginRequiredMixin, generic.base.TemplateView):
         # Convert uuid from url into a proper UUID field
         authorUUID = uuid.UUID(authorUUID)
         if authorUUID != self.request.user.author.uuid:
-            raise PermissionDenied
+            return ForbiddenContent403.denied()
         return super(ManageFollowing, self).get(request, *args, **kwargs)
 
 class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
@@ -288,7 +299,7 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
         # Convert uuid from url into a proper UUID field
         authorUUID = uuid.UUID(authorUUID)
         if authorUUID != self.request.user.author.uuid:
-            raise PermissionDenied
+            return ForbiddenContent403.denied()
         return super(ManageFriendRequests, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -297,7 +308,7 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
         authorUUID = uuid.UUID(authorUUID)
         # Ensure that someone else is not trying to edit our friends
         if authorUUID != self.request.user.author.uuid:
-            raise PermissionDenied
+            return ForbiddenContent403.denied()
         if request.is_ajax():
             decoded_json = json.loads(request.body)
             action_type = decoded_json['action']
@@ -341,7 +352,7 @@ class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
         authorUUID = uuid.UUID(authorUUID)
         # Check if the logged in user's uuid matches the one we got from the url
         if authorUUID != self.request.user.author.uuid:
-            raise PermissionDenied
+            return ForbiddenContent403.denied()
         return super(EditProfile, self).get(request, *args, **kwargs)
 
     def get_object(self, queryset=None):

@@ -32,11 +32,17 @@
       $.get("../../media/{{post.imglink}}", function(data, status) {
         if( status === "success") {
           $('#{{post.id}}').html(data);
-          console.log(data)
-          $('img').css("width", "100%")
         }
       });
     </script>
-    <p>Attached Image:<br/><a id="{{post.id}}" href="/images/{{post.imglink}}">View Attached Image</a></p>
+    <p>
+        <center>
+        Attached Image:
+        <br/>
+        <a id="{{post.id}}" href="/images/{{post.imglink}}">
+            View Attached Image
+        </a>
+        </center>
+    </p>
 {% endif %}
 {% endblock %}

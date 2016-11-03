@@ -6,7 +6,8 @@
 	<input type="submit" value="Save" />
 </form>
 	{% else %}
-		<h2>Unable to edits this post. You are not this post's author.</h2>
+		<center><h2>Unable to edit this post. You are not this post's author.</h2></center>
+		{{ deny|safe }}
 	{% endif %}
 {% endblock %}
 {% block scripts %}
