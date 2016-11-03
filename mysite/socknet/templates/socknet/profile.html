@@ -20,9 +20,15 @@
     </div>
     <div class="profile-field">
         <span class="profile-label">Github Url: </span>{{ profile_author.github_url }}
+        {% if not profile_author.github_url %}
+        None
+        {% endif %}
     </div>
     <div class="profile-field">
         <span class="profile-label">About Me: </span> {{ profile_author.about_me }}
+        {% if not profile_author.about_me %}
+        None
+        {% endif %}
     </div>
 </div>
 

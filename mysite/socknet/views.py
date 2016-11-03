@@ -333,6 +333,7 @@ class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     def get_object(self, queryset=None):
         obj = Author.objects.get(uuid=self.kwargs['authorUUID'])
         return obj
+        
     def get_context_data(self, **kwargs):
         context = super(EditProfile, self).get_context_data(**kwargs)
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
