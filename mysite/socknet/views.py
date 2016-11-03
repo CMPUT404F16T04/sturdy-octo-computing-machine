@@ -108,7 +108,7 @@ class UpdatePost(LoginRequiredMixin, generic.edit.UpdateView):
     template_name = 'socknet/author_check_update.html'
     login_url = '/login/' # For login mixin
     success_url = '/'
-    fields = ('__all__')
+    fields = ('title', 'description', 'content', 'markdown', 'visibility')
 
     def get_context_data(self, **kwargs):
         context = super(UpdatePost, self).get_context_data(**kwargs)
