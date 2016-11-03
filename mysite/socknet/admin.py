@@ -70,7 +70,7 @@ class AuthorAdmin(admin.ModelAdmin):
         Get the fields that are read-only. If we are making a new author, then allow user to be added.
         """
         if obj: # editing an existing object
-            return self.readonly_fields + ('user')
+            return self.readonly_fields + ('user',)
         return self.readonly_fields
 
 # Unregister default user so that ours is used
