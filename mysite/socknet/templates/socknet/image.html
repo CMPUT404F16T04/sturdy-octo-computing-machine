@@ -1,28 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 {{image_loc.id}}<br/>
-{{image_loc.author.user.username}}<br/>
+Uploaded by {{image_loc.author.user.username}}<br/>
 {{image_loc.created_on}}<br/>
-{{image_loc.image}}<br/>
+<a onclick="window.history.back()" href="#">Go Back</a>
 <script type='text/javascript'>
-    var tryload = function() {
-      setTimeout( function(){
-        var conframe = document.getElementById('imgcon');
-        var framecontent = document.getElementById('imgframe').contentWindow.document;
-        var img = framecontent.getElementById('theimage');
-        if(img === null) {
-          tryload();
-        } else {
-          var conimage = document.createElement("img");
-          conimage.src = img.src;
-          conframe.appendChild(conimage);
-        }
-      }, 100);
-  };
-  tryload();
+  $.get("../../media/{{image_loc.image}}", function(data, status) {
+    if( status === "success") {
+      $('#imgcon').html(data);
+    }
+  });
 </script>
   <p id='imgcon'>
-    <iframe id='imgframe' src="../../media/{{image_loc.image}}" style='visibility:hidden; width:0; height:0;'>
   </p>
-
 {% endblock %}

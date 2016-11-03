@@ -20,6 +20,13 @@
     {{post.view_content|safe}}
 </article>
 {% if post.imglink != "" %}
-  <p><a href="/images/{{post.imglink}}">View Attached Image</a></p>
+    <script type='text/javascript'>
+      $.get("../../media/{{post.imglink}}", function(data, status) {
+        if( status === "success") {
+          $('#{{post.id}}').html(data);
+        }
+      });
+    </script>
+    <p>Attached Image:<br/><a id="{{post.id}}" href="/images/{{post.imglink}}">View Attached Image</a></p>
 {% endif %}
 {% endblock %}
