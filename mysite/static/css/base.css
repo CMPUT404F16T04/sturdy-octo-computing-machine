@@ -96,6 +96,11 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0;
 }
 
+.post-title {
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
 li.post {
 	padding: 20px;
 	background:#FFFFFF;
@@ -133,6 +138,7 @@ li.post {
 .post-description {
     font-style: italic;
     color: #8F8E8E;
+    overflow-wrap: break-word;
 }
 
 article.content {

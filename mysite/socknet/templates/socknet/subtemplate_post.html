@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="first-line">
-    <a href="{% url 'view_post' pk=post.pk %}">
+    <a class="post-title" href="{% url 'view_post' pk=post.pk %}">
         <h1>{{ post.title }}</h1>
     </a>
     {% if post.author.uuid == user.author.uuid %}
