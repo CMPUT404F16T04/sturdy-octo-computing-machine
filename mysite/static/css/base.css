@@ -84,6 +84,11 @@ h1, h2, h3, h4, h5, h6 {
     margin-left: 10px;
 }
 
+.bootstrap-select {
+    margin-right: 10px;
+    width: 170px !important; /* Override the libraries width */
+}
+
 /* POST LIST */
 .feed {
 	list-style-type: none;
