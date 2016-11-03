@@ -80,7 +80,9 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
                 # taken from Dtephen Paulger http://stackoverflow.com/a/20762344
                 Image.open(self.request.FILES['image']).verify()
             except IOError:
-                raise ValidationError("Unsupported file type. Upload an image type please.", code='invalid')
+                response = HttpResponse(status=415)
+                response.write("<center><h1>415 Unsupported Media Type</h1><br/><h2><a onclick=\"window.history.back()\" href=\"#\">Go Back</a></h2></center>")
+                return response
             img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author, form.instance)
             # Update field of the created post with the image path.
             form.instance.imglink = img.image

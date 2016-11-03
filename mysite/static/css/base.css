@@ -310,6 +310,7 @@ a.login-button:hover {
 
 .profile-field {
     margin-bottom: 10px;
+    overflow-wrap: break-word;
 }
 
 .profile-label {
