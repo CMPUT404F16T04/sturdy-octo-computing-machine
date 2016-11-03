@@ -298,7 +298,8 @@ a.login-button:hover {
 }
 
 #profile-heading {
-    display: inline-block;
+    display: inline;
+    overflow-wrap: break-word;
 }
 
 .profile-divider {
@@ -327,6 +328,7 @@ a.login-button:hover {
     font-size: 30px;
     margin-top: 10px;
     margin-bottom: 10px;
+    font-family: 'Roboto', sans-serif;
 }
 
 .friend-box {
@@ -364,11 +366,14 @@ a.login-button:hover {
 .friend-name {
     display: inline-block;
     width: 40%;
+    margin-right: 20px;
     margin-left: 20px;
     font-size: 20px;
     word-wrap: break-word;
     color: #006993;
     font-family: 'Roboto', sans-serif;
+    max-height: 90px;
+    overflow: hidden;
 }
 
 .friend-button {
