@@ -97,6 +97,18 @@ class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
     def form_valid(self, form):
         return super(DeletePost, self).form_valid(form)
 
+class UpdatePost(LoginRequiredMixin, generic.edit.UpdateView):
+    """ Displays a form for editing posts  """
+    model = Post
+    template_name = 'socknet/author_check_update.html'
+    login_url = '/login/' # For login mixin
+    success_url = '/'
+    fields = ('__all__')
+
+    def get_object(self, queryset=None):
+        obj = Post.objects.get(id=self.kwargs['pk'])
+        return obj
+
 class ViewComment(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays a specific comment for the post
     """
