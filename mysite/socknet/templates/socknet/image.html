@@ -8,7 +8,7 @@ Uploaded by {{image_loc.author.user.username}} on {{image_loc.created_on}} UTC.<
   $.get("../../media/{{image_loc.image}}", function(data, status) {
     if( status === "success") {
       $('#imgcon').html(data);
-      $('#theimage').css("width", "100%")
+      $('#theimage').css("maxWidth", "100%")
     }
   });
 </script>
