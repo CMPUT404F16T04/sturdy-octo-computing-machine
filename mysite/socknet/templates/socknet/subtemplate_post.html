@@ -32,6 +32,7 @@
       $.get("../../media/{{post.imglink}}", function(data, status) {
         if( status === "success") {
           $('#{{post.id}}').html(data);
+          $('img').css("width", "100%")
         }
       });
     </script>
