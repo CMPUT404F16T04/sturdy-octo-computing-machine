@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^$', views.ListPosts.as_view(), name='list_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', views.ViewPost.as_view(), name='view_post'),
     url(r'^posts/create/$', views.CreatePost.as_view(), name='create_post'),
+    url(r'^posts/update/$', views.UpdatePost.as_view(), name='update_post'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/delete/$', views.DeletePost.as_view(), name='author_check_delete'),
 
     # Comments

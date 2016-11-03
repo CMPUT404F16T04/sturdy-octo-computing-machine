@@ -71,6 +71,14 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
             form.instance.save(update_fields=['imglink'])
         return http_res_obj
 
+class UpdatePost(LoginRequiredMixin, generic.edit.UpdateView):
+    model = Post
+    fields = ['visibility']
+
+    def get_object(self, queryset=None):
+        obj = Post.objects.get(id=self.request.POST.get['id'])
+        return obj
+
 class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
     """ Displays a form for deleting posts  """
     model = Post
@@ -333,7 +341,7 @@ class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     def get_object(self, queryset=None):
         obj = Author.objects.get(uuid=self.kwargs['authorUUID'])
         return obj
-        
+
     def get_context_data(self, **kwargs):
         context = super(EditProfile, self).get_context_data(**kwargs)
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)

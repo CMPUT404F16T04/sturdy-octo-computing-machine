@@ -13,6 +13,19 @@
     {% endif %}
 </div>
 <a class="post-id-label" href="{% url 'view_post' pk=post.pk %}"># {{post.id}} ({{ post.getFullEnglishVisibility }})</a>
+<form method='post' enctype='application/x-www-form-urlencoded' action='posts/update/'>
+  {% csrf_token %}
+  <select id="visibility-select" class="selectpicker" name="visibility">
+    <option value="PUBLIC" selected>Public</option>
+    <option value="FOAF">Friends of Friends</option>
+    <option value="FRIENDS">Friends</option>
+    <option value="PRIVATE">Private</option>
+    <option value="SERVERONLY">Server Only</option>
+  </select>
+  <input type="hidden" name="id" value={{post.id}}>
+  <input type="submit" value="Save" />
+
+</form>
 <div class="author-date">
     {{ post.created_on }} UTC
 </div>
