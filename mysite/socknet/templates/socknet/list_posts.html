@@ -4,6 +4,14 @@
         {% for post in posts_list %}
             <li class="post">
                 {% include "socknet/subtemplate_post.html" %}
+                <div class="post-actions">
+                    <div class="action">
+                        <a href="{% url 'view_post' pk=post.pk %}">View Comments</a>
+                    </div>
+                    <div class="action">
+                        <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
+                    </div>
+                </div>
             </li>
         {% endfor %}
     </ol>

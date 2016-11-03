@@ -5,7 +5,7 @@ Medium grey (post #): #8F8E8E;
 Light Orange (nav bar brand): #FFC857
 Orange (Author Names, Friend Request Notification): #FF8C00
 
-Light Blue (Some buttons): 75D7FF
+Light Blue (Some buttons): #75D7FF
 Blue (Created On Date): #006993
 Dark Blue (Box shadow colour): rgb(230, 230, 230)
 
@@ -32,6 +32,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Space between workspace and navigation bar so that it does not overlap */
 #workspace {
     padding-top: 80px;
+    padding-bottom: 80px;
 }
 
 /* Box around messages */
@@ -51,12 +52,12 @@ h1, h2, h3, h4, h5, h6 {
 /* CREATE POST OR COMMENT */
 .text-area {
     width: 100%;
-    height: 150px;
+    height: 200px !important;
     padding: 12px 20px;
     box-sizing: border-box;
-    border: 2px solid #EEE;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    background-color: #F8F8F8;
+    background-color: white;
     resize: none;
     margin-bottom: 10px;
 }
@@ -117,7 +118,6 @@ a.delete{
 
 .author-label {
      font-family: 'Roboto', sans-serif;
-     font-size: 20px;
      color: #FF8C00;
 }
 
@@ -131,6 +131,11 @@ a.delete{
 }
 
 .post-id-label {
+    color: #8F8E8E;
+}
+
+.post-description {
+    font-style: italic;
     color: #8F8E8E;
 }
 
@@ -176,6 +181,26 @@ pre {
 
 pre > code {
 	border-style: none;
+}
+
+.comment-container {
+    background-color: white;
+    list-style-type: none;
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-top: 20px;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+}
+
+.comment {
+    background-color: #F5F5F5;
+}
+
+.comment-divider {
+    border: 1px solid ##FFC857;
 }
 
 /* NAV BAR */

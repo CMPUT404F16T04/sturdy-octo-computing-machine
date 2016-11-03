@@ -46,11 +46,16 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
     template_name = 'socknet/view_post.html'
     login_url = '/login/' # For login mixin
 
+    def get_context_data(self, **kwargs):
+        context = super(ViewPost, self).get_context_data(**kwargs)
+        context['comments'] = Comment.objects.all_comments_for_post(context['post'].id, True)
+        return context
+
 class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new post """
     model = Post
     template_name = 'socknet/create_post.html'
-    fields = ['content', 'markdown', 'visibility']
+    fields = ['title', 'description','content', 'markdown', 'visibility']
     login_url = '/login/' # For login mixin
 
     def form_valid(self, form):
@@ -80,20 +85,6 @@ class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
 
     def form_valid(self, form):
         return super(DeletePost, self).form_valid(form)
-
-class ListComments(LoginRequiredMixin, generic.ListView):
-    """ Displays a list of all comments for the post
-    """
-    model = Comment
-    template_name = 'socknet/list_comments.html'
-    login_url = '/login/' # For login mixin
-
-    def get_context_data(self, **kwargs):
-        context = super(ListComments, self).get_context_data(**kwargs)
-        parent_post = Post(id=self.kwargs.get('post_pk'))
-        context['parent'] = parent_post
-        context['comments'] = Comment.objects.all_comments_for_post(parent_post.id, True)
-        return context
 
 class ViewComment(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays a specific comment for the post
@@ -333,7 +324,7 @@ class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     def get_object(self, queryset=None):
         obj = Author.objects.get(uuid=self.kwargs['authorUUID'])
         return obj
-        
+
     def get_context_data(self, **kwargs):
         context = super(EditProfile, self).get_context_data(**kwargs)
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)

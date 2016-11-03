@@ -32,8 +32,6 @@ urlpatterns = [
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/delete/$', views.DeletePost.as_view(), name='author_check_delete'),
 
     # Comments
-    url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/$', views.ListComments.as_view(), name='list_comments'),
-    url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/\#(?P<pk>[0-9A-Fa-f-]+)$', views.ListComments.as_view(), name='list_comments_anchor'),
     url(r'^comment/(?P<pk>[0-9A-Fa-f-]+)/$', views.ViewComment.as_view(), name='view_comment'),
     url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/create/$', views.CreateComment.as_view(), name='create_comment'),
 

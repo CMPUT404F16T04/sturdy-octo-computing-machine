@@ -1,20 +1,20 @@
 <!-- Subtemplates taken from Simeon Visser http://stackoverflow.com/a/10985987 -->
 
 {% block content %}
-
 <div class="first-line">
-    <div>
-        <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
-    </div>
+    <h1>{{ post.title }}</h1>
     {% if post.author.uuid == user.author.uuid %}
         <a class="delete" href="{% url 'author_check_delete' pk=post.pk %}">
             <span class="glyphicon glyphicon-remove"></span>
         </a>
     {% endif %}
 </div>
-<a class="post-id-label" href="{% url 'view_post' pk=post.pk %}"># {{post.id}} ({{ post.getFullEnglishVisibility }})</a>
-<div class="author-date">
-    {{ post.created_on }} UTC
+<div class="post-id-label">
+    {{ post.getFullEnglishVisibility }} post submitted by <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
+    on on {{ post.created_on }} UTC
+</div>
+<div class="post-description">
+    {{post.description}}
 </div>
 <article class="content">
     {{post.view_content|safe}}
@@ -22,12 +22,4 @@
 {% if post.imglink != "" %}
   <p><a href="/images/{{post.imglink}}">View Attached Image</a></p>
 {% endif %}
-<div class="post-actions">
-    <div class="action">
-        <a href="{% url 'list_comments' post_pk=post.pk %}">Comments</a>
-    </div>
-    <div class="action">
-        <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
-    </div>
-</div>
 {% endblock %}

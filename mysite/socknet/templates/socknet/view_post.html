@@ -2,8 +2,32 @@
 {% block content %}
 <div class="content-box">
     {% include "socknet/subtemplate_post.html" %}
-    <div class="action">
+    <div class="post-actions">
+        <div class="action">
+            <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
+        </div>
         <a href="{% url 'list_posts' %}">Return to Post List</a>
     </div>
 </div>
+<br/>
+{% if comments.count > 0 %}
+<ol class="comment-container">
+    {% for comment in comments %}
+      <li class="commen">
+        <div>
+            <a class="author-label" href="{% url 'profile' authorUUID=comment.author.uuid %}">{{ comment.author.user.username }}</a>
+        </div>
+        <div class="author-date">
+            {{ comment.created_on }} UTC
+        </div>
+        <article class="content">
+            {{comment.view_content|safe}}
+        </article>
+      </li>
+      <hr class="comment-divider"/>
+    {% endfor %}
+</ol>
+{% else %}
+    <div class="content-box">There are no comments on this post.</div>
+{% endif %}
 {% endblock %}

@@ -94,6 +94,8 @@ class Post(models.Model):
     """ Represents a post made by a user """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     author = models.ForeignKey(Author, related_name="author")
+    title = models.CharField(max_length=64, default="No Title")
+    description = models.CharField(max_length=128, default="No description provided.")
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
@@ -206,7 +208,8 @@ class Comment(models.Model):
         #return reverse('view_comment', args=[str(self.id)])
 
         # Redirects to previous list of comments with the anchor of the created post.
-        return reverse('list_comments_anchor', args=[str(self.parent_post.id), str(self.id)]).replace('%23', '#')
+        #return reverse('list_comments_anchor', args=[str(self.parent_post.id), str(self.id)]).replace('%23', '#')
+        return reverse('view_post', args=[str(self.parent_post.id)])
 
     def view_content(self):
         """ Retrieves content to be displayed as html, it is assumed safe
