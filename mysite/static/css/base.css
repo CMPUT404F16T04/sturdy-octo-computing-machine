@@ -44,6 +44,10 @@ h1, h2, h3, h4, h5, h6 {
 
 }
 
+.float-right {
+    float: right;
+}
+
 /* CREATE POST OR COMMENT */
 .text-area {
     width: 100%;
@@ -78,6 +82,11 @@ h1, h2, h3, h4, h5, h6 {
 #filename {
     align-self: center;
     margin-left: 10px;
+}
+
+.bootstrap-select {
+    margin-right: 10px;
+    width: 170px !important; /* Override the libraries width */
 }
 
 /* POST LIST */
@@ -256,6 +265,35 @@ a.login-button:hover {
 /* PROFILE PAGE */
 #profileInfo{
 	padding-left:40px;
+}
+
+#edit {
+    display: inline;
+}
+
+#profile-heading {
+    display: inline-block;
+}
+
+.profile-divider {
+    border: 1px solid #75D7FF;
+}
+
+.profile-field {
+    margin-bottom: 10px;
+}
+
+.profile-label {
+    color: #FF8C00;
+    font-family: 'Roboto', sans-serif;
+    margin-right: 10px;
+}
+
+/* Edit profile */
+#about_me {
+    resize: none;
+    height: 150px;
+
 }
 
 /* STYLING FOR FRIEND MANAGEMENT */
