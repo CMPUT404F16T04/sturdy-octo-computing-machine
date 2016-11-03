@@ -9,7 +9,6 @@ from django.http import HttpResponse
 from socknet.utils import ForbiddenContent403
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
-from django import template
 
 from rest_framework import viewsets
 
