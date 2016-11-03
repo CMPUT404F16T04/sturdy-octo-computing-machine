@@ -27,7 +27,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     """ Displays a list of all posts in the system """
-    queryset = Post.objects.order_by('-created_on')
+    queryset = Post.objects.filter(visibility='PUBLIC').order_by('-created_on')
     template_name = 'socknet/list_posts.html'
     login_url = '/login/' # For login mixin
     context_object_name = 'posts_list'
