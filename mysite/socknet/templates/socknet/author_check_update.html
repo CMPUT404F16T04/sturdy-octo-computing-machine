@@ -3,14 +3,15 @@
 	{% if user.author.uuid == post.author.uuid %}
 	<div class="content-box">
 		<h1>Update Post</h1>
+		<!-- TODO: Prefill visibility, markdown, and image -->
 		<form action="" method="post">{% csrf_token %}
 			<div class="form-group">
 	        <label for="title">Title</label>
-	        <input name="title" type="text" class="form-control" maxLength=64 autofocus="true" required="true">
+	        <input name="title" type="text" class="form-control" maxLength=64 autofocus="true" required="true" value='{{ post.title }}'>
 	    </div>
 	    <div class="form-group">
 	        <label for="description">Description</label>
-	        <input name="description" type="text" class="form-control" maxLength=128 required="true">
+	        <input name="description" type="text" class="form-control" maxLength=128 required="true" value='{{ post.description }}'>
 	    </div>
 	    <label for="content">Content</label>
 	    <div class="content-options">
@@ -31,7 +32,7 @@
 	        <!-- Fill in the filename when a file is selected -->
 	        <span id="filename"></span>
 	    </div>
-	    <textarea name="content" class="form-control text-area" type="text" maxLength="512" required="true"></textarea>
+	    <textarea name="content" class="form-control text-area" type="text" maxLength="512" required="true">{{ post.content }}</textarea>
 	    <input type="submit" value="Finish"/>
 		</form>
 	</div>
