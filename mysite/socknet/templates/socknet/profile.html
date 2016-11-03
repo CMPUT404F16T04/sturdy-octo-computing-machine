@@ -1,24 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-
-<h1>{{ profile_author.user.username }}'s Profile!</h1>
 <div class = "content-box">
-    <h5>Birthday: {{ profile_author.birthday }}</h5>
-    <h5>Github Url: {{ profile_author.github_url }}</h5>
-    <h5>About Me: {{ profile_author.about_me }}</h5>
-
+    <h1 id="profile-heading">{{ profile_author.user.username }}'s Profile!</h1>
     {% if profile_author.uuid == user.author.uuid %}
         <!-- Author is viewing their own profile, display edit button -->
-        <form action="{% url 'editprofile' authorUUID=user.author.uuid %}">
-       <input type="submit" value="Edit Profile">
-    </form>
+        <form id="edit" action="{% url 'editprofile' authorUUID=user.author.uuid %}">
+            <input class="float-right" type="submit" value="Edit Profile">
+        </form>
     {% else %}
         <!-- Author is viewing someone else's profile, display button that allows
              them to follow, unfollow, unfriend, etc. -->
-        <a id="friend_anchor" href="#" class="friend-anchor"
+        <a id="friend_anchor" href="#" class="friend-anchor login-button float-right"
         data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}"></a>
     {% endif %}
-
+    <hr class="profile-divider"/>
+    <!-- Profile fields -->
+    <div class="profile-field">
+        <span class="profile-label">Birthday: </span>{{ profile_author.birthday }}
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Github Url: </span>{{ profile_author.github_url }}
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">About Me: </span> {{ profile_author.about_me }}
+    </div>
 </div>
 
 <!-- The stream for the profile's author -->

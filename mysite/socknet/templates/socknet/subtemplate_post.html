@@ -12,11 +12,9 @@
         </a>
     {% endif %}
 </div>
-<a class="post-id-label" href="{% url 'view_post' pk=post.pk %}"># {{post.id}}</a>
+<a class="post-id-label" href="{% url 'view_post' pk=post.pk %}"># {{post.id}} ({{ post.getFullEnglishVisibility }})</a>
 <div class="author-date">
     {{ post.created_on }} UTC
-  </br>
-    Visible to: {{ post.getFullEnglishVisibility }}
 </div>
 <article class="content">
     {{post.view_content|safe}}
