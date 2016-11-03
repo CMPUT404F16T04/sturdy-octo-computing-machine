@@ -414,3 +414,8 @@ a.login-button:hover {
     padding: 20px;
     overflow-wrap: break-word;
 }
+
+/* MISC */
+#admin {
+    margin: 10px;
+}
