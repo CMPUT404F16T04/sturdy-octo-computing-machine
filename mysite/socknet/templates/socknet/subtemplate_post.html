@@ -6,9 +6,14 @@
         <h1>{{ post.title }}</h1>
     </a>
     {% if post.author.uuid == user.author.uuid %}
+      <div>
+        <a class="edit" href="{% url 'author_check_update' pk=post.pk %}">
+          <span class='glyphicon glyphicon-pencil'></span>
+        </a>
         <a class="delete" href="{% url 'author_check_delete' pk=post.pk %}">
             <span class="glyphicon glyphicon-remove"></span>
         </a>
+      </div>
     {% endif %}
 </div>
 <div class="post-id-label">

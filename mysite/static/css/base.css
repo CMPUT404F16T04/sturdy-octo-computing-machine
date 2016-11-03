@@ -111,11 +111,6 @@ li.post {
     width: 100%;
 }
 
-a.delete{
-	display:inline-block;
-	text-align: right;
-}
-
 .author-label {
      font-family: 'Roboto', sans-serif;
      color: #FF8C00;
