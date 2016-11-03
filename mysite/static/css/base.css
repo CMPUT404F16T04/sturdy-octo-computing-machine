@@ -119,6 +119,7 @@ a.delete{
 .author-label {
      font-family: 'Roboto', sans-serif;
      color: #FF8C00;
+     overflow-wrap: break-word;
 }
 
 .author-name {
@@ -398,4 +399,11 @@ a.login-button:hover {
     -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
     -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
     box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+}
+
+/* IMAGES */
+.image-container {
+    background-color: white;
+    padding: 20px;
+    overflow-wrap: break-word;
 }
