@@ -22,6 +22,7 @@ from mysite.settings import MEDIA_ROOT
 from PIL import Image, ImageFile
 import base64
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
@@ -48,7 +49,17 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ViewPost, self).get_context_data(**kwargs)
-        context['comments'] = Comment.objects.all_comments_for_post(context['post'].id, True)
+        comments = Comment.objects.all_comments_for_post(context['post'].id, True)
+        context['num_comments'] = len(comments)
+        paginator = Paginator(comments, 5)
+        page = self.request.GET.get('page')
+        try:
+            comments = paginator.page(page)
+        except PageNotAnInteger:
+            comments = paginator.page(1)
+        except EmptyPage:
+            comments = paginator.page(paginator.num_pages)
+        context['comments'] = comments
         return context
 
 class CreatePost(LoginRequiredMixin, generic.edit.CreateView):

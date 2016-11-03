@@ -10,10 +10,10 @@
     </div>
 </div>
 <br/>
-{% if comments.count > 0 %}
+{% if num_comments > 0 %}
 <ol class="comment-container">
     {% for comment in comments %}
-      <li class="commen">
+      <li>
         <div>
             <a class="author-label" href="{% url 'profile' authorUUID=comment.author.uuid %}">{{ comment.author.user.username }}</a>
         </div>
@@ -27,6 +27,23 @@
       <hr class="comment-divider"/>
     {% endfor %}
 </ol>
+    {% if comments.paginator.num_pages > 1 %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if comments.has_previous %}
+                    <a href="?page={{ comments.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ comments.number }} of {{ comments.paginator.num_pages }}.
+                </span>
+
+                {% if comments.has_next %}
+                    <a href="?page={{ comments.next_page_number }}">Next</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
 {% else %}
     <div class="content-box">There are no comments on this post.</div>
 {% endif %}
