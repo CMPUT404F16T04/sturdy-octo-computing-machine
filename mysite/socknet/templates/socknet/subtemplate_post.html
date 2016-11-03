@@ -2,7 +2,9 @@
 
 {% block content %}
 <div class="first-line">
-    <h1>{{ post.title }}</h1>
+    <a href="{% url 'view_post' pk=post.pk %}">
+        <h1>{{ post.title }}</h1>
+    </a>
     {% if post.author.uuid == user.author.uuid %}
         <a class="delete" href="{% url 'author_check_delete' pk=post.pk %}">
             <span class="glyphicon glyphicon-remove"></span>
