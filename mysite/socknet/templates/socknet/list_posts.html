@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+    <ol class="feed">
+        {% for post in posts_list %}
+            <li class="post">
+                {% include "socknet/subtemplate_post.html" %}
+                <div class="post-actions">
+                    <div class="action">
+                        <a href="{% url 'view_post' pk=post.pk %}">View Comments</a>
+                    </div>
+                    <div class="action">
+                        <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ol>
+    {% if is_paginated %}
+        <div class="pagination">
+            <span class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="/?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+                <span class="page-current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+                {% if page_obj.has_next %}
+                    <a href="/?page={{ page_obj.next_page_number }}">next</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+{% endblock %}

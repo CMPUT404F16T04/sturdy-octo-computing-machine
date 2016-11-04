@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="content-box">
+    {% include "socknet/subtemplate_post.html" %}
+    <div class="post-actions">
+        <div class="action">
+            <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>
+        </div>
+        <a href="{% url 'list_posts' %}">Return to Post List</a>
+    </div>
+</div>
+<br/>
+{% if num_comments > 0 %}
+<ol class="comment-container">
+    {% for comment in comments %}
+      <li>
+        <div>
+            <a class="author-label" href="{% url 'profile' authorUUID=comment.author.uuid %}">{{ comment.author.user.username }}</a>
+        </div>
+        <div class="author-date">
+            {{ comment.created_on }} UTC
+        </div>
+        <article class="content">
+            {{comment.view_content|safe}}
+        </article>
+      </li>
+      <hr class="comment-divider"/>
+    {% endfor %}
+</ol>
+    {% if comments.paginator.num_pages > 1 %}
+        <div class="pagination">
+            <span class="step-links">
+                {% if comments.has_previous %}
+                    <a href="?page={{ comments.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ comments.number }} of {{ comments.paginator.num_pages }}.
+                </span>
+
+                {% if comments.has_next %}
+                    <a href="?page={{ comments.next_page_number }}">Next</a>
+                {% endif %}
+            </span>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="content-box">There are no comments on this post.</div>
+{% endif %}
+{% endblock %}

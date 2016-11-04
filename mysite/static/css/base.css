@@ -1,0 +1,422 @@
+/* COLOUR LIST (Incase anyone needs them)
+Light grey (background): #F5F5F5
+Medium grey (post #): #8F8E8E;
+
+Light Orange (nav bar brand): #FFC857
+Orange (Author Names, Friend Request Notification): #FF8C00
+
+Light Blue (Some buttons): #75D7FF
+Blue (Created On Date): #006993
+Dark Blue (Box shadow colour): rgb(230, 230, 230)
+
+Roboto is the font I am using for labels / headings to make them thicker.
+*/
+
+@import url('https://fonts.googleapis.com/css?family=Catamaran');
+@import url('https://fonts.googleapis.com/css?family=Roboto:500');
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+    background-color: #F5F5F5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Roboto', sans-serif;
+    margin-top: 0;
+}
+
+/* Space between workspace and navigation bar so that it does not overlap */
+#workspace {
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+/* Box around messages */
+.content-box {
+    padding: 30px;
+    background-color: #FFFFFF;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+
+}
+
+.float-right {
+    float: right;
+}
+
+/* CREATE POST OR COMMENT */
+.text-area {
+    width: 100%;
+    height: 200px !important;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    resize: none;
+    margin-bottom: 10px;
+}
+
+.content-options {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: start;
+}
+
+.checkbox-option {
+    margin-right: 10px;
+    padding: 0px 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#markdown-btn {
+    margin-right: 10px;
+}
+
+#filename {
+    align-self: center;
+    margin-left: 10px;
+}
+
+.bootstrap-select {
+    margin-right: 10px;
+    width: 170px !important; /* Override the libraries width */
+}
+
+/* POST LIST */
+.feed {
+	list-style-type: none;
+    padding: 0;
+}
+
+.post-title {
+    overflow: hidden;
+    overflow-wrap: break-word;
+    max-width: 96%; /* Keep icons from being displaced */
+}
+
+li.post {
+	padding: 20px;
+	background:#FFFFFF;
+	margin-top:20px;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+}
+
+.first-line {
+    display: inline-flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.author-label {
+     font-family: 'Roboto', sans-serif;
+     color: #FF8C00;
+     overflow-wrap: break-word;
+}
+
+.author-name {
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+}
+
+.author-date {
+    color: #006993;
+}
+
+.post-id-label {
+    color: #8F8E8E;
+}
+
+.post-description {
+    font-style: italic;
+    color: #8F8E8E;
+    overflow-wrap: break-word;
+}
+
+article.content {
+	padding: 10px;
+    word-wrap: break-word;
+}
+
+.post-actions {
+    display:inline-flex;
+}
+
+.action {
+    margin-right: 20px;
+    display:inline-block;
+}
+
+.post > blockquote {
+	border-left-style: solid;
+	border-left-width: 5pt;
+	border-left-color: lightgray;
+	padding-left: 10pt;
+	margin-left: 10pt;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+code {
+	padding: 2pt;
+	line-height: 1.6em;
+	border: solid 1pt lightgray;
+	border-radius: 4pt;
+	background-color: rgb(230, 230, 230);
+}
+
+pre {
+	margin-top: 5pt;
+	padding: 5pt;
+	border: solid 1pt lightgray;
+	border-radius: 4pt;
+	background-color: rgb(230, 230, 230);
+}
+
+pre > code {
+	border-style: none;
+}
+
+.comment-container {
+    background-color: white;
+    list-style-type: none;
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-top: 20px;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+}
+
+.comment {
+    background-color: #F5F5F5;
+}
+
+.comment-divider {
+    border: 1px solid ##FFC857;
+}
+
+/* NAV BAR */
+.navbar-colored {
+    background-color: #FFFFFF;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+
+}
+
+.navbar-brand{
+	 background-color: #FFC857;
+     font-size: 25px;
+	 color: black;
+}
+
+.navbar-fr-label {
+    font-size: 15px;
+    font-family: 'Catamaran', sans-serif;
+    background-color: #FF8C00;
+    position: absolute;;
+    top: -4px;
+    right: -4px;
+}
+
+.navbar-icon {
+    margin-right: 5px;
+}
+
+input[type=submit] {
+    padding:5px 15px;
+    background:#75D7FF;
+    color:white;
+    font-size: 16pt;
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+/* LOGIN AND LOGOUT */
+.login-button {
+    padding:5px 15px;
+    background:#75D7FF;
+    color:white;
+    font-size: 16pt;
+    border:0 none;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+a.login-button:hover {
+    /* Don't underline the link when mouse hovers over */
+    color: white !important;
+    text-decoration: none !important;
+}
+
+
+.loginform{
+    display: block;
+    padding: 35px 100px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+
+.login-center-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    margin-top: 100px;
+}
+
+.login-field {
+    width: 360px;
+}
+
+.form-error {
+    text-align: center;
+    color: red;
+    background-color: #F2DEDE;
+    padding: 15px;
+}
+
+/* PROFILE PAGE */
+#profileInfo{
+	padding-left:40px;
+}
+
+#edit {
+    display: inline;
+}
+
+#profile-heading {
+    display: inline;
+    overflow-wrap: break-word;
+}
+
+.profile-divider {
+    border: 1px solid #75D7FF;
+}
+
+.profile-field {
+    margin-bottom: 10px;
+    overflow-wrap: break-word;
+}
+
+.profile-label {
+    color: #FF8C00;
+    font-family: 'Roboto', sans-serif;
+    margin-right: 10px;
+}
+
+/* Edit profile */
+#about_me {
+    resize: none;
+    height: 150px;
+
+}
+
+/* STYLING FOR FRIEND MANAGEMENT */
+.friend-title {
+    font-size: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.friend-box {
+    /* border: 2px solid #FFC857; */
+    background-color: #FFFFFF;
+    width: 46%;
+    min-width: 500px;
+    position: relative;
+    margin-right: 2%;
+    margin-bottom: 2%;
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid #EEEEEE;
+}
+
+.friend-request-box {
+    border: 2px solid #EEEEEE;
+    width: 48%;
+    min-width: 500px;
+    position: relative;
+    margin-right: 10px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    background-color: white;
+}
+
+.friend-profile-pic {
+    display: block;
+    position: relative;
+    float: left;
+    height: 100px;
+}
+
+.friend-name {
+    display: inline-block;
+    width: 40%;
+    margin-right: 20px;
+    margin-left: 20px;
+    font-size: 20px;
+    word-wrap: break-word;
+    color: #006993;
+    font-family: 'Roboto', sans-serif;
+    max-height: 90px;
+    overflow: hidden;
+}
+
+.friend-button {
+    display: inline-block;
+    width: 60%;
+    text-align: right;
+    margin-right: 20px;
+    font-size: 15px;
+}
+
+.friend-button-2 {
+    margin-right: 10px;
+}
+
+.visibility-select {
+  width: 100px;
+}
+
+.profileInfo{
+    background-color: #FFFFFF;
+    width: 46%;
+    min-width: 500px;
+    position: relative;
+    margin-right: 2%;
+    margin-bottom: 2%;
+    display: inline-flex;
+    align-items: center;
+    -webkit-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    -moz-box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+    box-shadow: 1px 1px 1px 0px rgba(178,196,207,1);
+}
+
+/* IMAGES */
+.image-container {
+    background-color: white;
+    padding: 20px;
+    overflow-wrap: break-word;
+}
+
+/* MISC */
+#admin {
+    margin: 10px;
+}

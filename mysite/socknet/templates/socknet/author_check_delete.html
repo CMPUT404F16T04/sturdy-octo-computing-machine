@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+	{% if user.author.uuid == post.author.uuid %}
+		<form action="" method="post">{% csrf_token %}
+			<div class="content-box">
+		    	<p>Are you sure you want to delete post "{{ post.id }}"?</p>
+		    	<input type="submit" value="Confirm" />
+			</div>
+		</form>
+	{% else %}
+		<center><h2>Unable to delete this post. You are not this post's author.</h2></center>
+		{{ deny|safe }}
+	{% endif %}
+{% endblock %}

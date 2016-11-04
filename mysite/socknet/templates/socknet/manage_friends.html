@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static from staticfiles %}
+    <div class="friend-title">My Friends</div>
+    {% for friend in user.author.friends.all %}
+        <div class="friend-box">
+            <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
+            <div class="friend-name">
+                <a href="{% url 'profile' authorUUID=friend.uuid %}">{{ friend.user.username }}</a>
+            </div>
+            <div class="friend-button">
+                <a id="{{ friend.uuid}}_button" href="#" class="friend-anchor btn btn-danger"
+                data-uuid="{{ friend.uuid }}" data-username="{{ friend.user.username }}" data-status="unfriend">Unfriend</a>
+            </div>
+        </div>
+    {% endfor %}
+    {% if user.author.friends.all.count < 1 %}
+    <div class="content-box">You haven't made friends yet!</div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
+<script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+    $(document).ready(function() {
+        console.log("Manage Friends Loaded");
+    });
+</script>
+{% endblock scripts %}

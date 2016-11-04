@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,10 +24,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'sh&+ah81hyo-uk=i9dpu@3v#)*)nb%7m=a5u0cq8b%ig3$&hr$'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+#!!Bootstrap and our css don't work if false because we use local urls /static/ ?
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 # Application definition
 
@@ -37,6 +38,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'socknet.apps.SocknetConfig',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -74,12 +77,21 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+DATABASES = {}
+if (os.environ.get('DATABASE_URL')):
+    DATABASES['default'] =  dj_database_url.config()
+else :
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'django_db',
+            'USER': 'django',
+            'PASSWORD': 'django',
+            'HOST': 'localhost',
+
+        }
     }
-}
+
 
 
 # Internationalization
@@ -100,3 +112,24 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_FOLDER = os.path.abspath(os.path.join(BASE_DIR, 'static'))
+STATICFILES_DIRS = (STATIC_FOLDER, )
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'staticcollect'))
+
+LOGIN_REDIRECT_URL = '/'
+
+# Uploaded files, basically images by users.
+# https://docs.djangoproject.com/en/1.10/topics/files/
+MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static'))
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static'))
+
+# Tom Christie
+# http://www.django-rest-framework.org/#installation
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}

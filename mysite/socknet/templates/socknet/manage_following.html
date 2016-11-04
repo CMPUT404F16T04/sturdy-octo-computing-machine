@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static from staticfiles %}
+    <div class="friend-title">People I Follow</div>
+    <!-- Only display people I am following who are NOT also my friends -->
+    {% for follower_of in user.author.get_following_only %}
+        <div class="friend-box">
+            <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
+            <div class="friend-name">
+                <a href="{% url 'profile' authorUUID=follower_of.uuid %}">{{ follower_of.user.username }}</a>
+            </div>
+            <div class="friend-button">
+                <a id="{{ follower_of.uuid}}_button" href="#" class="friend-anchor btn btn-danger"
+                data-uuid="{{ follower_of.uuid }}" data-username="{{ follower_of.user.username }}" data-status="unfollow">Unfollow</a>
+            </div>
+        </div>
+    {% endfor %}
+    {% if user.author.get_following_only.count < 1 %}
+    <div class="content-box">You haven't followed anybody yet!</div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
+<script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+    $(document).ready(function() {
+        console.log("Manage Following Loaded");
+    });
+</script>
+{% endblock scripts %}

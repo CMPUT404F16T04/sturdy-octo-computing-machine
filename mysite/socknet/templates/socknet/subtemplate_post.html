@@ -1,0 +1,49 @@
+<!-- Subtemplates taken from Simeon Visser http://stackoverflow.com/a/10985987 -->
+
+{% block content %}
+<div class="first-line">
+    <a class="post-title" href="{% url 'view_post' pk=post.pk %}">
+        <h1>{{ post.title }}</h1>
+    </a>
+    {% if post.author.uuid == user.author.uuid %}
+      <div>
+        <a class="edit" href="{% url 'author_check_update' pk=post.pk %}">
+          <span class='glyphicon glyphicon-pencil'></span>
+        </a>
+        <a class="delete" href="{% url 'author_check_delete' pk=post.pk %}">
+            <span class="glyphicon glyphicon-remove"></span>
+        </a>
+      </div>
+    {% endif %}
+</div>
+<div class="post-id-label">
+    {{ post.getFullEnglishVisibility }} post submitted by
+    <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
+    on {{ post.created_on }} UTC
+</div>
+<div class="post-description">
+    {{post.description}}
+</div>
+<article class="content">
+    {{post.view_content|safe}}
+</article>
+{% if post.imglink != "" %}
+    <script type='text/javascript'>
+      $.get("../../media/{{post.imglink}}", function(data, status) {
+        if( status === "success") {
+          $('#{{post.id}}').html(data);
+          $('img').css("maxWidth", "100%")
+        }
+      });
+    </script>
+    <p>
+        <center>
+        Attached Image:
+        <br/>
+        <a id="{{post.id}}" href="/images/{{post.imglink}}">
+            View Attached Image
+        </a>
+        </center>
+    </p>
+{% endif %}
+{% endblock %}

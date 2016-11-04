@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class = "content-box">
+    <h1 id="profile-heading">{{ profile_author.user.username }}'s Profile!</h1>
+    {% if profile_author.uuid == user.author.uuid %}
+        <!-- Author is viewing their own profile, display edit button -->
+        <form id="edit" action="{% url 'editprofile' authorUUID=user.author.uuid %}">
+            <input class="float-right" type="submit" value="Edit Profile">
+        </form>
+    {% else %}
+        <!-- Author is viewing someone else's profile, display button that allows
+             them to follow, unfollow, unfriend, etc. -->
+        <a id="friend_anchor" href="#" class="friend-anchor login-button float-right"
+        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}"></a>
+    {% endif %}
+    <hr class="profile-divider"/>
+    <!-- Profile fields -->
+    <div class="profile-field">
+        <span class="profile-label">Birthday: </span>{{ profile_author.birthday }}
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">Github Url: </span>{{ profile_author.github_url }}
+        {% if not profile_author.github_url %}
+        None
+        {% endif %}
+    </div>
+    <div class="profile-field">
+        <span class="profile-label">About Me: </span> {{ profile_author.about_me }}
+        {% if not profile_author.about_me %}
+        None
+        {% endif %}
+    </div>
+</div>
+
+<!-- The stream for the profile's author -->
+<div class="postList">
+    <ol class="feed">
+        {% for post in context_list %}
+            <li class="post">
+                {% include "socknet/subtemplate_post.html" %}
+            </li>
+        {% endfor %}
+    </ol>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+{% load static from staticfiles %}
+<script src="{% static 'js/friend_request_handler.js' %}"></script>
+<script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+
+    $(document).ready(function() {
+        console.log("Profile is loaded");
+        console.log("Action button: "+"{{ button_action }}")
+        if ("{{ user.author.uuid }}" !== "{{ profile_author.uuid }}") {
+            // Set text of friend button based on current relationship
+            if("{{ button_action }}" === "unfriend") {
+                $('#friend_anchor').text("Unfriend");
+            } else if ("{{ button_action }}" === "follow") {
+                $('#friend_anchor').text("Follow");
+            } else if ("{{ button_action }}" === "accept_friend_request") {
+                $('#friend_anchor').text("Accept Friend Request");
+            } else if ("{{ button_action }}" === "unfollow") {
+                $('#friend_anchor').text("Unfollow");
+            }
+        }
+    });
+</script>
+
+{% endblock scripts %}

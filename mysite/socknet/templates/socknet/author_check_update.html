@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+	{% if user.author.uuid == post.author.uuid %}
+	<div class="content-box">
+		<h1>Update Post</h1>
+		<!-- TODO: Prefill visibility, markdown, and image -->
+		<form action="" method="post">{% csrf_token %}
+			<div class="form-group">
+	        <label for="title">Title</label>
+	        <input name="title" type="text" class="form-control" maxLength=64 autofocus="true" required="true" value='{{ post.title }}'>
+	    </div>
+	    <div class="form-group">
+	        <label for="description">Description</label>
+	        <input name="description" type="text" class="form-control" maxLength=128 required="true" value='{{ post.description }}'>
+	    </div>
+	    <label for="content">Content</label>
+	    <div class="content-options">
+	        <div id="markdown-btn" class="btn btn-default">
+	            <input id="id_markdown" name="markdown" type="checkbox"  style="display: none;"/>
+	            Markdown
+	        </div>
+	        <select id="visibility-select" class="selectpicker" name="visibility">
+	          <option value="PUBLIC" selected>Public</option>
+	          <option value="FOAF">Friends of Friends</option>
+	          <option value="FRIENDS">Friends</option>
+	          <option value="PRIVATE">Private</option>
+	          <option value="SERVERONLY">Server Only</option>
+	        </select>
+	        <label class="btn btn-default">
+	            Attach Image <input id="id_image" type="file" name="image" style="display: none;">
+	        </label>
+	        <!-- Fill in the filename when a file is selected -->
+	        <span id="filename"></span>
+	    </div>
+	    <textarea name="content" class="form-control text-area" type="text" maxLength="512" required="true">{{ post.content }}</textarea>
+	    <input type="submit" value="Finish"/>
+		</form>
+	</div>
+	{% else %}
+		<center><h2>Unable to edit this post. You are not this post's author.</h2></center>
+		{{ deny|safe }}
+	{% endif %}
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+    $('#id_image').change(function(){
+        // Inform the user when a file has been selected
+		// From: http://stackoverflow.com/questions/6365858/use-jquery-to-get-the-file-inputs-selected-filename-without-the-path 
+        var filename = $('#id_image').val().split('\\').pop();
+        $('#filename').text(filename)
+    });
+
+    $('#markdown-btn').click(function () {
+        var checked = $('#id_markdown').prop('checked');
+        if (checked) {
+            // Change to white and uncheck
+            $('#markdown-btn').css("background-color", "white")
+            $('#id_markdown').prop('checked', false)
+        } else {
+            // Change to grey and checked
+            $('#markdown-btn').css("background-color", "#E6E6E6")
+            $('#id_markdown').prop('checked', true)
+        }
+    });
+</script>
+{% endblock scripts %}
