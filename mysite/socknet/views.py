@@ -81,7 +81,10 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
                 Image.open(self.request.FILES['image']).verify()
             except IOError:
                 response = HttpResponse(status=415)
-                response.write("<center><h1>415 Unsupported Media Type</h1><br/><h2><a onclick=\"window.history.back()\" href=\"#\">Go Back</a></h2></center>")
+                response.write("<center><h1>415 Unsupported Media Type</h1><br/>Please make sure the file is an image.\
+                    <br/><h2><a onclick=\"window.history.back()\" href=\"#\">Go Back</a></h2></center>")
+                # Don't save this post entry, because faulty image.
+                form.instance.delete()
                 return response
             img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author, form.instance)
             # Update field of the created post with the image path.
