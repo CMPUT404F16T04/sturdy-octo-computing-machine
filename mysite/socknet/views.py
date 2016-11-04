@@ -208,7 +208,7 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
             if profile_author in author.friends.all():
                 # They are out friend, display unfriend button
                 context['button_action'] = "unfriend"
-            elif profile_author in author.get_pending_friend_requests():
+            elif (profile_author in author.get_pending_friend_requests()) or (profile_author in author.ignored.all()):
                 # We aren't friends, but they are following me
                 context['button_action'] = "accept_friend_request"
             elif profile_author in author.who_im_following.all():

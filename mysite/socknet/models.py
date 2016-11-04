@@ -55,6 +55,9 @@ class Author(models.Model):
             self.friends.add(requester)
         if requester not in self.who_im_following.all():
             self.who_im_following.add(requester)
+        if requester in self.ignored.all():
+            # If we had them ignored previously, we are friends now
+            self.ignored.remove(requester);
         self.save()
         return
 

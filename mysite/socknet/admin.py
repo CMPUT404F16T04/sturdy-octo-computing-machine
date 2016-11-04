@@ -63,10 +63,10 @@ class AuthorAdmin(admin.ModelAdmin):
     ordering = ['user']
 
     # Field sets control which fields are displayed on the admin "add" and "change" pages
-    readonly_fields=('friends', 'who_im_following')
+    readonly_fields=('friends', 'who_im_following', 'ignored')
     fieldsets = (
         (None, {
-            'fields': ('user', 'about_me', 'birthday','github_url', 'friends', 'who_im_following')
+            'fields': ('user', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored')
         }),
     )
 
