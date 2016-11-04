@@ -13,5 +13,6 @@ Link to Travis: https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machi
 * [Carson McLean](github.com/carsonmclean)
 
 ### External Source Code
-* base.js: Function to Assign "active" class to navbar item based on current page URL with jQuery was taken from daverogers:  https://gist.github.com/daverogers/5375778 
+* base.js: Function to Assign "active" class to navbar item based on current page URL with jQuery was taken from daverogers:  https://gist.github.com/daverogers/5375778
 * cookie.js: getCookie function for ajax requests is directly from the django documentation: https://docs.djangoproject.com/en/1.10/ref/csrf/#ajax
+* create_post.html: Grabbing a selected filename without the path was taken from manji: http://stackoverflow.com/questions/6365858/use-jquery-to-get-the-file-inputs-selected-filename-without-the-path 
