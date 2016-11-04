@@ -11,3 +11,7 @@ Link to Travis: https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machi
 * [Ryan Satyabrata](github.com/kobitoko)
 * [Lexie Bartlett](github.com/lexiebartlettt)
 * [Carson McLean](github.com/carsonmclean)
+
+### External Source Code
+* base.js: Function to Assign "active" class to navbar item based on current page URL with jQuery was taken from daverogers:  https://gist.github.com/daverogers/5375778 
+* cookie.js: getCookie function for ajax requests is directly from the django documentation: https://docs.djangoproject.com/en/1.10/ref/csrf/#ajax
