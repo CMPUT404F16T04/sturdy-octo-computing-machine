@@ -57,7 +57,7 @@ class Author(models.Model):
             self.who_im_following.add(requester)
         if requester in self.ignored.all():
             # If we had them ignored previously, we are friends now
-            self.ignored.remove(requester);
+            self.ignored.remove(requester)
         self.save()
         return
 
@@ -79,11 +79,14 @@ class Author(models.Model):
 
     def follow(self, friend):
         self.who_im_following.add(friend)
-        friend.save()
+        if friend in self.ignored.all():
+            # If we had them ignored previously, we are following them now
+            self.ignored.remove(friend)
+        self.save()
 
     def unfollow(self, friend):
         self.who_im_following.remove(friend)
-        friend.save()
+        self.save()
 
     def get_following_only(self):
         """ Get who I am following excluding friends """

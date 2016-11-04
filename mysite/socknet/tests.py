@@ -132,19 +132,3 @@ class AuthorTests(TestCase):
         self.assertQuerysetEqual(self.author1.who_im_following.all(), [])
         # Our friend is still following us
         self.assertQuerysetEqual(self.author1.my_followers.all(), ['<Author: user2>'])
-
-    def test_valid_edit_profile(self):
-        form_data = {'authorUUID': 1,
-                     'github_url': 'github.com/abram',
-                     'about_me': 'Here is a brand new bio',
-                     'birthday:': '2016-10-10'}
-        form = EditProfileForm(data=form_data)
-        self.assertTrue(form.is_valid())
-        # profile = form.save()
-        # self.assertEqual(profile.github_url, 'github.com/abram')
-
-    # def test_invalid_edit_profile(self):
-    #     form_data = {'github_url': 123,
-    #                  'about_me': null,
-    #                  'birthday:': 'Words, not a date'}
-    #     self.assertFalse
