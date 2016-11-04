@@ -1,6 +1,6 @@
 from django.forms import ModelForm , PasswordInput, ValidationError, CharField
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import authenticate
 from socknet.models import Author
 
@@ -46,6 +46,22 @@ class RegistrationForm(ModelForm):
         if commit:
             user.save()
         return user
+
+class CreateUserForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ("username", "password1", "password2")
+
+    def clean_password2(self):
+        """
+        Validate that the passwords match.
+        """
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+        if password1 != password2:
+            raise ValidationError("Passwords must match.")
+        return password2
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     """

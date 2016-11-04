@@ -1,7 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm as AdminUserCreationForm
+from django.contrib.auth import get_user_model
+from django.forms import PasswordInput, ValidationError, CharField
 
 from socknet.models import *
+from socknet.forms import *
 
 class UserAdmin(admin.ModelAdmin):
     """
@@ -12,14 +16,13 @@ class UserAdmin(admin.ModelAdmin):
     actions = ['approve_users']
 
     # Field sets control which fields are displayed on the admin "add" and "change" pages
-    fieldsets = (
-        (None, {
-            'fields': ('username', 'is_active')
-        }),
-        ('Permissions', {
-            'fields': ('is_superuser',)
-        }),
-    )
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            return CreateUserForm
+        else:
+            kwargs['fields'] = ['username', 'is_active',]
+            return super(UserAdmin, self).get_form(request, obj, **kwargs)
+
 
     def is_approved(self, obj):
         """
@@ -47,6 +50,8 @@ class UserAdmin(admin.ModelAdmin):
             message_bit = "%s users were" % rows_updated
         self.message_user(request, "%s successfully approved." % message_bit)
     approve_users.short_description = "Approve Selected Users"
+
+
 
 class AuthorAdmin(admin.ModelAdmin):
     """
