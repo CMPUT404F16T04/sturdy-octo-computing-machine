@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 
 from socknet.serializers import *
+from socknet.models import Author, Post
 
 class AuthorPostsViewSet(viewsets.ModelViewSet):
     """
