@@ -83,6 +83,7 @@ admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
 # Models we want to be able to edit in admin
+admin.site.register(Node)
 admin.site.register(Post)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Comment)

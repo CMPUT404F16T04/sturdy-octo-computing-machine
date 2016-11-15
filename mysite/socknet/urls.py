@@ -21,10 +21,12 @@ router.register(r'author', api_views.AuthorViewSet)
 # TODO
 # router.register(r'', views.)
 
-
 urlpatterns = [
     # API
     url(r'^api/', include(router.urls)),
+    url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.DoubleFriendQuery.as_view(), name="api_double_friend_query"),
+
+
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewPost.as_view(), name='view_post'),

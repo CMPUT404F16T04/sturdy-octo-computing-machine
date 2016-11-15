@@ -8,6 +8,23 @@ from django.dispatch import receiver
 import uuid
 from itertools import chain
 
+class Node(models.Model):
+    """
+    Represents a server we can communicate with
+    """
+    name = models.CharField(max_length=32) # A name for a host. (Ex) socknet
+    url = models.CharField(max_length=128, unique="True")
+
+    def __str__(self):
+        return self.name
+
+class ForeignAuthor(models.Model):
+    """
+    Represents an author from another node
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    node = models.ForeignKey(Node, related_name="my_node")
+
 class Author(models.Model):
     """
     Represents an author
@@ -27,6 +44,10 @@ class Author(models.Model):
     who_im_following = models.ManyToManyField("self", related_name="my_followers", symmetrical=False, blank=True)
     ignored = models.ManyToManyField("self", related_name="ignored_by", symmetrical=False, blank=True)
 
+    # Friend stuff for forgein authors
+    foreign_friends = models.ManyToManyField(ForeignAuthor, related_name="my_foreign_friends", blank=True)
+    pending_foreign_friends = models.ManyToManyField(ForeignAuthor, related_name="my_pending_foreign_friend_requests", blank=True)
+
     # Profile fields
     github_url = models.TextField(blank=True)
     about_me = models.CharField(max_length=1000, blank=True)
@@ -35,9 +56,22 @@ class Author(models.Model):
     def __str__(self):
         return self.user.get_username()
 
+    def is_friend(self, author_uuid):
+        """
+        Checks if an author is this author's friend.
+        Checks both local and foreign friend lists.
+        """
+        is_friend = self.friends.filter(uuid=author_uuid).exists()
+        if not is_friend:
+            # If author is not a local friend, check if they are a foreign friend
+            is_friend = self.foreign_friends.filter(id=author_uuid).exists()
+        return is_friend
+
     def get_pending_friend_requests(self):
         """ Returns my pending friend requests
-        (people who have followed me, but I have not followed them) """
+        (people who have followed me, but I have not followed them)
+        """
+        # TODO: UPDATE FOR FOREIGN FRIENDS
         pending = self.my_followers.all()
         pending = pending.exclude(pk__in=self.ignored.all()) # ignored requests we have declined
         pending = pending.exclude(pk__in=self.friends.all()) # ignored people we are already friends with
@@ -48,6 +82,7 @@ class Author(models.Model):
         When a friend request is accepted, both authors will be considered
         followers AND friends of each other.
         """
+        # TODO: UPDATE FOR FOREIGN FRIENDS
         if requester not in self.my_followers.all():
             # Stale state, should probably reload the page
             raise ValueError("Attempted to accept friend request when requester is no longer following me!")
@@ -66,18 +101,29 @@ class Author(models.Model):
         When we decline a friend request we simply move the requester into
         our ignored queue (all this means is it won't show up in our friend requests).
         """
+        # TODO: UPDATE FOR FOREIGN FRIENDS
         self.ignored.add(requester)
         self.save()
         return
 
-    def delete_friend(self, friend):
-        """ When we remove a friend, we unfriend and unfollow them. """
-        self.friends.remove(friend)
-        self.who_im_following.remove(friend)
-        self.save()
+    def delete_friend(self, friend, is_local):
+        """
+        Deletes both local and foreign friends.
+        Local: When we remove a friend, we unfriend and unfollow them.
+        """
+        if is_local:
+            # Remove a local friend
+            self.friends.remove(friend)
+            self.who_im_following.remove(friend)
+            self.save()
+        else:
+            # Remove a foreign friend
+            self.foreign_friends.remove(friend)
+            self.save()
         return
 
     def follow(self, friend):
+        # TODO: UPDATE FOR FOREIGN FRIENDS
         self.who_im_following.add(friend)
         if friend in self.ignored.all():
             # If we had them ignored previously, we are following them now
@@ -85,16 +131,16 @@ class Author(models.Model):
         self.save()
 
     def unfollow(self, friend):
+        # TODO: UPDATE FOR FOREIGN FRIENDS
         self.who_im_following.remove(friend)
         self.save()
 
     def get_following_only(self):
         """ Get who I am following excluding friends """
+        # TODO: UPDATE FOR FOREIGN FRIENDS
         following = self.who_im_following.all()
         following = following.exclude(pk__in=self.friends.all())
         return following
-
-
 
 class Post(models.Model):
     """ Represents a post made by a user """

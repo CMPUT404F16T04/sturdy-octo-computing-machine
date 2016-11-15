@@ -127,9 +127,5 @@ MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static'))
 # Tom Christie
 # http://www.django-rest-framework.org/#installation
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+
 }

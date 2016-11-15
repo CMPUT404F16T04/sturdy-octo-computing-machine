@@ -3,6 +3,7 @@
 # Taken from https://www.python.org/dev/peps/pep-0263/
 # Taken from https://www.python.org/dev/peps/pep-0414/
 from __future__ import unicode_literals
+from model_mommy import mommy
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -59,12 +60,15 @@ class PostsTests(TestCase):
 
 class AuthorTests(TestCase):
     def setUp(self):
-        self.user1 = User.objects.create_user('user1', 'user1@email.ca', 'user1')
-        self.user2 = User.objects.create_user('user2', 'user2@email.ca', 'user2')
-        self.author1 = Author(user=self.user1)
-        self.author1.save()
-        self.author2 = Author(user=self.user2)
-        self.author2.save()
+        # Create local authors
+        self.user1 = mommy.make(User, username="user1")
+        self.user2 = mommy.make(User, username="user2")
+        self.author1 = mommy.make(Author, user=self.user1)
+        self.author2 = mommy.make(Author, user=self.user2)
+
+        # Create foreign author
+        self.node = mommy.make(Node, name="Test Node", url="http://test-node.com")
+        self.foreign_author = mommy.make(ForeignAuthor, node=self.node)
 
     def test_create(self):
         self.assertTrue(isinstance(self.author1, Author))
@@ -125,10 +129,32 @@ class AuthorTests(TestCase):
         self.assertQuerysetEqual(self.author1.my_followers.all(), ['<Author: user2>'])
         self.assertQuerysetEqual(self.author1.who_im_following.all(), ['<Author: user2>'])
         # Delete our friend
-        self.author1.delete_friend(self.author2)
+        self.author1.delete_friend(self.author2, True)
         # We should no longer be friends
         self.assertQuerysetEqual(self.author1.friends.all(), [])
         # We are no longer following our recently deleted friend
         self.assertQuerysetEqual(self.author1.who_im_following.all(), [])
         # Our friend is still following us
         self.assertQuerysetEqual(self.author1.my_followers.all(), ['<Author: user2>'])
+
+    def test_is_friend_local(self):
+        """
+        Test is_friend method for a local friend.
+        """
+        self.author2.follow(self.author1)
+        self.author1.accept_friend_request(self.author2)
+        # We are friends
+        self.assertTrue(self.author1.is_friend(self.author2.uuid))
+        self.author1.delete_friend(self.author2, True)
+        # We are not longer friends
+        self.assertFalse(self.author1.is_friend(self.author2.uuid))
+
+    def test_is_friend_foreign(self):
+        """
+        Test is_friend method for a foreign friend.
+        """
+        self.author1.foreign_friends.add(self.foreign_author)
+        # We are friends
+        self.assertTrue(self.author1.is_friend(self.foreign_author.id))
+        self.author1.foreign_friends.remove(self.foreign_author)
+        self.assertFalse(self.author1.is_friend(self.foreign_author.id))

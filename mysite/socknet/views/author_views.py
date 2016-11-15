@@ -113,7 +113,7 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             author = request.user.author
             if action_type == "unfriend":
                 print("Unfriending " + friend.user.username)
-                author.delete_friend(friend)
+                author.delete_friend(friend, True)
                 return HttpResponse(status=200)
             elif action_type == "unfollow":
                 print("Unfollowing " + friend.user.username)
