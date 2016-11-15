@@ -24,7 +24,8 @@ router.register(r'author', api_views.AuthorViewSet)
 urlpatterns = [
     # API
     url(r'^api/', include(router.urls)),
-    url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.DoubleFriendQuery.as_view(), name="api_double_friend_query"),
+    url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.IsFriendQuery.as_view(), name="api_is_friend_query"),
+    url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.FriendsQuery.as_view(), name="api_friend_query"),
 
 
     # Posts

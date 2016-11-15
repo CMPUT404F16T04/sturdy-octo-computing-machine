@@ -158,3 +158,12 @@ class AuthorTests(TestCase):
         self.assertTrue(self.author1.is_friend(self.foreign_author.id))
         self.author1.foreign_friends.remove(self.foreign_author)
         self.assertFalse(self.author1.is_friend(self.foreign_author.id))
+
+    def test_get_all_friends(self):
+        self.author1.foreign_friends.add(self.foreign_author)
+        self.author2.follow(self.author1)
+        self.author1.accept_friend_request(self.author2)
+        # Author has 2 friends
+        friend_uuids = self.author1.get_all_friend_uuids()
+        self.assertTrue((self.author2.uuid in friend_uuids), "The local friend uuid is missing")
+        self.assertTrue((self.foreign_author.id in friend_uuids), "The foreign friend uuid is missing")

@@ -26,7 +26,7 @@ class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
-class DoubleFriendQuery(APIView):
+class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
     GET http://service/friends/<authorid1>/<authorid2>
@@ -57,3 +57,29 @@ class DoubleFriendQuery(APIView):
                 # Neither author is ours, return a 404.
                 return Response({'Error': 'Neither author exists on this server.'}, status=status.HTTP_404_NOT_FOUND)
         return Response({"query": "friends", "authors": [authorid1, authorid2], "friends": is_friends})
+
+class FriendsQuery(APIView):
+    """
+    Handles getting an authors friends and checking if anyone in a list is their friend.
+    """
+
+    def get(self, request, authorid, format=None):
+        """
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
+        """
+        try:
+            author = Author.objects.get(uuid=authorid)
+            friend_uuids = author.get_all_friend_uuids()
+            return Response({"query": "friends", "authors": friend_uuids})
+        except Author.DoesNotExist:
+            return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+    def post(self, request, authorid):
+        """
+        Check if anyone in the authors list is the authors friend.
+        Return a a list of authors from the original list who are in the friends list.
+        POST to http://service/friends/<authorid>
+        """
+        return Response(status.HTTP_501_NOT_IMPLEMENTED)

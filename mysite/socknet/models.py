@@ -142,6 +142,15 @@ class Author(models.Model):
         following = following.exclude(pk__in=self.friends.all())
         return following
 
+    def get_all_friend_uuids(self):
+        """
+        Returns a list all of the authors local and foreign friend uuids.
+        """
+        local_uuids = [friend.uuid for friend in self.friends.all()]
+        foreign_uuids = [friend.id for friend in self.foreign_friends.all()]
+        return local_uuids + foreign_uuids
+
+
 class Post(models.Model):
     """ Represents a post made by a user """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
