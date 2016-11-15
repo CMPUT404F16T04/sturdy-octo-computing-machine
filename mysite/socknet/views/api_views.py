@@ -76,10 +76,34 @@ class FriendsQuery(APIView):
             return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-    def post(self, request, authorid):
+    def post(self, request, authorid, format=None):
         """
         Check if anyone in the authors list is the authors friend.
         Return a a list of authors from the original list who are in the friends list.
         POST to http://service/friends/<authorid>
         """
-        return Response(status.HTTP_501_NOT_IMPLEMENTED)
+        # Validate the request data
+        serializer = FriendsQuerySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
+        data = serializer.validated_data
+
+        # Check that the author in the json data matches the author in the url
+        if (authorid != data.get('author')):
+            return Response({"Error": "The author uuid in the data does not match the author uuid in the url."}, status.HTTP_400_BAD_REQUEST)
+
+        # Check that the author exists
+        try:
+            author = Author.objects.get(uuid=authorid)
+        except Author.DoesNotExist:
+            return Response({"Error": "The author does not exist."}, status.HTTP_404_NOT_FOUND)
+
+        #  Check if anyone is the author's friend
+        friend_uuids = author.get_all_friend_uuids()
+        matching_uuids = []
+        for friend_id in data.get('authors'):
+            # Convert string to uuid
+            if uuid.UUID(friend_id) in friend_uuids:
+                matching_uuids.append(friend_id)
+
+        return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
