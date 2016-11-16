@@ -120,3 +120,16 @@ class FriendAPITests(APITestCase):
         url = "/api/friends/%s/" % self.author.uuid
         response = self.client.post(url, data=request_data, content_type='application/json')
         self.assertEqual(response.status_code, 400)
+
+    def test_friend_query_bad_uuid(self):
+        """
+        POST http://service/friends/<authorid>
+        Test when author uuid is bad.
+        """
+        # Create the request data. Contains 2  friends and 1 garbage uuid.
+        authors = [str(self.author2.uuid)]
+        request_data = json.dumps({"query": "friends", "author": '{00000123-0101-0101-0101-000000005}', "authors": authors})
+        # Make the request
+        url = "/api/friends/%s/" % self.uuid
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)

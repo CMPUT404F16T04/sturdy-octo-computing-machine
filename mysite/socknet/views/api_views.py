@@ -102,7 +102,6 @@ class FriendsQuery(APIView):
         friend_uuids = author.get_all_friend_uuids()
         matching_uuids = []
         for friend_id in data.get('authors'):
-            # Convert string to uuid
             if uuid.UUID(friend_id) in friend_uuids:
                 matching_uuids.append(friend_id)
 

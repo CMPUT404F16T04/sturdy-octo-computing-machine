@@ -13,7 +13,7 @@ class Node(models.Model):
     Represents a server we can communicate with
     """
     name = models.CharField(max_length=32) # A name for a host. (Ex) socknet
-    url = models.CharField(max_length=128, unique="True")
+    url = models.CharField(max_length=128)
 
     def __str__(self):
         return self.name
@@ -23,6 +23,8 @@ class ForeignAuthor(models.Model):
     Represents an author from another node
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # Store display name because its needed in lots of places, update it whenever we grab the profile.
+    display_name=models.CharField(max_length=150, default='test')
     node = models.ForeignKey(Node, related_name="my_node")
 
 class Author(models.Model):
