@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
 from socknet.models import Author, Post
@@ -10,6 +12,8 @@ class AuthorPostsViewSet(viewsets.ModelViewSet):
     """
     API endpoint that
     """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
     queryset = Author.objects.all()
     serializer_class = AuthorPostsSerializer
 
@@ -17,6 +21,8 @@ class PostsViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows posts to be viewed or edited.
     """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
     queryset = Post.objects.all().order_by('-created_on')
     serializer_class = PostsSerializer
 
@@ -24,6 +30,8 @@ class AuthorViewSet(viewsets.ModelViewSet):
     """
     API endpoint that
     """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
@@ -33,7 +41,10 @@ class IsFriendQuery(APIView):
     GET http://service/friends/<authorid1>/<authorid2>
     where authorid1 and authorid2 are uuids
     """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
     def get(self, request, authorid1, authorid2, format=None):
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         author1 = None
         author2 = None
         is_friends = False
@@ -63,12 +74,14 @@ class FriendsQuery(APIView):
     """
     Handles getting an authors friends and checking if anyone in a list is their friend.
     """
-
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
     def get(self, request, authorid, format=None):
         """
         Return a list of the authors friends.
         GET http://service/friends/<authorid>
         """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
             author = Author.objects.get(uuid=authorid)
             friend_uuids = author.get_all_friend_uuids()
@@ -76,13 +89,13 @@ class FriendsQuery(APIView):
         except Author.DoesNotExist:
             return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-
     def post(self, request, authorid, format=None):
         """
         Check if anyone in the authors list is the authors friend.
         Return a a list of authors from the original list who are in the friends list.
         POST to http://service/friends/<authorid>
         """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         # Validate the request data
         serializer = FriendsQuerySerializer(data=request.data)
         if not serializer.is_valid():
@@ -114,7 +127,10 @@ class FriendRequest(APIView):
     Author = The user who is receiving the friend request.
     Friend = The user who is making the friend request.
     """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
     def post(self, request, format=None):
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         # Validate the request data
         serializer = FriendRequestSerializer(data=request.data)
         if not serializer.is_valid():
