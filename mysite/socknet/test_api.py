@@ -2,6 +2,7 @@ from django.test import TestCase
 from model_mommy import mommy
 from rest_framework.test import APITestCase, APIClient
 from socknet.models import *
+from socknet.serializers import *
 import json
 import uuid
 
@@ -18,6 +19,9 @@ class FriendAPITests(APITestCase):
         # Make a foreign author
         self.node = mommy.make(Node, name="Test Node", url="http://test-node.com")
         self.foreign_author = mommy.make(ForeignAuthor, node=self.node)
+
+        # Our node
+        self.local_node = mommy.make(Node, name="Localhost", url="http://127.0.0.1:8000")
 
         # Make the client
         self.client = APIClient()
@@ -121,7 +125,7 @@ class FriendAPITests(APITestCase):
         response = self.client.post(url, data=request_data, content_type='application/json')
         self.assertEqual(response.status_code, 400)
 
-    def test_friend_query_bad_uuid(self):
+    def test_friend_query_post_bad_uuid(self):
         """
         POST http://service/friends/<authorid>
         Test when author uuid is bad.
@@ -133,3 +137,51 @@ class FriendAPITests(APITestCase):
         url = "/api/friends/%s/" % self.uuid
         response = self.client.post(url, data=request_data, content_type='application/json')
         self.assertEqual(response.status_code, 400)
+
+    def test_friend_request_local(self):
+        """
+        POST http://service/friendrequest
+        Both authors are local.
+        """
+        # Confirm no pending request
+        self.assertFalse(self.author in self.author2.who_im_following.all())
+        self.assertFalse(self.author2 in self.author.get_pending_friend_requests())
+        # Create the request data
+        author = {"id": str(self.author.uuid), "host": self.local_node.url, "display_name": "Bob"}
+        friend = {"id": str(self.author2.uuid), "host": self.local_node.url, "display_name": "Joe", "url": self.local_node.url+"/"+str(self.author2.uuid)}
+        request_data = json.dumps({"query": "friendrequest", "author": author, "friend": friend})
+        # Make the request
+        url = "/api/friendrequest/"
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        # Confirm friend request is pending
+        self.assertTrue(self.author in self.author2.who_im_following.all())
+        self.assertTrue(self.author2 in self.author.get_pending_friend_requests())
+
+    def test_friend_request_foreign_friend(self):
+        """
+        POST http://service/friendrequest
+        Friend who is sending the request is foreign.
+        Author receiving the request is local.
+        """
+        # Confirm no pending request
+        self.assertFalse(self.foreign_author in self.author.pending_foreign_friends.all())
+        # Create the request data
+        author = {"id": str(self.author.uuid), "host": self.local_node.url, "display_name": "Bob"}
+        friend = {"id": str(self.foreign_author.id), "host": self.node.url, "display_name": "Joe", "url": self.node.url+"/"+str(self.author2.uuid)}
+        request_data = json.dumps({"query": "friendrequest", "author": author, "friend": friend})
+        # Make the request
+        url = "/api/friendrequest/"
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        # Confirm friend request is pending
+        self.assertTrue(self.foreign_author in self.author.pending_foreign_friends.all())
+
+    def test_friend_request_foreign_author(self):
+        """
+        POST http://service/friendrequest
+        Friend who is sending the request is local.
+        Author receiving the request is foreign.
+        """
+        # TODO
+        pass

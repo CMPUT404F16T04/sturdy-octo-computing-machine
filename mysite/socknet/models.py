@@ -49,6 +49,7 @@ class Author(models.Model):
     # Friend stuff for forgein authors
     foreign_friends = models.ManyToManyField(ForeignAuthor, related_name="my_foreign_friends", blank=True)
     pending_foreign_friends = models.ManyToManyField(ForeignAuthor, related_name="my_pending_foreign_friend_requests", blank=True)
+    foreign_friends_im_following = models.ManyToManyField(ForeignAuthor, related_name="foreign_friends_im_following", blank=True)
 
     # Profile fields
     github_url = models.TextField(blank=True)
@@ -125,7 +126,6 @@ class Author(models.Model):
         return
 
     def follow(self, friend):
-        # TODO: UPDATE FOR FOREIGN FRIENDS
         self.who_im_following.add(friend)
         if friend in self.ignored.all():
             # If we had them ignored previously, we are following them now

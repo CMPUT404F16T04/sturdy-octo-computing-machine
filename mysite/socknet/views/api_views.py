@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from socknet.serializers import *
 from socknet.models import Author, Post
+from socknet import external_requests
 
 class AuthorPostsViewSet(viewsets.ModelViewSet):
     """
@@ -106,3 +107,59 @@ class FriendsQuery(APIView):
                 matching_uuids.append(friend_id)
 
         return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
+
+class FriendRequest(APIView):
+    """
+    POST to http://service/friendrequest
+    Author = The user who is receiving the friend request.
+    Friend = The user who is making the friend request.
+    """
+    def post(self, request, format=None):
+        # Validate the request data
+        serializer = FriendRequestSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
+        data = serializer.validated_data
+        author_data = data.get('author')
+        friend_data = data.get('friend')
+        author = None
+        friend = None
+        # Check that either the author or friend exists locally.
+        try:
+            author = Author.objects.get(uuid=author_data['id'])
+        except Author.DoesNotExist:
+            pass
+        try:
+            friend = Author.objects.get(uuid=friend_data['id'])
+        except Author.DoesNotExist:
+            pass
+
+        # If neither author is local, we shouldn't be getting the request.
+        if (author is None) and (friend is None):
+            return Response({'Error': 'Neither author is local to this server.'}, status.HTTP_400_BAD_REQUEST)
+
+        # If either author is forgein, we should create them in the db if they are not there already.
+        if (author is None):
+            if ForeignAuthor.objects.filter(id=author_data['id']).exists():
+                author = ForeignAuthor.objects.get(id=author_data['id'])
+            else:
+                node = Node.objects.get(url=author_data.host)
+                author = ForeignAuthor(id=author_data['id'], display_name=author_data['display_name'], node=node)
+            # Friend exists on our server. We should forward this request to the other server and record that we sent the request.
+            friend.foreign_friends_im_following.add(author)
+            external_requests.send_friend_request(node, author_data, friend)
+            return Reponse(status=status.HTTP_200_OK)
+
+        if (friend is None):
+            if ForeignAuthor.objects.filter(id=friend_data['id']).exists():
+                friend = ForeignAuthor.objects.get(id=friend_data['id'])
+            else:
+                node = Node.objects.get(url=friend_data['host'])
+                friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['display_name'], node=node)
+            # Author exists on our server. Add the friend to the author's pending foreign friends list.
+            author.pending_foreign_friends.add(friend)
+            return Response(status=status.HTTP_200_OK)
+
+        # If we got here, then both authors are local.
+        friend.follow(author)
+        return Response(status=status.HTTP_200_OK)
