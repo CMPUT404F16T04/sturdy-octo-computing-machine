@@ -27,7 +27,6 @@ urlpatterns = [
     url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.IsFriendQuery.as_view(), name="api_is_friend_query"),
     url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.FriendsQuery.as_view(), name="api_friend_query"),
 
-
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewPost.as_view(), name='view_post'),

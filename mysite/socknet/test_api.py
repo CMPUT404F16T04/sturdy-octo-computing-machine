@@ -96,3 +96,27 @@ class FriendAPITests(APITestCase):
         self.assertTrue((str(self.author2.uuid) in decoded_json['authors']), "Local friend is missing from list.")
         self.assertTrue((str(self.foreign_author.id) in decoded_json['authors']), "Foreign friend is missing from list.")
         self.assertTrue((str(self.uuid) not in decoded_json['authors']), "Garbage uuid was in the list.")
+
+    def test_friend_query_post_404(self):
+        """
+        POST http://service/friends/<authorid>
+        Test when author does not exist.
+        """
+        authors = [str(self.foreign_author.id)]
+        request_data = json.dumps({"query": "friends", "author": str(self.uuid), "authors": authors})
+        url = "/api/friends/%s/" % str(self.uuid)
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+
+    def test_friend_query_post_bad_request(self):
+        """
+        POST http://service/friends/<authorid>
+        Test when query type is wrong.
+        """
+        # Create the request data. Contains 2 friends and 1 garbage uuid.
+        authors = [str(self.author2.uuid)]
+        request_data = json.dumps({"query": "test", "author": str(self.author.uuid), "authors": authors})
+        # Make the request
+        url = "/api/friends/%s/" % self.author.uuid
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
