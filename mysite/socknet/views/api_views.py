@@ -43,11 +43,12 @@ class PostsQuery(APIView):
         try:
             # author = Author.objects.get(uuid=authorid)
             # friend_uuids = author.get_all_friend_uuids()
-            posts = Post.objects.filter(visibility="PUBLIC")
+            posts = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
+            print(posts.count())
             serializer = PostsSerializer(posts, many=True)
-            return Response({"query" : "posts","posts" : serializer.data})
+            return Response({"query" : "posts","count" : posts.count(), "posts" : serializer.data})
         except Author.DoesNotExist:
-            return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
 class AuthorViewSet(viewsets.ModelViewSet):
     """
