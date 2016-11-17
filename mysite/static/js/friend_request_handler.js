@@ -5,6 +5,7 @@ $('.friend-anchor').click(function () {
     var status = $(this).data("status");
     var csrftoken = getCookie('csrftoken'); // From js/cookie.js
     var friendUUID = $(this).data("uuid");
+    var is_local = $(this).data("islocal");
 
     // HANDLE UNFRIEND ACTION
     if (status == "unfriend") {
@@ -16,7 +17,8 @@ $('.friend-anchor').click(function () {
                 "id": authorUUID
             },
             "friend": {
-                "id": friendUUID
+                "id": friendUUID,
+                "is_local": is_local
             }
         };
         var jsonStr = JSON.stringify(jsonData)
@@ -42,7 +44,8 @@ $('.friend-anchor').click(function () {
                 "id": authorUUID
             },
             "friend": {
-                "id": friendUUID
+                "id": friendUUID,
+                "is_local": is_local
             }
         };
         var jsonStr = JSON.stringify(jsonData)
@@ -68,7 +71,8 @@ $('.friend-anchor').click(function () {
                 "id": authorUUID
             },
             "friend": {
-                "id": friendUUID
+                "id": friendUUID,
+                "is_local": is_local
             }
         };
         var jsonStr = JSON.stringify(jsonData)
@@ -94,7 +98,8 @@ $('.friend-anchor').click(function () {
                 "id": authorUUID
             },
             "friend": {
-                "id": friendUUID
+                "id": friendUUID,
+                "is_local": is_local
             }
         };
         var jsonStr = JSON.stringify(jsonData)

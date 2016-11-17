@@ -190,6 +190,6 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
                 return HttpResponse(status=200)
             elif action_type == "accept_friend_request":
                 author.accept_friend_request(friend_uuid, is_local)
-                return HttpResponse(status=200, content=len(author.get_pending_friend_requests()))
+                return HttpResponse(status=200, content=author.get_pending_friend_request_count())
             else:
                 return HttpResponse(status=500)
