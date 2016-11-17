@@ -44,7 +44,14 @@ class PostsQuery(APIView):
             # author = Author.objects.get(uuid=authorid)
             # friend_uuids = author.get_all_friend_uuids()
             posts = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
-            print(posts.count())
+            for post in posts:
+                post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                if (post.markdown == False):
+                    post.contentType = "text/plain"
+                else:
+                    post.contentType = "text/x-markdown"
+
             serializer = PostsSerializer(posts, many=True)
             return Response({"query" : "posts","count" : posts.count(), "posts" : serializer.data})
         except Author.DoesNotExist:

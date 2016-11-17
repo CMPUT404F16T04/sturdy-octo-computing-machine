@@ -7,6 +7,10 @@ class AuthorPostsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PostsSerializer(serializers.ModelSerializer):
+    source = serializers.URLField()
+    origin = serializers.URLField()
+    contentType = serializers.CharField(max_length = 16)
+
     class Meta:
         model = Post
         fields = '__all__'
