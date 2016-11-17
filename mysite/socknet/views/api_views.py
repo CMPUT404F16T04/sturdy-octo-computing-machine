@@ -51,6 +51,9 @@ class PostsQuery(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
+                print(post.author.uuid)
+                author = post.author
+                post.author = PostsAuthorSerializer(author, many=True)
 
             serializer = PostsSerializer(posts, many=True)
             return Response({"query" : "posts","count" : posts.count(), "posts" : serializer.data})

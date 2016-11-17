@@ -6,10 +6,23 @@ class AuthorPostsSerializer(serializers.ModelSerializer):
         model = Author
         fields = '__all__'
 
+class PostsAuthorSerializer(serializers.ModelSerializer):
+    """
+    Builds Author for PostsSerializer
+    """
+
+    class Meta:
+        model = Author
+        fields = '__all__'
+
 class PostsSerializer(serializers.ModelSerializer):
+    """
+    GET /api/posts/
+    """
     source = serializers.URLField()
     origin = serializers.URLField()
     contentType = serializers.CharField(max_length = 16)
+    # author = PostsAuthorSerializer()
 
     class Meta:
         model = Post
