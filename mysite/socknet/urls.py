@@ -14,7 +14,7 @@ router = routers.DefaultRouter()
 router.register(r'author/posts', api_views.AuthorPostsViewSet)
 # http://service/posts (all posts marked as public on the server)
 # http://service/posts/{POST_ID} access to a single post with id = {POST_ID}
-router.register(r'posts', api_views.PostsViewSet)
+# router.register(r'posts', api_views.PostsViewSet)
 # http://service/author/{AUTHOR_ID}/posts (all posts made by {AUTHOR_ID} visible to the currently authenticated user)
 router.register(r'author', api_views.AuthorViewSet)
 # http://service/posts/{post_id}/comments access to the comments in a post
@@ -23,10 +23,12 @@ router.register(r'author', api_views.AuthorViewSet)
 
 urlpatterns = [
     # API
-    url(r'^api/', include(router.urls)),
+    # url(r'^api/', include(router.urls)),
     url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.IsFriendQuery.as_view(), name="api_is_friend_query"),
     url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.FriendsQuery.as_view(), name="api_friend_query"),
     url(r'^api/friendrequest/', api_views.FriendRequest.as_view(), name="api_friend_request"),
+
+    url(r'^api/posts/', api_views.PostsQuery.as_view(), name="api_posts"),
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),

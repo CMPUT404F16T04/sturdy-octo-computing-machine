@@ -17,14 +17,35 @@ class AuthorPostsViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorPostsSerializer
 
-class PostsViewSet(viewsets.ModelViewSet):
+# class PostsViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows posts to be viewed or edited.
+#     GET /api/posts
+#     """
+#     authentication_classes = (BasicAuthentication,)
+#     permission_classes = (IsAuthenticated,)
+#     queryset = Post.objects.all().order_by('-created_on')
+#     serializer_class = PostsSerializer
+
+class PostsQuery(APIView):
     """
     API endpoint that allows posts to be viewed or edited.
+    GET /api/posts
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Post.objects.all().order_by('-created_on')
-    serializer_class = PostsSerializer
+    def get(self, request, format=None):
+        """
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            # author = Author.objects.get(uuid=authorid)
+            # friend_uuids = author.get_all_friend_uuids()
+            return Response({"query": "posts"})
+        except Author.DoesNotExist:
+            return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 class AuthorViewSet(viewsets.ModelViewSet):
     """
