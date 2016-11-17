@@ -43,7 +43,9 @@ class PostsQuery(APIView):
         try:
             # author = Author.objects.get(uuid=authorid)
             # friend_uuids = author.get_all_friend_uuids()
-            return Response({"query": "posts"})
+            posts = Post.objects.filter(visibility="PUBLIC")
+            serializer = PostsSerializer(posts, many=True)
+            return Response({"query" : "posts","posts" : serializer.data})
         except Author.DoesNotExist:
             return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
