@@ -144,8 +144,7 @@ class FriendAPITests(APITestCase):
         Both authors are local.
         """
         # Confirm no pending request
-        self.assertFalse(self.author in self.author2.who_im_following.all())
-        self.assertFalse(self.author2 in self.author.get_pending_friend_requests())
+        self.assertTrue(len(self.author.get_pending_friend_requests()) is 0)
         # Create the request data
         author = {"id": str(self.author.uuid), "host": self.local_node.url, "display_name": "Bob"}
         friend = {"id": str(self.author2.uuid), "host": self.local_node.url, "display_name": "Joe", "url": self.local_node.url+"/"+str(self.author2.uuid)}
@@ -156,7 +155,7 @@ class FriendAPITests(APITestCase):
         self.assertEqual(response.status_code, 200)
         # Confirm friend request is pending
         self.assertTrue(self.author in self.author2.who_im_following.all())
-        self.assertTrue(self.author2 in self.author.get_pending_friend_requests())
+        self.assertTrue(len(self.author.get_pending_friend_requests()) is 1)
 
     def test_friend_request_foreign_friend(self):
         """

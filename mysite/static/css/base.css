@@ -334,6 +334,14 @@ a.login-button:hover {
     font-family: 'Roboto', sans-serif;
 }
 
+.friends-table {
+    background-color: white;
+    padding-top: 20px;
+    padding-right: 15px;
+    padding-left: 15px;
+    padding-bottom: 0px;
+}
+
 .friend-box {
     /* border: 2px solid #FFC857; */
     background-color: #FFFFFF;

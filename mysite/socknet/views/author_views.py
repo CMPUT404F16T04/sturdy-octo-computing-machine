@@ -32,7 +32,7 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
             if profile_author in author.friends.all():
                 # They are out friend, display unfriend button
                 context['button_action'] = "unfriend"
-            elif ((profile_author in author.get_pending_friend_requests())
+            elif ((profile_author in author.get_pending_local_friend_requests())
             or (profile_author in author.ignored.all()) and (author in profile_author.who_im_following.all())):
                 # We aren't friends, but they are following me
                 context['button_action'] = "accept_friend_request"
@@ -109,23 +109,24 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             decoded_json = json.loads(request.body)
             action_type = decoded_json['action']
             friend_uuid = decoded_json['friend']['id']
-            friend = Author.objects.get(uuid=friend_uuid)
+            is_local = decoded_json['friend']['is_local']
+            friend = None
+            if is_local:
+                friend = Author.objects.get(uuid=friend_uuid)
+            else:
+                friend = ForeignAuthor.objects.get(id=friend_uuid)
             author = request.user.author
             if action_type == "unfriend":
-                print("Unfriending " + friend.user.username)
-                author.delete_friend(friend, True)
+                author.delete_friend(friend, is_local)
                 return HttpResponse(status=200)
             elif action_type == "unfollow":
-                print("Unfollowing " + friend.user.username)
                 author.unfollow(friend)
                 return HttpResponse(status=200)
             elif action_type == "follow":
-                print("Following " + friend.user.username)
                 author.follow(friend)
                 return HttpResponse(status=200)
             elif action_type == "accept_friend_request":
-                print("Accepting Friend Request of: " + friend.user.username)
-                author.accept_friend_request(friend)
+                author.accept_friend_request(friend_uuid, is_local)
                 return HttpResponse(status=200)
             else:
                 print("MANAGE FRIEND POST: Unknown action")
@@ -149,6 +150,14 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "socknet/author_templates/manage_friend_requests.html"
     login_url = '/login/' # For login mixin
 
+    def get_context_data(self, **kwargs):
+        # Get all friend requests for a user.
+        context = super(ManageFriendRequests, self).get_context_data(**kwargs)
+        pending_requests = self.request.user.author.get_pending_friend_requests()
+        context['pending_requests'] = pending_requests
+        context['count'] = len(pending_requests)
+        return context
+
     def get(self, request, *args, **kwargs):
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
         # Convert uuid from url into a proper UUID field
@@ -166,18 +175,21 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
             return ForbiddenContent403.denied()
         if request.is_ajax():
             decoded_json = json.loads(request.body)
+            print(decoded_json)
             action_type = decoded_json['action']
             friend_uuid = decoded_json['friend']['id']
-            friend = Author.objects.get(uuid=friend_uuid)
+            is_local = decoded_json['friend']['is_local']
+            friend = None
+            if is_local:
+                friend = Author.objects.get(uuid=friend_uuid)
+            else:
+                friend = ForeignAuthor.objects.get(id=friend_uuid)
             author = request.user.author
             if action_type == "decline_friend_request":
-                print("Decling Friend Request of: " + friend.user.username)
-                author.decline_friend_request(friend)
+                author.decline_friend_request(friend_uuid, is_local)
                 return HttpResponse(status=200)
             elif action_type == "accept_friend_request":
-                print("Accepting Friend Request of: " + friend.user.username)
-                author.accept_friend_request(friend)
+                author.accept_friend_request(friend_uuid, is_local)
                 return HttpResponse(status=200, content=len(author.get_pending_friend_requests()))
             else:
-                print("MANAGE FRIEND REQUEST POST: Unknown action")
                 return HttpResponse(status=500)

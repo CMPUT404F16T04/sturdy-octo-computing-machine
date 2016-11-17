@@ -13,7 +13,7 @@ class Node(models.Model):
     Represents a server we can communicate with
     """
     name = models.CharField(max_length=32) # A name for a host. (Ex) socknet
-    url = models.CharField(max_length=128)
+    url = models.CharField(max_length=128, unique=True)
 
     def __str__(self):
         return self.name
@@ -26,6 +26,9 @@ class ForeignAuthor(models.Model):
     # Store display name because its needed in lots of places, update it whenever we grab the profile.
     display_name=models.CharField(max_length=150, default='test')
     node = models.ForeignKey(Node, related_name="my_node")
+
+    def __str__(self):
+        return self.display_name
 
 class Author(models.Model):
     """
@@ -70,42 +73,77 @@ class Author(models.Model):
             is_friend = self.foreign_friends.filter(id=author_uuid).exists()
         return is_friend
 
-    def get_pending_friend_requests(self):
-        """ Returns my pending friend requests
-        (people who have followed me, but I have not followed them)
+    def get_pending_local_friend_requests(self):
         """
-        # TODO: UPDATE FOR FOREIGN FRIENDS
-        pending = self.my_followers.all()
-        pending = pending.exclude(pk__in=self.ignored.all()) # ignored requests we have declined
-        pending = pending.exclude(pk__in=self.friends.all()) # ignored people we are already friends with
-        return pending
+        Returns all pending local authors
+        """
+        local_pending = self.my_followers.all()
+        local_pending = local_pending.exclude(pk__in=self.ignored.all()) # ignored requests we have declined
+        local_pending = local_pending.exclude(pk__in=self.friends.all()) # ignored people we are already friends with
+        return local_pending
 
-    def accept_friend_request(self, requester):
+    def get_pending_friend_requests(self):
         """
-        When a friend request is accepted, both authors will be considered
-        followers AND friends of each other.
+        Returns an array of objects containing the pending friend request information (both local and foreign authors)
         """
-        # TODO: UPDATE FOR FOREIGN FRIENDS
-        if requester not in self.my_followers.all():
-            # Stale state, should probably reload the page
-            raise ValueError("Attempted to accept friend request when requester is no longer following me!")
-        if requester not in self.friends.all():
-            self.friends.add(requester)
-        if requester not in self.who_im_following.all():
-            self.who_im_following.add(requester)
-        if requester in self.ignored.all():
-            # If we had them ignored previously, we are friends now
-            self.ignored.remove(requester)
+        class FriendInfo:
+            def __init__(self, name, node_name, uuid, is_local):
+                self.name = name
+                self.node_name = node_name
+                self.uuid = uuid
+                self.is_local = is_local
+
+            def __str__(self):
+                return self.name
+
+        local_pending = self.get_pending_local_friend_requests()
+        all_pending = []
+        for author in local_pending:
+            all_pending.append(FriendInfo(author.user.username, "local", author.uuid, True))
+        for author in self.pending_foreign_friends.all():
+            all_pending.append(FriendInfo(author.display_name, author.node.name, author.id, False))
+        all_pending.sort(key=lambda x: x.name.lower())
+        return all_pending
+
+    def get_pending_friend_request_count(self):
+        return len(self.get_pending_friend_requests())
+
+    def accept_friend_request(self, requester_uuid, is_local):
+        """
+        Local behaviour: When a friend request is accepted,
+        both authors will be considered followers AND friends of each other.
+        """
+        if is_local:
+            requester = Author.objects.get(uuid=requester_uuid)
+            if requester not in self.my_followers.all():
+                # Stale state, should probably reload the page
+                raise ValueError("Attempted to accept friend request when requester is no longer following me!")
+            if requester not in self.friends.all():
+                self.friends.add(requester)
+            if requester not in self.who_im_following.all():
+                self.who_im_following.add(requester)
+            if requester in self.ignored.all():
+                # If we had them ignored previously, we are friends now
+                self.ignored.remove(requester)
+        else:
+            requester = ForeignAuthor.objects.get(id=requester_uuid)
+            self.pending_foreign_friends.remove(requester)
+            self.foreign_friends.add(requester)
         self.save()
         return
 
-    def decline_friend_request(self, requester):
+    def decline_friend_request(self, requester_uuid, is_local):
         """
-        When we decline a friend request we simply move the requester into
+        Local behaviour: When we decline a friend request we simply move the requester into
         our ignored queue (all this means is it won't show up in our friend requests).
+        Foreign behaviour: Delete from pending foreign friend requests.
         """
-        # TODO: UPDATE FOR FOREIGN FRIENDS
-        self.ignored.add(requester)
+        if is_local:
+            requester = Author.objects.get(uuid=requester_uuid)
+            self.ignored.add(requester)
+        else:
+            requester = ForeignAuthor.objects.get(id=requester_uuid)
+            self.pending_foreign_friends.remove(requester)
         self.save()
         return
 
@@ -118,14 +156,14 @@ class Author(models.Model):
             # Remove a local friend
             self.friends.remove(friend)
             self.who_im_following.remove(friend)
-            self.save()
         else:
             # Remove a foreign friend
             self.foreign_friends.remove(friend)
-            self.save()
+        self.save()
         return
 
     def follow(self, friend):
+        # Local authors only
         self.who_im_following.add(friend)
         if friend in self.ignored.all():
             # If we had them ignored previously, we are following them now
@@ -133,13 +171,12 @@ class Author(models.Model):
         self.save()
 
     def unfollow(self, friend):
-        # TODO: UPDATE FOR FOREIGN FRIENDS
+        # Local authors only
         self.who_im_following.remove(friend)
         self.save()
 
     def get_following_only(self):
-        """ Get who I am following excluding friends """
-        # TODO: UPDATE FOR FOREIGN FRIENDS
+        """ Get who I am following excluding friends (local only)"""
         following = self.who_im_following.all()
         following = following.exclude(pk__in=self.friends.all())
         return following
