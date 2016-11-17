@@ -30,6 +30,9 @@ class FriendAPITests(APITestCase):
         self.uuid = uuid.UUID('{00000123-0101-0101-0101-000000001234}')
         self.uuid2 = uuid.UUID('{00000123-0101-0101-0101-000000005555}')
 
+        # Authentication
+        self.client.force_authenticate(user=self.user)
+
     def test_is_friend_query(self):
         """
         GET http://service/friends/<authorid1>/<authorid2>
