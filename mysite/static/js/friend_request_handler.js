@@ -120,8 +120,8 @@ $('.friend-anchor').click(function () {
 
 function unfriendSuccess(id) {
     console.log("Unfriend successful!");
-    $('#'+id).text("Accept Friend Request");
-    $('#'+id).data("status" , "accept_friend_request");
+    console.log(id)
+    $('#'+id).remove();
 }
 
 function followSuccess(id) {

@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
-from socknet.utils import HTMLsafe
+from socknet.utils import HTMLsafe, AuthorInfo
 # for images auto delete
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -26,6 +26,7 @@ class ForeignAuthor(models.Model):
     # Store display name because its needed in lots of places, update it whenever we grab the profile.
     display_name=models.CharField(max_length=150, default='test')
     node = models.ForeignKey(Node, related_name="my_node")
+    url = models.URLField(default='')
 
     def __str__(self):
         return self.display_name
@@ -84,26 +85,29 @@ class Author(models.Model):
 
     def get_pending_friend_requests(self):
         """
-        Returns an array of objects containing the pending friend request information (both local and foreign authors)
+        Returns an array of AuthorInfo objects containing the pending friend request information (both local and foreign authors)
         """
-        class FriendInfo:
-            def __init__(self, name, node_name, uuid, is_local):
-                self.name = name
-                self.node_name = node_name
-                self.uuid = uuid
-                self.is_local = is_local
-
-            def __str__(self):
-                return self.name
-
-        local_pending = self.get_pending_local_friend_requests()
         all_pending = []
+        local_pending = self.get_pending_local_friend_requests()
         for author in local_pending:
-            all_pending.append(FriendInfo(author.user.username, "local", author.uuid, True))
+            all_pending.append(AuthorInfo(author.user.username, "Local", author.uuid, True))
         for author in self.pending_foreign_friends.all():
-            all_pending.append(FriendInfo(author.display_name, author.node.name, author.id, False))
+            all_pending.append(AuthorInfo(author.display_name, author.node.name, author.id, False))
         all_pending.sort(key=lambda x: x.name.lower())
         return all_pending
+
+    def get_friends(self):
+        """
+        Returns an array of AuthorInfo objects containing the all friend information (both local and foreign authors)
+        """
+        all_friends = []
+        for author in self.friends.all():
+            # Local friends
+            all_friends.append(AuthorInfo(author.user.username, "Local", author.uuid, True))
+        for author in self.foreign_friends.all():
+            all_friends.append(AuthorInfo(author.display_name, author.node.name, author.id, False))
+        all_friends.sort(key=lambda x: x.name.lower())
+        return all_friends
 
     def get_pending_friend_request_count(self):
         return len(self.get_pending_friend_requests())

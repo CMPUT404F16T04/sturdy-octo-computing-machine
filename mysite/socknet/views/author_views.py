@@ -90,6 +90,14 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "socknet/author_templates/manage_friends.html"
     login_url = '/login/' # For login mixin
 
+    def get_context_data(self, **kwargs):
+        # Get all friend of a user.
+        context = super(ManageFriends, self).get_context_data(**kwargs)
+        friends = self.request.user.author.get_friends()
+        context['friends'] = friends
+        context['count'] = len(friends)
+        return context
+
     def get(self, request, *args, **kwargs):
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
         # Convert uuid from url into a proper UUID field
@@ -118,7 +126,7 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             author = request.user.author
             if action_type == "unfriend":
                 author.delete_friend(friend, is_local)
-                return HttpResponse(status=200)
+                return HttpResponse(status=200,  content=friend_uuid)
             elif action_type == "unfollow":
                 author.unfollow(friend)
                 return HttpResponse(status=200)
