@@ -14,6 +14,8 @@ class Node(models.Model):
     """
     name = models.CharField(max_length=32) # A name for a host. (Ex) socknet
     url = models.URLField(unique=True)
+    # user to use for node to use this account as basicauth.
+    user = models.OneToOneField(User)
 
     def __str__(self):
         return self.name
