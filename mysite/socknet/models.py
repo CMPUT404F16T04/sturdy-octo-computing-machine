@@ -13,7 +13,7 @@ class Node(models.Model):
     Represents a server we can communicate with
     """
     name = models.CharField(max_length=32) # A name for a host. (Ex) socknet
-    url = models.CharField(max_length=128, unique=True)
+    url = models.URLField(unique=True)
 
     def __str__(self):
         return self.name
@@ -62,6 +62,11 @@ class Author(models.Model):
 
     def __str__(self):
         return self.user.get_username()
+
+    def get_site(self):
+        # Get the url for the author
+        return Site.objects.get_current().domain
+
 
     def is_friend(self, author_uuid):
         """
@@ -365,3 +370,15 @@ class ImageServ(models.Model):
 
     def __unicode__(self):
         return "Author:" + self.author.user.username + " : " + str(self.image)
+
+class AdminConfig(models.Model):
+    url = models.URLField()
+    sharePosts = models.BooleanField(default=True)
+    shareImages = models.BooleanField(default=True)
+
+    def __unicode__(self):
+        return u"Admin Configuration"
+
+    class Meta:
+        verbose_name = "Admin Configuration"
+        verbose_name_plural = "Admin Configuration"

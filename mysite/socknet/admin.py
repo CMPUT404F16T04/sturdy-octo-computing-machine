@@ -78,6 +78,9 @@ class AuthorAdmin(admin.ModelAdmin):
             return self.readonly_fields + ('user',)
         return self.readonly_fields
 
+# Our site config
+admin.site.register(AdminConfig)
+
 # Unregister default user so that ours is used
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)

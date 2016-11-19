@@ -24,9 +24,10 @@ router.register(r'author', api_views.AuthorViewSet)
 urlpatterns = [
     # API
     url(r'^api/', include(router.urls)),
-    url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.IsFriendQuery.as_view(), name="api_is_friend_query"),
-    url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.FriendsQuery.as_view(), name="api_friend_query"),
-    url(r'^api/friendrequest/', api_views.FriendRequest.as_view(), name="api_friend_request"),
+    url(r'^api/posts/(?P<pk>[0-9A-Fa-f-]+)/comments/$', api_views.CommentsViewSet, name="api_get_comments"),
+    url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/$', api_views.IsFriendQuery.as_view(), name="api_is_friend_query"),
+    url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/$', api_views.FriendsQuery.as_view(), name="api_friend_query"),
+    url(r'^api/friendrequest/$', api_views.FriendRequest.as_view(), name="api_friend_request"),
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),

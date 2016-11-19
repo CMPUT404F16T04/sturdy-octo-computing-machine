@@ -11,11 +11,25 @@ class PostsSerializer(serializers.ModelSerializer):
         model = Post
         fields = '__all__'
 
-class AuthorSerializerNoURL(serializers.Serializer):
+class AuthorSerializer(serializers.ModelSerializer):
+    """
+    Serializer for a local author
+    uuid, host url, and display name
+
+    UNDER CONSTRUCTION working on figuring out how to get the host url
+    """
+    id = serializers.CharField(source='uuid', required=True)
+    host = serializers.URLField(required=True)
+    displayName = serializers.CharField(source='user.uuid', max_length=36, required=True)
+    class Meta:
+        model = Author
+        fields = ('uuid', 'username')
+
+class FriendSerializerNoUrl(serializers.Serializer):
     """
     Serializer for an author without url (id, host, displayName)
     Id is an uuid.
-    Used in FriendRequestSerializer.
+    Used in FriendRequestSerializer.F
     """
     id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
     host = serializers.CharField(max_length=128, required=True)
@@ -37,7 +51,7 @@ class AuthorSerializerNoURL(serializers.Serializer):
             raise serializers.ValidationError('Unknown host: %s' % value)
         return value
 
-class AuthorSerializer(serializers.Serializer):
+class FriendSerializer(serializers.Serializer):
     """
     Serializer for an author (id, host, displayName, url)
     Id is an uuid.
@@ -92,8 +106,8 @@ class FriendsQuerySerializer(serializers.Serializer):
 
 class FriendRequestSerializer(serializers.Serializer):
     query = serializers.CharField(max_length=32, required=True)
-    author = AuthorSerializerNoURL(required=True)
-    friend = AuthorSerializer(required=True)
+    author = FriendSerializerNoUrl(required=True)
+    friend = FriendSerializer(required=True)
 
     def validate_query(self, value):
         """
@@ -102,3 +116,17 @@ class FriendRequestSerializer(serializers.Serializer):
         if value != "friendrequest":
             raise serializers.ValidationError("Query type is not 'friendrequest'.")
         return value
+
+class SingleCommentSerializer(serializers.ModelSerializer):
+    """
+    Serialize a single comment, used for "get all comments in a post" endpoint.
+    This endpoint has different field names than the "get posts for author" comments.
+    """
+    author = AuthorSerializer(required=True)
+    comment = serializers.CharField(source='content', required=True)
+    pubDate = serializers.DateTimeField(source='created_on', required=True)
+    guid = serializers.CharField(source='id', max_length=36, required=True) # a uuid is 36 characters
+
+    class Meta:
+        model = Comment
+        fields = ('guid', 'comment', 'pubDate')

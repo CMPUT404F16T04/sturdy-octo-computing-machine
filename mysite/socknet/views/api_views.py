@@ -35,6 +35,13 @@ class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
+class CommentsViewSet(viewsets.ModelViewSet):
+    """
+    Get all comments for a post
+    """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
 class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
@@ -124,8 +131,8 @@ class FriendsQuery(APIView):
 class FriendRequest(APIView):
     """
     POST to http://service/friendrequest
-    Author = The user who is receiving the friend request.
-    Friend = The user who is making the friend request.
+    Author = The user who is receiving the friend request (local author).
+    Friend = The user who is making the friend request (remote author).
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
