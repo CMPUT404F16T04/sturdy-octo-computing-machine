@@ -373,8 +373,8 @@ class ImageServ(models.Model):
 
 class AdminConfig(models.Model):
     url = models.URLField()
-    sharePosts = models.BooleanField(default=True)
-    shareImages = models.BooleanField(default=True)
+    sharePosts = models.BooleanField(default=True, verbose_name="Share Posts with Other Nodes")
+    shareImages = models.BooleanField(default=True, verbose_name="Share Images with Other Nodes")
 
     def __unicode__(self):
         return u"Admin Configuration"

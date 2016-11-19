@@ -51,8 +51,6 @@ class UserAdmin(admin.ModelAdmin):
         self.message_user(request, "%s successfully approved." % message_bit)
     approve_users.short_description = "Approve Selected Users"
 
-
-
 class AuthorAdmin(admin.ModelAdmin):
     """
     A custom admin page for the Author model.
@@ -78,8 +76,27 @@ class AuthorAdmin(admin.ModelAdmin):
             return self.readonly_fields + ('user',)
         return self.readonly_fields
 
+class ConfigAdmin(admin.ModelAdmin):
+    """
+    A custom admin page for the AdminConfig model.
+    Do not allow add or delete actions for this object.
+    """
+    def get_actions(self, request):
+        # Code from: http://stackoverflow.com/questions/4043843/in-django-admin-how-do-i-disable-the-delete-link
+        # Disable delete
+        actions = super(ConfigAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def has_delete_permission(self, request, obj=None):
+        # Disable delete
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
 # Our site config
-admin.site.register(AdminConfig)
+admin.site.register(AdminConfig, ConfigAdmin)
 
 # Unregister default user so that ours is used
 admin.site.unregister(User)
