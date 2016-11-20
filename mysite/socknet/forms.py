@@ -87,4 +87,4 @@ class CustomAuthenticationForm(AuthenticationForm):
 class EditProfileForm(ModelForm):
       class Meta:
         model = Author
-        fields = ['github_url', 'about_me', 'birthday']
+        fields = ['displayName', 'github_url', 'about_me', 'birthday']

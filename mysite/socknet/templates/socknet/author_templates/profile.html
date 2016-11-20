@@ -16,6 +16,12 @@
     <hr class="profile-divider"/>
     <!-- Profile fields -->
     <div class="profile-field">
+        <span class="profile-label">Display Name: </span>{{ profile_author.displayName }}
+        {% if not profile_author.displayName %}
+        None
+        {% endif %}
+    </div>
+    <div class="profile-field">
         <span class="profile-label">Birthday: </span>{{ profile_author.birthday }}
     </div>
     <div class="profile-field">
