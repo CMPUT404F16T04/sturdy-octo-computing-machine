@@ -45,18 +45,22 @@ class PostsQuery(APIView):
             # friend_uuids = author.get_all_friend_uuids()
             posts = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
             for post in posts:
+                # TODO: Difference in source vs origin?
                 post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
                 post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
                 if (post.markdown == False):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
+                post.author
                 print(post.author.uuid)
-                author = post.author
-                post.author = PostsAuthorSerializer(author, many=True)
+                post.author.id = post.author.uuid
+                # TODO: Setup host attribute for authors
+                post.author.host = ""
+                post.author.github = post.author.github_url
 
-            serializer = PostsSerializer(posts, many=True)
-            return Response({"query" : "posts","count" : posts.count(), "posts" : serializer.data})
+            posts_serializer = PostsSerializer(posts, many=True)
+            return Response({"query" : "posts","count" : posts.count(), "posts" : posts_serializer.data})
         except Author.DoesNotExist:
             return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 

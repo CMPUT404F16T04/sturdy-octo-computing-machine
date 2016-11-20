@@ -11,9 +11,13 @@ class PostsAuthorSerializer(serializers.ModelSerializer):
     Builds Author for PostsSerializer
     """
 
+    id = serializers.CharField(max_length = 64)
+    host = serializers.CharField(max_length = 128)
+    github = serializers.CharField()
+
     class Meta:
         model = Author
-        fields = '__all__'
+        fields = ('id','host','displayName','url','github')
 
 class PostsSerializer(serializers.ModelSerializer):
     """
@@ -22,7 +26,7 @@ class PostsSerializer(serializers.ModelSerializer):
     source = serializers.URLField()
     origin = serializers.URLField()
     contentType = serializers.CharField(max_length = 16)
-    # author = PostsAuthorSerializer()
+    author = PostsAuthorSerializer()
 
     class Meta:
         model = Post
