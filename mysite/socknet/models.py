@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from socknet.utils import HTMLsafe
 # for images auto delete
 from django.db.models.signals import pre_delete
@@ -208,6 +209,8 @@ class Post(models.Model):
         ('FRIENDS', 'FRIENDS'),
         ('PRIVATE', 'PRIVATE'),
         ('SERVERONLY', 'SERVERONLY')])
+    # TODO: Change to an ArrayField
+    categories = models.CharField(default="N/A", max_length=64, blank=True)
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post
