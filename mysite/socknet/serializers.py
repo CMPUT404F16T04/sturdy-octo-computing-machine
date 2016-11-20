@@ -6,7 +6,65 @@ class AuthorPostsSerializer(serializers.ModelSerializer):
         model = Author
         fields = '__all__'
 
+class PostsAuthorSerializer(serializers.ModelSerializer):
+    """
+    Builds Author for PostsSerializer /api/posts
+    """
+    id = serializers.CharField(max_length = 64)
+    host = serializers.CharField(max_length = 128)
+    github = serializers.CharField()
+
+    class Meta:
+        model = Author
+        fields = ('id','host','displayName','url','github')
+
+class PostsCommentsSerializer(serializers.Serializer):
+    """
+    Builds Comments for PostsSerializer /api/posts
+    """
+    id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
+    author = serializers.SerializerMethodField()
+    comment = serializers.SerializerMethodField()
+    contentType = serializers.SerializerMethodField()
+    published = serializers.SerializerMethodField()
+
+    def get_author(self, obj):
+        author = obj.author
+        author.id = author.uuid
+        # TODO: Setup host attribute for authors
+        author.host = ""
+        author.github = author.github_url
+        serializer = PostsAuthorSerializer(author)
+        return serializer.data
+
+    def get_comment(self, obj):
+        return obj.content
+
+    def get_contentType(self, obj):
+        if (obj.markdown == False):
+            return "text/plain"
+        else:
+            return "text/x-markdown"
+
+    def get_published(self, obj):
+        return obj.created_on
+        
 class PostsSerializer(serializers.ModelSerializer):
+    """
+    GET /api/posts/
+    """
+    source = serializers.URLField()
+    origin = serializers.URLField()
+    contentType = serializers.CharField(max_length = 16)
+    author = PostsAuthorSerializer()
+    comments = serializers.SerializerMethodField()
+
+    def get_comments(self, obj):
+        comments = Comment.objects.all_comments_for_post(obj.id, True)
+        print(comments)
+        serializer = PostsCommentsSerializer(comments, many=True)
+        return serializer.data
+
     class Meta:
         model = Post
         fields = '__all__'

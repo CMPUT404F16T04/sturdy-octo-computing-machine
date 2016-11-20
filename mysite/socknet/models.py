@@ -2,6 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from socknet.utils import HTMLsafe, AuthorInfo
+from django.contrib.postgres.fields import ArrayField
 # for images auto delete
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
@@ -64,6 +65,8 @@ class Author(models.Model):
     github_url = models.TextField(blank=True)
     about_me = models.CharField(max_length=1000, blank=True)
     birthday = models.DateField(null=True,blank=True)
+    displayName = models.CharField(max_length=64, blank=True)
+    url = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return self.user.get_username()
@@ -220,6 +223,8 @@ class Post(models.Model):
         ('FRIENDS', 'FRIENDS'),
         ('PRIVATE', 'PRIVATE'),
         ('SERVERONLY', 'SERVERONLY')])
+    # TODO: Change to an ArrayField
+    categories = models.CharField(default="N/A", max_length=64, blank=True)
 
     def get_absolute_url(self):
         """ Gets the canonical URL for a Post
