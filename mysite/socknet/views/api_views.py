@@ -11,7 +11,7 @@ from socknet import external_requests
 
 
 class PostsPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 50
     # Doesn't look like the spec requires us to allow page size specifying, just which page?
     # page_size_query_param = 'size'
     # max_page_size = 10
