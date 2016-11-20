@@ -8,9 +8,8 @@ class AuthorPostsSerializer(serializers.ModelSerializer):
 
 class PostsAuthorSerializer(serializers.ModelSerializer):
     """
-    Builds Author for PostsSerializer
+    Builds Author for PostsSerializer /api/posts
     """
-
     id = serializers.CharField(max_length = 64)
     host = serializers.CharField(max_length = 128)
     github = serializers.CharField()
@@ -18,6 +17,13 @@ class PostsAuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
         fields = ('id','host','displayName','url','github')
+
+class PostsCommentsSerializer(serializers.Serializer):
+    """
+    Builds Comments for PostsSerializer /api/posts
+    """
+    id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
+    author = serializers.CharField(max_length=128, required=True)
 
 class PostsSerializer(serializers.ModelSerializer):
     """
@@ -27,6 +33,13 @@ class PostsSerializer(serializers.ModelSerializer):
     origin = serializers.URLField()
     contentType = serializers.CharField(max_length = 16)
     author = PostsAuthorSerializer()
+    comments = serializers.SerializerMethodField()
+
+    def get_comments(self, obj):
+        comments = Comment.objects.all_comments_for_post(obj.id, True)
+        print(comments)
+        serializer = PostsCommentsSerializer(comments, many=True)
+        return serializer.data
 
     class Meta:
         model = Post

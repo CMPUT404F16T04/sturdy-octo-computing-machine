@@ -52,8 +52,6 @@ class PostsQuery(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author
-                print(post.author.uuid)
                 post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
                 post.author.host = ""
