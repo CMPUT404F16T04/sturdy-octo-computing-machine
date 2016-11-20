@@ -2,11 +2,19 @@ from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
 from socknet.models import Author, Post
 from socknet import external_requests
+
+
+class PostsPagination(PageNumberPagination):
+    page_size = 1
+    # Doesn't look like the spec requires us to allow page size specifying, just which page?
+    # page_size_query_param = 'size'
+    # max_page_size = 10
 
 class AuthorPostsViewSet(viewsets.ModelViewSet):
     """
@@ -34,16 +42,21 @@ class PostsQuery(APIView):
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
+    pagination_class = PostsPagination
+
     def get(self, request, format=None):
         """
         Return a list of the authors friends.
         GET http://service/friends/<authorid>
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+
         try:
             # author = Author.objects.get(uuid=authorid)
             # friend_uuids = author.get_all_friend_uuids()
-            posts = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
+            posts_queryset = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
+            paginator = PostsPagination()
+            posts = paginator.paginate_queryset(posts_queryset, request)
             for post in posts:
                 # TODO: Difference in source vs origin?
                 post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
@@ -58,7 +71,20 @@ class PostsQuery(APIView):
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
-            return Response({"query" : "posts","count" : posts.count(), "posts" : posts_serializer.data})
+            response = {
+                "query" : "posts",
+                "count" : len(posts_queryset),
+                "size": paginator.page_size,
+                "posts" : posts_serializer.data}
+           # Do not return previous if page is 0.
+            if (paginator.get_previous_link() is not None):
+               response['previous'] = paginator.get_previous_link()
+
+            # Do not return next if last page
+            if (paginator.get_next_link() is not None):
+                response['next'] = paginator.get_next_link()
+
+            return Response(response)
         except Author.DoesNotExist:
             return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 

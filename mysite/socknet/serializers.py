@@ -48,7 +48,7 @@ class PostsCommentsSerializer(serializers.Serializer):
 
     def get_published(self, obj):
         return obj.created_on
-        
+
 class PostsSerializer(serializers.ModelSerializer):
     """
     GET /api/posts/
@@ -61,7 +61,6 @@ class PostsSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = Comment.objects.all_comments_for_post(obj.id, True)
-        print(comments)
         serializer = PostsCommentsSerializer(comments, many=True)
         return serializer.data
 
