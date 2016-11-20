@@ -23,8 +23,32 @@ class PostsCommentsSerializer(serializers.Serializer):
     Builds Comments for PostsSerializer /api/posts
     """
     id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
-    author = serializers.CharField(max_length=128, required=True)
+    author = serializers.SerializerMethodField()
+    comment = serializers.SerializerMethodField()
+    contentType = serializers.SerializerMethodField()
+    published = serializers.SerializerMethodField()
 
+    def get_author(self, obj):
+        author = obj.author
+        author.id = author.uuid
+        # TODO: Setup host attribute for authors
+        author.host = ""
+        author.github = author.github_url
+        serializer = PostsAuthorSerializer(author)
+        return serializer.data
+
+    def get_comment(self, obj):
+        return obj.content
+
+    def get_contentType(self, obj):
+        if (obj.markdown == False):
+            return "text/plain"
+        else:
+            return "text/x-markdown"
+
+    def get_published(self, obj):
+        return obj.created_on
+        
 class PostsSerializer(serializers.ModelSerializer):
     """
     GET /api/posts/
