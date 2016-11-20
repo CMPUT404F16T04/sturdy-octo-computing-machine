@@ -8,6 +8,13 @@ from django.dispatch import receiver
 import uuid
 from itertools import chain
 
+class NodeManager(models.Manager):
+    """ Helps creating a node object.
+    """
+    def create_node(self, name, url, user_uuid):
+        node = self.create(name=name, url=url, user=user_uuid)
+        return node
+
 class Node(models.Model):
     """
     Represents a server we can communicate with
@@ -16,6 +23,7 @@ class Node(models.Model):
     url = models.URLField(unique=True)
     # user to use for node to use this account as basicauth.
     user = models.OneToOneField(User)
+    objects = NodeManager()
 
     def __str__(self):
         return self.name
