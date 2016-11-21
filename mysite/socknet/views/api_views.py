@@ -40,12 +40,13 @@ class AuthorPostsViewSet(APIView):
             # All of the user's own PRIVATE posts
             private_queryset = Post.objects.filter(visibility="PRIVATE", author__user=self.request.user).order_by('-created_on')
             # TODO: All of the posts by the request user's friends
+            friends_queryset = Post.objects.filter(visibility="FRIENDS", author__friends__user=self.request.user )
 
             # TODO: All posts of friends of a friend (FOAF)
 
             # Koliber Services
             # http://stackoverflow.com/questions/1125844/howto-merge-2-django-querysets-in-one-and-make-a-select-distinct
-            final_queryset = public_queryset | server_queryset | private_queryset
+            final_queryset = public_queryset | server_queryset | private_queryset | friends_queryset
 
             paginator = PostsPagination()
             posts = paginator.paginate_queryset(final_queryset, request)
