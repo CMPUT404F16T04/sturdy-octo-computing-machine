@@ -60,7 +60,7 @@ class AuthorPostsViewSet(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author_id
                 # TODO: Setup host attribute for authors
-                post.author.host = ""
+                post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
@@ -98,8 +98,6 @@ class PostsQuery(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
         try:
-            # author = Author.objects.get(uuid=authorid)
-            # friend_uuids = author.get_all_friend_uuids()
             posts_queryset = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
             paginator = PostsPagination()
             posts = paginator.paginate_queryset(posts_queryset, request)
@@ -114,6 +112,7 @@ class PostsQuery(APIView):
                 post.author.id = post.author_id
                 # TODO: Setup host attribute for authors
                 post.author.host = ""
+                post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
@@ -178,6 +177,7 @@ class PostIDQuery(APIView):
                 post.author.id = post.author_id
                 # TODO: Setup host attribute for authors
                 post.author.host = ""
+                post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
                 posts_serializer = PostsSerializer(post)
