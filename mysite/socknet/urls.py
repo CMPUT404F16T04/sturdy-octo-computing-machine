@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^api/posts/$', api_views.PostsQuery.as_view(), name="api_posts"),
     url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_author_posts"),
 
+    url(r'^api/author/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.ProfileView.as_view(), name="api_profile_view"),
+
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewPost.as_view(), name='view_post'),

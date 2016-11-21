@@ -348,3 +348,42 @@ class FriendRequest(APIView):
         # If we got here, then both authors are local.
         friend.follow(author)
         return Response(status=status.HTTP_200_OK)
+
+
+class ProfileView(APIView):
+    
+    def get(self, request, format=None):
+        """
+        API endpoint that allows profiles to be viewed 
+        GET/api/author
+        """
+
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PostsPagination
+
+    def get(self, request, authorid, format=None):
+        """
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            author = Author.objects.get(uuid=authorid)
+            friend_uuids = author.get_all_friend_uuids()
+
+            # serializer = ProfileSerializer(data=request.data)
+
+            # if not serializer.is_valid():
+            #     return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
+            # data = serializer.validated_data
+            # id_data = data.get('id')
+            # host_data = data.get('host')
+            # display_name_data = data.get('display_name')
+            # url_data = data.get('url')
+            # friends_data = data.get('friends')
+            
+
+            return Response({"id": author.uuid, "host": "None", "displayName": author.displayName, "friends": friend_uuids,})
+        except Author.DoesNotExist:
+            return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)

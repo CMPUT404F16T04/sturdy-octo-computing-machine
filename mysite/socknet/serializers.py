@@ -187,3 +187,28 @@ class SingleCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('guid', 'comment', 'pubDate')
+
+
+class ProfileFriendSerializer(serializers.Serializer): 
+    id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
+    host = serializers.CharField(max_length=128, required=True)
+    display_name = serializers.CharField(max_length=150, required=True)
+    url = serializers.CharField(max_length=256, required=True)
+
+class ProfileSerializer(serializers.Serializer): 
+    """
+    Serializer for getting a specific authors Profile
+    """
+    id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
+    host = serializers.CharField(max_length=128, required=True)
+    display_name = serializers.CharField(max_length=150, required=True)
+    url = serializers.CharField(max_length=256, required=True)
+    friends = ProfileFriendSerializer(required=False, many=True)
+    def get_friends(self, obj):
+        friends = Author.objects.get_all_friend_uuids(obj.id, True)
+        print(comments)
+        serializer = ProfileFriendSerializer(friends, many=True)
+        return serializer.data
+          
+    class Meta:  
+        model = Author
