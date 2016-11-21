@@ -79,9 +79,15 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
                 # Don't save this post entry, because faulty image.
                 form.instance.delete()
                 return response
-            img = ImageServ.objects.create_image(self.request.FILES['image'], self.request.user.author, form.instance)
+            upload_obj = self.request.FILES['image']
+            # Seek 0,0 because for some reason it is not set to the beginning of the file...
+            # This caused a lot of trouble... why isn't it automatically set to begginning of file ?!
+            upload_obj.seek(0, 0)
+            image_dat = upload_obj.read()
+            imagetype = upload_obj.content_type
+            img = ImageServ.objects.create_image(image_dat, self.request.user.author, form.instance, imagetype)
             # Update field of the created post with the image path.
-            form.instance.imglink = img.image
+            form.instance.imglink = img.id
             form.instance.save(update_fields=['imglink'])
         return http_res_obj
 
@@ -163,7 +169,11 @@ class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ViewImage, self).get_context_data(**kwargs)
         parent_key = self.kwargs.get('img')
-        context['image_loc'] = get_object_or_404(ImageServ, image=parent_key)
+        imgobj = ImageServ.objects.get(pk=parent_key)
+        context['image_usr'] = imgobj.author.user.username
+        context['image_made'] = imgobj.created_on
+        context['image_id'] = imgobj.id
+        context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
         return context
 
 class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
@@ -176,8 +186,6 @@ class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ViewRawImage, self).get_context_data(**kwargs)
         parent_key = self.kwargs.get('img')
-        filetype = parent_key.split('.')[-1]
-        path = os.path.join(MEDIA_ROOT, parent_key)
-        blob = open(path, 'rb')
-        context['b64'] = "data:image/" + filetype + ";base64," + base64.b64encode(blob.read())
+        imgobj = ImageServ.objects.get(pk=parent_key)
+        context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
         return context
