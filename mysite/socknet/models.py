@@ -366,15 +366,6 @@ class ImageServ(models.Model):
         self.parent_post = parent_post
         self.imagetype = imagetype
 
-    # Django does not remove images automatically anymore upon DB removal.
-    # Taken from darrinm http://stackoverflow.com/a/14310174
-    # automatically remove image that was removed in DB
-    @receiver(pre_delete)
-    def ImageServ_delete(sender, instance, **kwargs):
-        # Pass false so FileField doesn't save the model.
-        if type(instance) == ImageServ:
-            instance.image.delete(False)
-
     def get_absolute_url(self):
         """ Gets the canonical URL for an image.
         Will be of the format .../images/<id>/comment/<id>
