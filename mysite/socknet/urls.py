@@ -43,9 +43,9 @@ urlpatterns = [
     url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/create/$', post_views.CreateComment.as_view(), name='create_comment'),
 
     # Images
-    url(r'^images/(?P<img>[0-9A-Za-z-_./\\]+)$', post_views.ViewImage.as_view(), name='view_image'),
+    url(r'^images/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewImage.as_view(), name='view_image'),
     # Redirect static access through Authentication first.
-    url(r'^media/(?P<img>[0-9A-Za-z-_./\\]+)$', post_views.ViewRawImage.as_view(), name='view_raw_image'),
+    url(r'^media/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewRawImage.as_view(), name='view_raw_image'),
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewProfile.as_view(), name='profile'),

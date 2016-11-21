@@ -27,9 +27,10 @@
 <article class="content">
     {{post.view_content|safe}}
 </article>
-{% if post.imglink != "" %}
+<!-- # imglink uuid > 0 is because empty uuid is 32 0s -->
+{% if post.imglink > 0 %}
     <script type='text/javascript'>
-      $.get("../../media/{{post.imglink}}", function(data, status) {
+      $.get("/media/{{post.imglink}}", function(data, status) {
         if( status === "success") {
           $('#{{post.id}}').html(data);
           $('img').css("maxWidth", "100%")

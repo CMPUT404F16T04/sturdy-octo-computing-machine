@@ -216,7 +216,8 @@ class Post(models.Model):
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()
-    imglink = models.CharField(max_length=256)
+    #imglink = models.CharField(max_length=256)
+    imglink = models.UUIDField(editable=True, null=True)
     visibility = models.CharField(default='PUBLIC', max_length=255, choices=[
         ('PUBLIC', 'PUBLIC'),
         ('FOAF', 'FOAF'),
@@ -345,23 +346,25 @@ class ImageManager(models.Manager):
     """ Helps creating an image object.
     Taken from https://docs.djangoproject.com/en/1.10/ref/models/instances/#creating-objects
     """
-    def create_image(self, img, au, pst):
-        img = self.create(image=img, author=au, parent_post=pst)
+    def create_image(self, img, au, pst, imgtyp):
+        img = self.create(image=img, author=au, parent_post=pst, imagetype=imgtyp)
         return img
 
 class ImageServ(models.Model):
     """ Represents an image uploaded by the user. """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    image = models.ImageField(upload_to='user_images', max_length=256)
     author = models.ForeignKey(Author, related_name="image_author")
     parent_post = models.ForeignKey(Post, related_name="image_parent_post")
     created_on = models.DateTimeField(auto_now=True)
+    imagetype = models.CharField(max_length=12)
+    image = models.BinaryField()
     objects = ImageManager()
 
-    def ImageServ(self, image, author, parent_post):
+    def ImageServ(self, image, author, parent_post, imagetype):
         self.image = image
         self.author = author
         self.parent_post = parent_post
+        self.imagetype = imagetype
 
     # Django does not remove images automatically anymore upon DB removal.
     # Taken from darrinm http://stackoverflow.com/a/14310174
