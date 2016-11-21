@@ -1,4 +1,5 @@
 import uuid
+import json
 
 from django.shortcuts import get_object_or_404
 from django.views import generic
@@ -10,12 +11,16 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from socknet.models import *
 from socknet.forms import *
+from socknet.serializers import *
 
 # For images
 import os
 from mysite.settings import MEDIA_ROOT
 from PIL import Image, ImageFile
 import base64
+
+import requests
+from requests.auth import HTTPBasicAuth
 
 
 class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
@@ -25,6 +30,29 @@ class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     login_url = '/login/' # For login mixin
     context_object_name = 'posts_list'
     paginate_by = 10
+
+    """
+    def get(self, request):
+        r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
+        print("-----------------------------------")
+        data = json.loads(r.text)
+        print(data['posts'])
+        for post in data['posts']:
+            print("************")
+            #print(post)
+            serializer = PostsSerializer(data=post)
+            print("Serializer")
+            print(serializer)
+            valid = serializer.is_valid()
+            print(valid)
+            if valid:
+                print("Validated Data")
+                p = serializer.validated_data
+                print(p)
+            else:
+                print(serializer.errors)
+            return HttpResponse(r.text)
+"""
 
     def test_func(self):
         try:
@@ -64,7 +92,8 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
 
     def form_valid(self, form):
         # Create the post object first.
-        form.instance.author = self.request.user.author
+        form.instance.author_id = self.request.user.author.uuid
+        form.instance.author_name = self.request.user.author.displayName
         http_res_obj = super(CreatePost, self).form_valid(form)
         # If there was an image, make image object
         # https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest

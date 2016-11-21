@@ -5,7 +5,7 @@
     <a class="post-title" href="{% url 'view_post' pk=post.pk %}">
         <h1>{{ post.title }}</h1>
     </a>
-    {% if post.author.uuid == user.author.uuid %}
+    {% if post.author_id == user.author.uuid %}
       <div>
         <a class="edit" href="{% url 'author_check_update' pk=post.pk %}">
           <span class='glyphicon glyphicon-pencil'></span>
@@ -18,7 +18,7 @@
 </div>
 <div class="post-id-label">
     {{ post.getFullEnglishVisibility }} post submitted by
-    <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
+    <a class="author-label" href="{% url 'profile' authorUUID=post.author_id %}">{{ post.author_name }}</a>
     on {{ post.created_on }} UTC
 </div>
 <div class="post-description">

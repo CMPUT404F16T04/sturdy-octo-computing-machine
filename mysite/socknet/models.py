@@ -210,7 +210,9 @@ class Author(models.Model):
 class Post(models.Model):
     """ Represents a post made by a user """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    author = models.ForeignKey(Author, related_name="author")
+    #author = models.ForeignKey(Author, related_name="author")
+    author_id = models.UUIDField()
+    author_name = models.CharField(max_length=150)
     title = models.CharField(max_length=64, default="No Title")
     description = models.CharField(max_length=128, default="No description provided.")
     content = models.TextField(max_length=512)
@@ -270,15 +272,15 @@ class PostManager(models.Model):
         """
         # If someone is viewing their own page, they can see all posts
         if profile_author == current_author:
-            return Post.objects.filter(author=profile_author).order_by('-created_on')
+            return Post.objects.filter(author_id=profile_author.uuid).order_by('-created_on')
 
-        public_posts = Post.objects.filter(author=profile_author, visibility='PUBLIC')
+        public_posts = Post.objects.filter(author_id=profile_author.uuid, visibility='PUBLIC')
         friend_posts = {}
         foaf_posts = {} # TODO IMPLEMENT FOAF
         server_only_posts = {} # TODO IMPLEMENT SERVER ONLY
 
         if current_author in profile_author.friends.all():
-            friend_posts = Post.objects.filter(author=profile_author, visibility='FRIENDS')
+            friend_posts = Post.objects.filter(author_id=profile_author.uuid, visibility='FRIENDS')
 
         # Combine the query sets, sort by most recent
         visible_posts = sorted(
