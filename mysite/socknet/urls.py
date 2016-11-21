@@ -11,11 +11,12 @@ urlpatterns = [
     # API
 
     url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.IsFriendQuery.as_view(), name="api_is_friend_query"),
-    url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.FriendsQuery.as_view(), name="api_friend_query"),
+    url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/$', api_views.FriendsQuery.as_view(), name="api_friend_query"),
     url(r'^api/friendrequest/', api_views.FriendRequest.as_view(), name="api_friend_request"),
 
-    url(r'^api/posts/', api_views.PostsQuery.as_view(), name="api_posts"),
-    url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_posts"),
+    url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/$', api_views.PostIDQuery.as_view(), name="api_posts_id"),
+    url(r'^api/posts/$', api_views.PostsQuery.as_view(), name="api_posts"),
+    url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_author_posts"),
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),

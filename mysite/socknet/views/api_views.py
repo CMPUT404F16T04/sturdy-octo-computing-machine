@@ -133,6 +133,60 @@ class PostsQuery(APIView):
         except Author.DoesNotExist:
             return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
+class PostIDQuery(APIView):
+    """
+    API endpoint that allows posts to be viewed or edited.
+    GET /api/posts
+    """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PostsPagination
+
+    def get(self, request, post_id, format=None):
+        """
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+
+        try:
+            post = Post.objects.filter(id=post_id).first()
+            if (post is None):
+                return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Authentication validation
+            # TODO: Make this better. I wrote this with my brain in sleep mode.
+            if (post.visibility == "PRIVATE" and post.author.user != self.request.user):
+                return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+            if (post.visibility == "FRIENDS" and not post.author.friends.filter(user=self.request.user)):
+                return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+            # TODO: FOAF :O
+            # TODO: SERVERONLY
+
+            else:
+                # TODO: Difference in source vs origin?
+                post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                if (post.markdown == False):
+                    post.contentType = "text/plain"
+                else:
+                    post.contentType = "text/x-markdown"
+                post.author.id = post.author.uuid
+                # TODO: Setup host attribute for authors
+                post.author.host = ""
+                post.author.github = post.author.github_url
+
+                posts_serializer = PostsSerializer(post)
+                response = {
+                    "query" : "posts",
+                    "count" : 1,
+                    "size": 1,
+                    "posts" : posts_serializer.data}
+
+                return Response(response)
+        except Author.DoesNotExist:
+            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+
 class AuthorViewSet(viewsets.ModelViewSet):
     """
     API endpoint that
