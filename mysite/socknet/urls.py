@@ -7,8 +7,6 @@ from rest_framework import routers
 from socknet.forms import CustomAuthenticationForm
 from socknet.views import api_views, admin_views, author_views, post_views
 
-# API Routes
-
 urlpatterns = [
     # API
 
@@ -17,7 +15,7 @@ urlpatterns = [
     url(r'^api/friendrequest/', api_views.FriendRequest.as_view(), name="api_friend_request"),
 
     url(r'^api/posts/', api_views.PostsQuery.as_view(), name="api_posts"),
-    url(r'^api/author/posts', api_views.PostsQuery.as_view(), name="api_posts"),
+    url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_posts"),
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),

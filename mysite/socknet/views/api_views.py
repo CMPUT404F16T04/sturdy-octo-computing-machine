@@ -9,31 +9,76 @@ from socknet.serializers import *
 from socknet.models import Author, Post
 from socknet import external_requests
 
-
+### PAGINATION ###
 class PostsPagination(PageNumberPagination):
     page_size = 50
     # Doesn't look like the spec requires us to allow page size specifying, just which page?
     # page_size_query_param = 'size'
     # max_page_size = 10
 
-class AuthorPostsViewSet(viewsets.ModelViewSet):
+class AuthorPostsPagination(PageNumberPagination):
+    page_size = 50
+
+### API VIEWS ###
+class AuthorPostsViewSet(APIView):
     """
-    API endpoint that
+    API endpoint that allows an authenticated user to see all posts they are allowed to see
+    GET /api/author/posts
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Author.objects.all()
-    serializer_class = AuthorPostsSerializer
+    pagination_class = AuthorPostsPagination
 
-# class PostsViewSet(viewsets.ModelViewSet):
-#     """
-#     API endpoint that allows posts to be viewed or edited.
-#     GET /api/posts
-#     """
-#     authentication_classes = (BasicAuthentication,)
-#     permission_classes = (IsAuthenticated,)
-#     queryset = Post.objects.all().order_by('-created_on')
-#     serializer_class = PostsSerializer
+    def get(self, request, format=None):
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+
+        try:
+            # All PUBLIC posts on our server
+            public_queryset = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
+            # All SERVERONLY posts from our server
+            server_queryset = Post.objects.filter(visibility="SERVERONLY").order_by('-created_on')
+            # All of the user's own PRIVATE posts
+            private_queryset = Post.objects.filter(visibility="PRIVATE", author__user=self.request.user).order_by('-created_on')
+            # TODO: All of the posts by the request user's friends
+
+            # TODO: All posts of friends of a friend (FOAF)
+
+            # Koliber Services
+            # http://stackoverflow.com/questions/1125844/howto-merge-2-django-querysets-in-one-and-make-a-select-distinct
+            final_queryset = public_queryset | server_queryset | private_queryset
+
+            paginator = PostsPagination()
+            posts = paginator.paginate_queryset(final_queryset, request)
+            for post in posts:
+                # TODO: Difference in source vs origin?
+                post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                if (post.markdown == False):
+                    post.contentType = "text/plain"
+                else:
+                    post.contentType = "text/x-markdown"
+                post.author.id = post.author.uuid
+                # TODO: Setup host attribute for authors
+                post.author.host = ""
+                post.author.github = post.author.github_url
+
+            posts_serializer = PostsSerializer(posts, many=True)
+            response = {
+                "query" : "posts",
+                "count" : len(final_queryset),
+                "size": paginator.page_size,
+                "posts" : posts_serializer.data}
+           # Do not return previous if page is 0.
+            if (paginator.get_previous_link() is not None):
+               response['previous'] = paginator.get_previous_link()
+
+            # Do not return next if last page
+            if (paginator.get_next_link() is not None):
+                response['next'] = paginator.get_next_link()
+
+            return Response(response)
+        except Author.DoesNotExist:
+            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
 class PostsQuery(APIView):
     """
