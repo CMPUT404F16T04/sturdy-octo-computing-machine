@@ -373,7 +373,7 @@ class ImageServ(models.Model):
         return reverse('view_image', args=[str(self.image)])
 
     def __unicode__(self):
-        return "Author:" + self.author.user.username + " : " + str(self.image)
+        return self.author.user.username + ", created on " + str(self.created_on) +"  image type: " + str(self.imagetype)
 
 class AdminConfig(models.Model):
     url = models.URLField()
