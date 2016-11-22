@@ -57,13 +57,12 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
             if url[-1] is not "/":
                 url = url + "/"
             r = requests.get(url + 'posts/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-            print(r.text)
             if (len(r.text) > 0):
                 data = {}
                 try:
                     data = json.loads(r.text)
-                except ValueError:
-                    posts.append(RemotePost("Json Error", "Received Value Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error", "Error", "Error"))
+                except ValueError, e:
+                    posts.append(RemotePost("Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error"))
                 try:
                     for post_json in data['posts']:
                         serializer = PostsSerializer(data=post_json)
@@ -74,10 +73,11 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                         else:
                             post_data = serializer.validated_data
                             post_author = post_data['author']
-                            post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['url'])
+                            post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'],
+                                post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'])
                             posts.append(post)
                 except KeyError, e:
-                    posts.append(RemotePost("Key Error", "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error"))
+                    posts.append(RemotePost("Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error"))
         return posts
 
     def test_func(self):
