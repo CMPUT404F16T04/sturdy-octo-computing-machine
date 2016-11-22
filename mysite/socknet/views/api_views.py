@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
-from socknet.models import Author, Post, ImageServ
+from socknet.models import Author, Post, ImageServ, Comment
 from socknet import external_requests
 
 ### PAGINATION ###
@@ -249,12 +249,54 @@ class AuthorViewSet(viewsets.ModelViewSet):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
-class CommentsViewSet(viewsets.ModelViewSet):
+class CommentsViewSet(APIView):
     """
     Get all comments for a post
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
+    pagination_class = AuthorPostsPagination
+
+    def get(self, request, post_id, format=None):
+        """
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            post = Post.objects.filter(id=post_id).first()
+            if (post is None):
+                return Response({'Error': 'Something went wrong. Post is None'}, status=status.HTTP_404_NOT_FOUND)
+
+            final_queryset = Comment.objects.filter(parent_post=post).order_by('-created_on')
+
+            paginator = PostsPagination()
+            comments = paginator.paginate_queryset(final_queryset, request)
+            for commie in comments:
+                commie.published = post.created_on
+                if (commie.markdown == False):
+                    commie.contentType = "text/plain"
+                else:
+                    commie.contentType = "text/x-markdown"
+                commie.author.id = commie.author.uuid
+
+            comments_serializer = PostsCommentsSerializer(comments, many=True)
+            response = {
+                "query" : "comments",
+                "count" : len(final_queryset),
+                "size": paginator.page_size,
+                "comments" : comments_serializer.data}
+           # Do not return previous if page is 0.
+            if (paginator.get_previous_link() is not None):
+               response['previous'] = paginator.get_previous_link()
+
+            # Do not return next if last page
+            if (paginator.get_next_link() is not None):
+                response['next'] = paginator.get_next_link()
+
+            return Response(response)
+        except Author.DoesNotExist:
+            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
 class IsFriendQuery(APIView):
     """
