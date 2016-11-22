@@ -273,7 +273,8 @@ class CommentsViewSet(APIView):
             paginator = PostsPagination()
             comments = paginator.paginate_queryset(final_queryset, request)
             for commie in comments:
-                commie.published = post.created_on
+                commie.guid = commie.id
+                commie.pubDate = post.created_on
                 if (commie.markdown == False):
                     commie.contentType = "text/plain"
                 else:

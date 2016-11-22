@@ -22,11 +22,11 @@ class PostsCommentsSerializer(serializers.Serializer):
     """
     Builds Comments for PostsSerializer /api/posts
     """
-    id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
+    guid = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
     author = serializers.SerializerMethodField()
     comment = serializers.SerializerMethodField()
     contentType = serializers.SerializerMethodField()
-    published = serializers.SerializerMethodField()
+    pubDate = serializers.SerializerMethodField()
 
     def get_author(self, obj):
         author = obj.author
@@ -46,7 +46,7 @@ class PostsCommentsSerializer(serializers.Serializer):
         else:
             return "text/x-markdown"
 
-    def get_published(self, obj):
+    def get_pubDate(self, obj):
         return obj.created_on
 
 class PostsSerializer(serializers.ModelSerializer):
