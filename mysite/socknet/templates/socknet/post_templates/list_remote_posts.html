@@ -21,4 +21,7 @@
             </li>
         {% endfor %}
     </ol>
+    {% if not posts_list %}
+    <h2>No Posts</h2>
+    {% endif %}
 {% endblock %}

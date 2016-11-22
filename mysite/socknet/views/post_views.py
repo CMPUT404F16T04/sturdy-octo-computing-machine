@@ -46,20 +46,28 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
     context_object_name = 'posts_list'
 
     def get_queryset(self):
-        r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
+
+        #r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
+        #r = requests.get('http://winter-resonance.herokuapp.com', auth=HTTPBasicAuth('group1', 'group1forcmput404project'))
+        r = requests.get('https://api-bloggyblog404.herokuapp.com/posts/', auth=HTTPBasicAuth('test', 'test'))
         posts = []
+        print(r.text)
         if (len(r.text) > 0):
-            data = json.loads(r.text)
+            try:
+                data = json.loads(r.text)
+            except ValueError:
+                posts.append(RemotePost("Error", "Received Value Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error"))
             for post_json in data['posts']:
                 serializer = PostsSerializer(data=post_json)
                 valid = serializer.is_valid()
                 if not valid:
-                    print("A post was not valid: " +serializer.errors)
-                post_data = serializer.validated_data
-                post_author = post_data['author']
-                #(self, title, source, content_type, content, author_display_name, author_url):
-                post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
-                posts.append(post)
+                    # Ignore posts that are not valid
+                    print(serializer.errors)
+                else:
+                    post_data = serializer.validated_data
+                    post_author = post_data['author']
+                    post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
+                    posts.append(post)
         return posts
 
     def test_func(self):

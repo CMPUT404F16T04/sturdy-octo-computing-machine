@@ -12,7 +12,7 @@ class PostsAuthorSerializer(serializers.ModelSerializer):
     """
     id = serializers.CharField(max_length = 64)
     host = serializers.CharField(max_length = 128)
-    github = serializers.CharField()
+    github = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = Author
@@ -53,8 +53,8 @@ class PostsSerializer(serializers.ModelSerializer):
     """
     GET /api/posts/
     """
-    source = serializers.URLField()
-    origin = serializers.URLField()
+    source = serializers.URLField(required=False, allow_null=True, allow_blank=True)
+    origin = serializers.URLField(required=False, allow_null=True, allow_blank=True)
     contentType = serializers.CharField(max_length = 16)
     author = PostsAuthorSerializer()
     comments = serializers.SerializerMethodField()
