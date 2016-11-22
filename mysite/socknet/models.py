@@ -62,11 +62,11 @@ class Author(models.Model):
     foreign_friends_im_following = models.ManyToManyField(ForeignAuthor, related_name="foreign_friends_im_following", blank=True)
 
     # Profile fields
-    github_url = models.TextField(blank=True)
+    github_url = models.URLField(blank=True)
     about_me = models.CharField(max_length=1000, blank=True)
     birthday = models.DateField(null=True,blank=True)
     displayName = models.CharField(max_length=64, blank=True)
-    url = models.CharField(max_length=128, blank=True)
+    url = models.URLField(blank=True)
 
     def __str__(self):
         return self.user.get_username()

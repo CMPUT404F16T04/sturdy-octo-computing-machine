@@ -62,7 +62,10 @@ class AuthorPostsViewSet(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 post.author.host = "http://" + request.get_host()
-                post.author.github = post.author.github_url
+                if len(post.author.github_url) > 0:
+                    post.author.github = "http://" + post.author.github_url
+                else:
+                    post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
             response = {
@@ -111,7 +114,10 @@ class AuthorViewAllTheirPosts(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 post.author.host = "http://" + request.get_host()
-                post.author.github = post.author.github_url
+                if len(post.author.github_url) > 0:
+                    post.author.github = "http://" + post.author.github_url
+                else:
+                    post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
             response = {
@@ -162,7 +168,11 @@ class PostsQuery(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 post.author.host = "http://" + request.get_host()
-                post.author.github = post.author.github_url
+                if len(post.author.github_url) > 0:
+                    post.author.github = "http://" + post.author.github_url
+                else:
+                    post.author.github = post.author.github_url
+
 
             posts_serializer = PostsSerializer(posts, many=True)
             response = {
@@ -223,7 +233,10 @@ class PostIDQuery(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 post.author.host = "http://" + request.get_host()
-                post.author.github = post.author.github_url
+                if len(post.author.github_url) > 0:
+                    post.author.github = "http://" + post.author.github_url
+                else:
+                    post.author.github = post.author.github_url
 
                 posts_serializer = PostsSerializer(post)
                 response = {
