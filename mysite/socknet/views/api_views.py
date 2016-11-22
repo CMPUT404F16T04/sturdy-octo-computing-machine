@@ -366,16 +366,16 @@ class ProfileView(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
             author = Author.objects.get(uuid=authorid)
-            friends = []
-            friend_uuids = author.get_all_friend_uuids()
-            print(friend_uuids)
-            for x in friend_uuids: 
-                current = Author.objects.get(uuid=x)
-                print(current)
-                friends.append(current)
-            print(friends)
-            author.friends = friends
-            print(author.friends)
+            # friends = []
+            # friend_uuids = author.get_all_friend_uuids()
+            # print(friend_uuids)
+            # for x in friend_uuids: 
+            #     current = Author.objects.get(uuid=x)
+            #     print(current)
+            #     friends.append(current)
+            # print(friends)
+            # author.friends = friends
+            # print(author.friends)
             # print(friends)
             # author.friends = friends
             # author.id = author.uuid
