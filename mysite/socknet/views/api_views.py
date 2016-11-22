@@ -401,7 +401,30 @@ class FriendRequest(APIView):
         friend.follow(author)
         return Response(status=status.HTTP_200_OK)
 
-class ViewRawImage(APIView):
+class ProfileView(APIView):
+
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, authorid, format=None):
+        """
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            author = Author.objects.get(uuid=authorid)
+            author.host = request.get_host()
+
+            serializer = ProfileSerializer(author)
+
+            author.host = request.get_host()
+
+            return Response(serializer.data)
+        except Author.DoesNotExist:
+            return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+class ViewApiRawImage(APIView):
     """ After authentication verification it opens image as blob and then
     encode it to base64 and put that in the html.
     """

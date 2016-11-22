@@ -197,3 +197,38 @@ class SingleCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ('guid', 'comment', 'pubDate')
+
+
+class ProfileFriendSerializer(serializers.Serializer): 
+    #id = serializers.CharField(max_length = 64) # uuid is 36 characters
+    id = serializers.CharField(source='uuid', required =True)
+    host = serializers.SerializerMethodField()
+    displayName = serializers.CharField(max_length=150, required=True)
+    url = serializers.CharField(max_length=256, required=True)
+    def get_host(self,obj): 
+        host = "https://cmput404f16t04dev.herokuapp.com/"
+        return host
+    class Meta:
+        model = Author
+        fields = ('id','host','displayName','url')
+
+class ProfileSerializer(serializers.Serializer): 
+    """
+    Serializer for getting a specific authors Profile
+    """
+    id = serializers.CharField(source='uuid', required=True)
+    host = serializers.CharField(max_length = 128)
+    displayName = serializers.CharField(max_length=150, required=True) 
+    url = serializers.CharField(max_length=256, required=True)
+    friends = serializers.SerializerMethodField()
+    def get_friends(self, obj):
+        friends = []
+        friend_uuids = obj.friends.all()
+        serializer = ProfileFriendSerializer(friend_uuids,many=True)
+        print(serializer.data)
+        return serializer.data
+
+    class Meta:
+        model = Author
+        fields = ('id','host','displayName','url')
+   
