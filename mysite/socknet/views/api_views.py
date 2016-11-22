@@ -14,7 +14,7 @@ from socknet import external_requests
 class PostsPagination(PageNumberPagination):
     page_size = 50
     # Doesn't look like the spec requires us to allow page size specifying, just which page?
-    # page_size_query_param = 'size'
+    page_size_query_param = 'size'
     # max_page_size = 10
 
 class AuthorPostsPagination(PageNumberPagination):
@@ -255,7 +255,7 @@ class CommentsViewSet(APIView):
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = AuthorPostsPagination
+    pagination_class = PostsPagination
 
     def get(self, request, post_id, format=None):
         """
@@ -270,26 +270,28 @@ class CommentsViewSet(APIView):
 
             final_queryset = Comment.objects.filter(parent_post=post).order_by('-created_on')
 
+            # id = serializers.CharField(source='uuid', required=True)
+            # host = serializers.URLField(required=True)
+            # displayName = serializers.CharField(source='user.uuid', max_length=36, required=True)
+
             paginator = PostsPagination()
             comments = paginator.paginate_queryset(final_queryset, request)
             for commie in comments:
                 commie.guid = commie.id
-                commie.pubDate = post.created_on
-                if (commie.markdown == False):
-                    commie.contentType = "text/plain"
-                else:
-                    commie.contentType = "text/x-markdown"
+                commie.pubDate = commie.created_on
                 commie.author.id = commie.author.uuid
+                commie.author.host = request.get_host()
+                commie.author.displayName = commie.author.displayName
 
-            comments_serializer = PostsCommentsSerializer(comments, many=True)
+            comments_serializer = SingleCommentSerializer(comments, many=True)
             response = {
                 "query" : "comments",
                 "count" : len(final_queryset),
                 "size": paginator.page_size,
                 "comments" : comments_serializer.data}
-           # Do not return previous if page is 0.
+            # Do not return previous if page is 0.
             if (paginator.get_previous_link() is not None):
-               response['previous'] = paginator.get_previous_link()
+                response['previous'] = paginator.get_previous_link()
 
             # Do not return next if last page
             if (paginator.get_next_link() is not None):
