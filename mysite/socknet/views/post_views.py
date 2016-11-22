@@ -219,17 +219,3 @@ class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
         context['image_id'] = imgobj.id
         context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
         return context
-
-class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
-    """ After authentication verification it opens image as blob and then
-    encode it to base64 and put that in the html.
-    """
-    model= ImageServ
-    template_name = "socknet/post_templates/imager.html"
-    login_url = '/login/' # For login mixin
-    def get_context_data(self, **kwargs):
-        context = super(ViewRawImage, self).get_context_data(**kwargs)
-        parent_key = self.kwargs.get('img')
-        imgobj = ImageServ.objects.get(pk=parent_key)
-        context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
-        return context

@@ -18,6 +18,8 @@ urlpatterns = [
     url(r'^api/posts/$', api_views.PostsQuery.as_view(), name="api_posts"),
     url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_author_posts"),
     url(r'^api/author/(?P<auth_id>[0-9A-Fa-f-]+)/posts/$', api_views.AuthorViewAllTheirPosts.as_view(), name="api_authors_posts"),
+    # Redirect static access through Authentication first.
+    url(r'^api/media/(?P<img>[0-9A-Fa-f-]+)$', api_views.ViewRawImage.as_view(), name='view_raw_image'),
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),
@@ -33,8 +35,6 @@ urlpatterns = [
 
     # Images
     url(r'^images/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewImage.as_view(), name='view_image'),
-    # Redirect static access through Authentication first.
-    url(r'^media/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewRawImage.as_view(), name='view_raw_image'),
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewProfile.as_view(), name='profile'),

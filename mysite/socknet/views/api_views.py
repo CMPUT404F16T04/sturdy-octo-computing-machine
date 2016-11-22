@@ -1,3 +1,4 @@
+import base64
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
-from socknet.models import Author, Post
+from socknet.models import Author, Post, ImageServ
 from socknet import external_requests
 
 ### PAGINATION ###
@@ -395,3 +396,22 @@ class FriendRequest(APIView):
         # If we got here, then both authors are local.
         friend.follow(author)
         return Response(status=status.HTTP_200_OK)
+
+class ViewRawImage(APIView):
+    """ After authentication verification it opens image as blob and then
+    encode it to base64 and put that in the html.
+    """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    def get(self, request, img, format=None):
+        """
+        Returns a specific image with given image_id.
+        GET http://service/api/media/<image_id>
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            img_obj = ImageServ.objects.get(pk=img)
+            base64obj = "data:" + img_obj.imagetype + ";base64," +  base64.b64encode(img_obj.image)
+            return Response({"imagedata": base64obj})
+        except:
+            return Response({'Error': 'An error happened with retrieving the image.'}, status=status.HTTP_404_NOT_FOUND)
