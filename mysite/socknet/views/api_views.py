@@ -58,7 +58,7 @@ class AuthorPostsViewSet(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author.id = post.author_id
+                post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
                 post.author.host = request.get_host()
                 post.author.github = post.author.github_url
@@ -109,7 +109,7 @@ class PostsQuery(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author.id = post.author_id
+                post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
                 post.author.host = ""
                 post.author.host = request.get_host()
@@ -144,7 +144,8 @@ class PostIDQuery(APIView):
 
     def get(self, request, post_id, format=None):
         """
-        GET /api/posts
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
@@ -154,17 +155,13 @@ class PostIDQuery(APIView):
                 return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
             # Authentication validation
-            """
             # TODO: Make this better. I wrote this with my brain in sleep mode.
-            if (post.visibility == "PRIVATE" and post.author_id != self.request.user):
+            if (post.visibility == "PRIVATE" and post.author.user != self.request.user):
                 return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
-            if (post.visibility == "FRIENDS" and not post.author.friends.filter(user=self.request.user):
+            if (post.visibility == "FRIENDS" and not post.author.friends.filter(user=self.request.user)):
                 return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
             # TODO: FOAF :O
             # TODO: SERVERONLY
-            """
-            if (post.visibility == "SERVERONLY"):
-                return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 
             else:
                 # TODO: Difference in source vs origin?
@@ -174,7 +171,7 @@ class PostIDQuery(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author.id = post.author_id
+                post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
                 post.author.host = ""
                 post.author.host = request.get_host()
