@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+    <ol class="feed">
+        {% for post in posts_list %}
+            <li class="post">
+                <div class="first-line">
+                    <h1>{{ post.title }}</h1>
+                </div>
+                <div class="post-id-label">
+                    {{ post.visibility }} post submitted by
+                    <a class="author-label" href="#">{{ post.author_display_name }}</a>
+                    on {{ post.created_on }} UTC
+                </div>
+                <div class="post-description">
+                    {{post.description}}
+                </div>
+                <article class="content">
+                    {{post.content|safe}}
+                </article>
+                </div>
+            </li>
+        {% endfor %}
+    </ol>
+    {% if not posts_list %}
+    <h2>No Posts</h2>
+    {% endif %}
+{% endblock %}
