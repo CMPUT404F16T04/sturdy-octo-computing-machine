@@ -55,6 +55,7 @@ class AuthorPostsViewSet(APIView):
                 # TODO: Difference in source vs origin?
                 post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
                 post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.published = post.created_on
                 if (post.markdown == False):
                     post.contentType = "text/plain"
                 else:
@@ -104,6 +105,7 @@ class AuthorViewAllTheirPosts(APIView):
                 # TODO: Difference in source vs origin?
                 post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
                 post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.published = post.created_on
                 if (post.markdown == False):
                     post.contentType = "text/plain"
                 else:
@@ -155,6 +157,7 @@ class PostsQuery(APIView):
                 # TODO: Difference in source vs origin?
                 post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
                 post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.published = post.created_on
                 if (post.markdown == False):
                     post.contentType = "text/plain"
                 else:
@@ -216,6 +219,7 @@ class PostIDQuery(APIView):
                 # TODO: Difference in source vs origin?
                 post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
                 post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.published = post.created_on
                 if (post.markdown == False):
                     post.contentType = "text/plain"
                 else:

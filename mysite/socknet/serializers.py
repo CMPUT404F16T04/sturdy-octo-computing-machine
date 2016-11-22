@@ -57,6 +57,7 @@ class PostsSerializer(serializers.ModelSerializer):
     origin = serializers.URLField(required=False, allow_null=True, allow_blank=True)
     contentType = serializers.CharField(max_length = 16)
     author = PostsAuthorSerializer()
+    published = serializers.DateTimeField()
     comments = serializers.SerializerMethodField()
 
     def get_comments(self, obj):
@@ -75,7 +76,7 @@ class PostsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = '__all__'
+        exclude = ('created_on', 'img_link', 'markdown')
 
 class AuthorSerializer(serializers.ModelSerializer):
     """

@@ -46,7 +46,6 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
     context_object_name = 'posts_list'
 
     def get_queryset(self):
-
         r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
         #r = requests.get('http://winter-resonance.herokuapp.com', auth=HTTPBasicAuth('group1', 'group1forcmput404project'))
         #r = requests.get('https://api-bloggyblog404.herokuapp.com/posts/', auth=HTTPBasicAuth('test', 'test'))
@@ -66,7 +65,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 else:
                     post_data = serializer.validated_data
                     post_author = post_data['author']
-                    post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
+                    post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['url'])
                     posts.append(post)
         return posts
 
