@@ -32,7 +32,7 @@ class PostsCommentsSerializer(serializers.Serializer):
         author = obj.author
         author.id = author.uuid
         # TODO: Setup host attribute for authors
-        author.host = ""
+        author.host = "http://cmput404f16t04dev.herokuapp.com"
         author.github = author.github_url
         serializer = PostsAuthorSerializer(author)
         return serializer.data
