@@ -61,8 +61,7 @@ class AuthorPostsViewSet(APIView):
                 else:
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
-                # TODO: Setup host attribute for authors
-                post.author.host = request.get_host()
+                post.author.host = "http://" + request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
@@ -111,8 +110,7 @@ class AuthorViewAllTheirPosts(APIView):
                 else:
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
-                # TODO: Setup host attribute for authors
-                post.author.host = request.get_host()
+                post.author.host = "http://" + request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
@@ -224,8 +222,7 @@ class PostIDQuery(APIView):
                 else:
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
-                # TODO: Setup host attribute for authors
-                post.author.host = request.get_host()
+                post.author.host = "http://" + request.get_host()
                 post.author.github = post.author.github_url
 
                 posts_serializer = PostsSerializer(post)
@@ -274,7 +271,7 @@ class CommentsViewSet(APIView):
                 commie.guid = commie.id
                 commie.pubDate = commie.created_on
                 commie.author.id = commie.author.uuid
-                commie.author.host = request.get_host()
+                commie.author.host = "http://" + request.get_host()
                 commie.author.displayName = commie.author.displayName
 
             comments_serializer = SingleCommentSerializer(comments, many=True)
