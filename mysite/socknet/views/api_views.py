@@ -355,15 +355,8 @@ class FriendRequest(APIView):
 
 class ProfileView(APIView):
     
-    def get(self, request, format=None):
-        """
-        API endpoint that allows profiles to be viewed 
-        GET/api/author
-        """
-
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = PostsPagination
 
     def get(self, request, authorid, format=None):
         """
@@ -373,20 +366,25 @@ class ProfileView(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
             author = Author.objects.get(uuid=authorid)
+            friends = []
             friend_uuids = author.get_all_friend_uuids()
+            print(friend_uuids)
+            for x in friend_uuids: 
+                current = Author.objects.get(uuid=x)
+                print(current)
+                friends.append(current)
+            print(friends)
+            author.friends = friends
+            print(author.friends)
+            # print(friends)
+            # author.friends = friends
+            # author.id = author.uuid
+            author.host = request.get_host()
+   
+            serializer = ProfileSerializer(author)
 
-            # serializer = ProfileSerializer(data=request.data)
+            author.host = request.get_host()
 
-            # if not serializer.is_valid():
-            #     return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
-            # data = serializer.validated_data
-            # id_data = data.get('id')
-            # host_data = data.get('host')
-            # display_name_data = data.get('display_name')
-            # url_data = data.get('url')
-            # friends_data = data.get('friends')
-            
-
-            return Response({"id": author.uuid, "host": "None", "displayName": author.displayName, "friends": friend_uuids,})
+            return Response(serializer.data)
         except Author.DoesNotExist:
             return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
