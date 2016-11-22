@@ -30,9 +30,12 @@
 <!-- # imglink uuid > 0 is because empty uuid is 32 0s -->
 {% if post.imglink > 0 %}
     <script type='text/javascript'>
-      $.get("/media/{{post.imglink}}", function(data, status) {
+      $.get("/api/media/{{post.imglink}}", function(data, status) {
         if( status === "success") {
           $('#{{post.id}}').html(data);
+          var img = document.createElement("img");
+          img.src = data.imagedata;
+          $('#{{post.id}}').append(img)
           $('img').css("maxWidth", "100%")
         }
       });
@@ -42,7 +45,7 @@
         Attached Image:
         <br/>
         <a id="{{post.id}}" href="/images/{{post.imglink}}">
-            View Attached Image
+            Attached Image:
         </a>
         </center>
     </p>
