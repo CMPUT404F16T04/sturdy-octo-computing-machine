@@ -1,3 +1,4 @@
+import base64
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
-from socknet.models import Author, Post
+from socknet.models import Author, Post, ImageServ
 from socknet import external_requests
 
 ### PAGINATION ###
@@ -58,7 +59,7 @@ class AuthorPostsViewSet(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author.id = post.author_id
+                post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
                 post.author.host = request.get_host()
                 post.author.github = post.author.github_url
@@ -81,6 +82,53 @@ class AuthorPostsViewSet(APIView):
         except Author.DoesNotExist:
             return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
+class AuthorViewAllTheirPosts(APIView):
+    """
+    API endpoint that allows an authenticated user to see all posts from a specific author
+    GET /api/author/{author}/posts
+    """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = AuthorPostsPagination
+
+    def get(self, request, auth_id, format=None):
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            auth_obj = Author.objects.get(uuid=auth_id)
+            # all posts except server only posts
+            final_queryset = Post.objects.filter(author=auth_obj).exclude(visibility="SERVERONLY").order_by('-created_on')
+
+            paginator = PostsPagination()
+            posts = paginator.paginate_queryset(final_queryset, request)
+            for post in posts:
+                # TODO: Difference in source vs origin?
+                post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                if (post.markdown == False):
+                    post.contentType = "text/plain"
+                else:
+                    post.contentType = "text/x-markdown"
+                post.author.id = post.author.uuid
+                # TODO: Setup host attribute for authors
+                post.author.host = ""
+                post.author.github = post.author.github_url
+
+            posts_serializer = PostsSerializer(posts, many=True)
+            response = {
+                "query" : "posts",
+                "count" : len(final_queryset),
+                "size": paginator.page_size,
+                "posts" : posts_serializer.data}
+            # Do not return previous if page is 0.
+            if (paginator.get_previous_link() is not None):
+               response['previous'] = paginator.get_previous_link()
+            # Do not return next if last page
+            if (paginator.get_next_link() is not None):
+                response['next'] = paginator.get_next_link()
+            return Response(response)
+        except Author.DoesNotExist:
+            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+
 class PostsQuery(APIView):
     """
     API endpoint that allows posts to be viewed or edited.
@@ -98,6 +146,8 @@ class PostsQuery(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
         try:
+            # author = Author.objects.get(uuid=authorid)
+            # friend_uuids = author.get_all_friend_uuids()
             posts_queryset = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
             paginator = PostsPagination()
             posts = paginator.paginate_queryset(posts_queryset, request)
@@ -109,9 +159,8 @@ class PostsQuery(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author.id = post.author_id
+                post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
-                post.author.host = ""
                 post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
@@ -144,7 +193,8 @@ class PostIDQuery(APIView):
 
     def get(self, request, post_id, format=None):
         """
-        GET /api/posts
+        Return a list of the authors friends.
+        GET http://service/friends/<authorid>
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
@@ -154,17 +204,13 @@ class PostIDQuery(APIView):
                 return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
             # Authentication validation
-            """
             # TODO: Make this better. I wrote this with my brain in sleep mode.
-            if (post.visibility == "PRIVATE" and post.author_id != self.request.user):
+            if (post.visibility == "PRIVATE" and post.author.user != self.request.user):
                 return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
-            if (post.visibility == "FRIENDS" and not post.author.friends.filter(user=self.request.user):
+            if (post.visibility == "FRIENDS" and not post.author.friends.filter(user=self.request.user)):
                 return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
             # TODO: FOAF :O
             # TODO: SERVERONLY
-            """
-            if (post.visibility == "SERVERONLY"):
-                return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
 
             else:
                 # TODO: Difference in source vs origin?
@@ -174,9 +220,8 @@ class PostIDQuery(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author.id = post.author_id
+                post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
-                post.author.host = ""
                 post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
@@ -366,19 +411,6 @@ class ProfileView(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
             author = Author.objects.get(uuid=authorid)
-            # friends = []
-            # friend_uuids = author.get_all_friend_uuids()
-            # print(friend_uuids)
-            # for x in friend_uuids: 
-            #     current = Author.objects.get(uuid=x)
-            #     print(current)
-            #     friends.append(current)
-            # print(friends)
-            # author.friends = friends
-            # print(author.friends)
-            # print(friends)
-            # author.friends = friends
-            # author.id = author.uuid
             author.host = request.get_host()
    
             serializer = ProfileSerializer(author)
@@ -388,3 +420,23 @@ class ProfileView(APIView):
             return Response(serializer.data)
         except Author.DoesNotExist:
             return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+class ViewRawImage(APIView):
+    """ After authentication verification it opens image as blob and then
+    encode it to base64 and put that in the html.
+    """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    def get(self, request, img, format=None):
+        """
+        Returns a specific image with given image_id.
+        GET http://service/api/media/<image_id>
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            img_obj = ImageServ.objects.get(pk=img)
+            base64obj = "data:" + img_obj.imagetype + ";base64," +  base64.b64encode(img_obj.image)
+            return Response({"imagedata": base64obj})
+        except:
+            return Response({'Error': 'An error happened with retrieving the image.'}, status=status.HTTP_404_NOT_FOUND)
+

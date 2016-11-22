@@ -12,7 +12,7 @@ class PostsAuthorSerializer(serializers.ModelSerializer):
     """
     id = serializers.CharField(max_length = 64)
     host = serializers.CharField(max_length = 128)
-    github = serializers.CharField()
+    github = serializers.CharField(required=False, allow_null=True, allow_blank=True)
 
     class Meta:
         model = Author
@@ -53,8 +53,8 @@ class PostsSerializer(serializers.ModelSerializer):
     """
     GET /api/posts/
     """
-    source = serializers.URLField()
-    origin = serializers.URLField()
+    source = serializers.URLField(required=False, allow_null=True, allow_blank=True)
+    origin = serializers.URLField(required=False, allow_null=True, allow_blank=True)
     contentType = serializers.CharField(max_length = 16)
     author = PostsAuthorSerializer()
     comments = serializers.SerializerMethodField()
@@ -63,6 +63,15 @@ class PostsSerializer(serializers.ModelSerializer):
         comments = Comment.objects.all_comments_for_post(obj.id, True)
         serializer = PostsCommentsSerializer(comments, many=True)
         return serializer.data
+
+    def validate_contentType(self, value):
+        """
+        Checks that the content type is valid
+        """
+        if value != "text/plain" and value != "text/x-markdown":
+
+            raise serializers.ValidationError("The content type is not valid. Only text and markdown are accepted.")
+        return value
 
     class Meta:
         model = Post

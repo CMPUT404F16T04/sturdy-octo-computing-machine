@@ -5,7 +5,7 @@
     <a class="post-title" href="{% url 'view_post' pk=post.pk %}">
         <h1>{{ post.title }}</h1>
     </a>
-    {% if post.author_id == user.author.uuid %}
+    {% if post.author.uuid == user.author.uuid %}
       <div>
         <a class="edit" href="{% url 'author_check_update' pk=post.pk %}">
           <span class='glyphicon glyphicon-pencil'></span>
@@ -18,7 +18,7 @@
 </div>
 <div class="post-id-label">
     {{ post.getFullEnglishVisibility }} post submitted by
-    <a class="author-label" href="{% url 'profile' authorUUID=post.author_id %}">{{ post.author_name }}</a>
+    <a class="author-label" href="{% url 'profile' authorUUID=post.author.uuid %}">{{ post.author.user.username }}</a>
     on {{ post.created_on }} UTC
 </div>
 <div class="post-description">
@@ -30,9 +30,12 @@
 <!-- # imglink uuid > 0 is because empty uuid is 32 0s -->
 {% if post.imglink > 0 %}
     <script type='text/javascript'>
-      $.get("/media/{{post.imglink}}", function(data, status) {
+      $.get("/api/media/{{post.imglink}}", function(data, status) {
         if( status === "success") {
           $('#{{post.id}}').html(data);
+          var img = document.createElement("img");
+          img.src = data.imagedata;
+          $('#{{post.id}}').append(img)
           $('img').css("maxWidth", "100%")
         }
       });
@@ -42,7 +45,7 @@
         Attached Image:
         <br/>
         <a id="{{post.id}}" href="/images/{{post.imglink}}">
-            View Attached Image
+            Attached Image:
         </a>
         </center>
     </p>

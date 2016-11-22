@@ -40,7 +40,8 @@ class UserAdmin(admin.ModelAdmin):
         for user in queryset:
             # Assign each selected user to an author
             if not Author.objects.filter(user=user).exists():
-                new_author = Author(user=user)
+                new_author = Author(user=user, displayName=user.username)
+                new_author.url = request.get_host() + "/author/" + str(new_author.uuid) + "/"
                 new_author.save()
 
         rows_updated = queryset.update(is_active=True)
@@ -61,10 +62,10 @@ class AuthorAdmin(admin.ModelAdmin):
     ordering = ['user']
 
     # Field sets control which fields are displayed on the admin "add" and "change" pages
-    readonly_fields=('friends', 'who_im_following', 'ignored')
+    readonly_fields=('friends', 'who_im_following', 'ignored', 'foreign_friends', 'url')
     fieldsets = (
         (None, {
-            'fields': ('user', 'displayName', 'url', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored')
+            'fields': ('user', 'displayName', 'url', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored', 'foreign_friends')
         }),
     )
 

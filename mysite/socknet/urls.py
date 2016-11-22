@@ -17,11 +17,15 @@ urlpatterns = [
     url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/$', api_views.PostIDQuery.as_view(), name="api_posts_id"),
     url(r'^api/posts/$', api_views.PostsQuery.as_view(), name="api_posts"),
     url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_author_posts"),
+    url(r'^api/author/(?P<auth_id>[0-9A-Fa-f-]+)/posts/$', api_views.AuthorViewAllTheirPosts.as_view(), name="api_authors_posts"),
+    # Redirect static access through Authentication first.
+    url(r'^api/media/(?P<img>[0-9A-Fa-f-]+)$', api_views.ViewRawImage.as_view(), name='view_raw_image'),
 
     url(r'^api/author/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.ProfileView.as_view(), name="api_profile_view"),
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),
+    url(r'^remote_posts/$', post_views.ListRemotePosts.as_view(), name='list_remote_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewPost.as_view(), name='view_post'),
     url(r'^posts/create/$', post_views.CreatePost.as_view(), name='create_post'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/delete/$', post_views.DeletePost.as_view(), name='author_check_delete'),
@@ -33,8 +37,6 @@ urlpatterns = [
 
     # Images
     url(r'^images/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewImage.as_view(), name='view_image'),
-    # Redirect static access through Authentication first.
-    url(r'^media/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewRawImage.as_view(), name='view_raw_image'),
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewProfile.as_view(), name='profile'),

@@ -5,13 +5,13 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse
-from socknet.utils import ForbiddenContent403
 from django.views.generic.edit import DeleteView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from socknet.models import *
 from socknet.forms import *
 from socknet.serializers import *
+from socknet.utils import ForbiddenContent403, RemotePost
 
 # For images
 import os
@@ -31,28 +31,44 @@ class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     context_object_name = 'posts_list'
     paginate_by = 10
 
-    """
-    def get(self, request):
+    def test_func(self):
+        try:
+            self.request.user.author
+        except:
+            return False
+        else:
+            return True
+
+class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
+    """ Displays a list of all posts in the system """
+    template_name = 'socknet/post_templates/list_remote_posts.html'
+    login_url = '/login/' # For login mixin
+    context_object_name = 'posts_list'
+
+    def get_queryset(self):
+
         r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
-        print("-----------------------------------")
-        data = json.loads(r.text)
-        print(data['posts'])
-        for post in data['posts']:
-            print("************")
-            #print(post)
-            serializer = PostsSerializer(data=post)
-            print("Serializer")
-            print(serializer)
-            valid = serializer.is_valid()
-            print(valid)
-            if valid:
-                print("Validated Data")
-                p = serializer.validated_data
-                print(p)
-            else:
-                print(serializer.errors)
-            return HttpResponse(r.text)
-"""
+        #r = requests.get('http://winter-resonance.herokuapp.com', auth=HTTPBasicAuth('group1', 'group1forcmput404project'))
+        #r = requests.get('https://api-bloggyblog404.herokuapp.com/posts/', auth=HTTPBasicAuth('test', 'test'))
+        posts = []
+        print(r.text)
+        if (len(r.text) > 0):
+            try:
+                data = json.loads(r.text)
+            except ValueError:
+                posts.append(RemotePost("Error", "Received Value Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error"))
+            for post_json in data['posts']:
+                serializer = PostsSerializer(data=post_json)
+                valid = serializer.is_valid()
+                if not valid:
+                    # Ignore posts that are not valid
+                    print(serializer.errors)
+                else:
+                    post_data = serializer.validated_data
+                    post_author = post_data['author']
+                    post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
+                    posts.append(post)
+        return posts
 
     def test_func(self):
         try:
@@ -92,8 +108,7 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
 
     def form_valid(self, form):
         # Create the post object first.
-        form.instance.author_id = self.request.user.author.uuid
-        form.instance.author_name = self.request.user.author.displayName
+        form.instance.author = self.request.user.author
         http_res_obj = super(CreatePost, self).form_valid(form)
         # If there was an image, make image object
         # https://docs.djangoproject.com/en/1.10/ref/request-response/#django.http.HttpRequest
@@ -202,19 +217,5 @@ class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
         context['image_usr'] = imgobj.author.user.username
         context['image_made'] = imgobj.created_on
         context['image_id'] = imgobj.id
-        context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
-        return context
-
-class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
-    """ After authentication verification it opens image as blob and then
-    encode it to base64 and put that in the html.
-    """
-    model= ImageServ
-    template_name = "socknet/post_templates/imager.html"
-    login_url = '/login/' # For login mixin
-    def get_context_data(self, **kwargs):
-        context = super(ViewRawImage, self).get_context_data(**kwargs)
-        parent_key = self.kwargs.get('img')
-        imgobj = ImageServ.objects.get(pk=parent_key)
         context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
         return context
