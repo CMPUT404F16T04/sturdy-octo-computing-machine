@@ -206,7 +206,6 @@ class Author(models.Model):
         foreign_uuids = [friend.id for friend in self.foreign_friends.all()]
         return local_uuids + foreign_uuids
 
-
 class Post(models.Model):
     """ Represents a post made by a user """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
