@@ -81,6 +81,53 @@ class AuthorPostsViewSet(APIView):
         except Author.DoesNotExist:
             return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
 
+class AuthorViewAllTheirPosts(APIView):
+    """
+    API endpoint that allows an authenticated user to see all posts from a specific author
+    GET /api/author/{author}/posts
+    """
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = AuthorPostsPagination
+
+    def get(self, request, auth_id, format=None):
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        try:
+            auth_obj = Author.objects.get(uuid=auth_id)
+            # all posts except server only posts
+            final_queryset = Post.objects.filter(author=auth_obj).exclude(visibility="SERVERONLY").order_by('-created_on')
+
+            paginator = PostsPagination()
+            posts = paginator.paginate_queryset(final_queryset, request)
+            for post in posts:
+                # TODO: Difference in source vs origin?
+                post.source = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                post.origin = request.scheme + "://" + str(request.META["HTTP_HOST"]) + "/posts/" + str(post.id)
+                if (post.markdown == False):
+                    post.contentType = "text/plain"
+                else:
+                    post.contentType = "text/x-markdown"
+                post.author.id = post.author_id
+                # TODO: Setup host attribute for authors
+                post.author.host = ""
+                post.author.github = post.author.github_url
+
+            posts_serializer = PostsSerializer(posts, many=True)
+            response = {
+                "query" : "posts",
+                "count" : len(final_queryset),
+                "size": paginator.page_size,
+                "posts" : posts_serializer.data}
+            # Do not return previous if page is 0.
+            if (paginator.get_previous_link() is not None):
+               response['previous'] = paginator.get_previous_link()
+            # Do not return next if last page
+            if (paginator.get_next_link() is not None):
+                response['next'] = paginator.get_next_link()
+            return Response(response)
+        except Author.DoesNotExist:
+            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+
 class PostsQuery(APIView):
     """
     API endpoint that allows posts to be viewed or edited.
