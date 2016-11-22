@@ -73,3 +73,18 @@ class AuthorInfo():
 
         def __str__(self):
             return self.name
+
+class RemotePost():
+    """
+    An object that represents a remote post.
+    """
+    def __init__(self, title, description, content_type, content, author_display_name, author_url):
+        self.title = title
+        self.description = description
+        self.content_type = content_type
+        self.content = content
+        self.author_display_name = author_display_name
+        self.author_url = author_url
+
+    def __str__(self):
+        return self.title + " " + self.author_display_name + " " + self.author_url

@@ -1,21 +1,26 @@
 import uuid
+import json
 
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse
-from socknet.utils import ForbiddenContent403
 from django.views.generic.edit import DeleteView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from socknet.models import *
 from socknet.forms import *
+from socknet.serializers import *
+from socknet.utils import ForbiddenContent403, RemotePost
 
 # For images
 import os
 from mysite.settings import MEDIA_ROOT
 from PIL import Image, ImageFile
 import base64
+
+import requests
+from requests.auth import HTTPBasicAuth
 
 
 class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
@@ -25,6 +30,37 @@ class ListPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
     login_url = '/login/' # For login mixin
     context_object_name = 'posts_list'
     paginate_by = 10
+
+    def test_func(self):
+        try:
+            self.request.user.author
+        except:
+            return False
+        else:
+            return True
+
+class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
+    """ Displays a list of all posts in the system """
+    template_name = 'socknet/post_templates/list_remote_posts.html'
+    login_url = '/login/' # For login mixin
+    context_object_name = 'posts_list'
+
+    def get_queryset(self):
+        r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
+        posts = []
+        if (len(r.text) > 0):
+            data = json.loads(r.text)
+            for post_json in data['posts']:
+                serializer = PostsSerializer(data=post_json)
+                valid = serializer.is_valid()
+                if not valid:
+                    print("A post was not valid: " +serializer.errors)
+                post_data = serializer.validated_data
+                post_author = post_data['author']
+                #(self, title, source, content_type, content, author_display_name, author_url):
+                post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
+                posts.append(post)
+        return posts
 
     def test_func(self):
         try:

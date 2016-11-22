@@ -64,6 +64,15 @@ class PostsSerializer(serializers.ModelSerializer):
         serializer = PostsCommentsSerializer(comments, many=True)
         return serializer.data
 
+    def validate_contentType(self, value):
+        """
+        Checks that the content type is valid
+        """
+        if value != "text/plain" and value != "text/x-markdown":
+
+            raise serializers.ValidationError("The content type is not valid. Only text and markdown are accepted.")
+        return value
+
     class Meta:
         model = Post
         fields = '__all__'
