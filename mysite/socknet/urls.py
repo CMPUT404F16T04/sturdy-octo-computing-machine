@@ -18,9 +18,11 @@ urlpatterns = [
     url(r'^api/posts/$', api_views.PostsQuery.as_view(), name="api_posts"),
     url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_author_posts"),
     url(r'^api/author/(?P<auth_id>[0-9A-Fa-f-]+)/posts/$', api_views.AuthorViewAllTheirPosts.as_view(), name="api_authors_posts"),
-    url(r'^api/images/(?P<img>[0-9A-Fa-f-]+)$', api_views.ViewApiRawImage.as_view(), name='view_api_raw_image'),
-
     url(r'^api/author/(?P<authorid>[0-9A-Fa-f-]+)/', api_views.ProfileView.as_view(), name="api_profile_view"),
+
+    url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/comments$', api_views.CommentsViewSet.as_view(), name="api_comments"),
+
+    url(r'^api/images/(?P<img>[0-9A-Fa-f-]+)$', api_views.ViewApiRawImage.as_view(), name='view_api_raw_image'),
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),

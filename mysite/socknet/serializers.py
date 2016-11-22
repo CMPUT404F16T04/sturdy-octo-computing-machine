@@ -86,10 +86,11 @@ class AuthorSerializer(serializers.ModelSerializer):
     """
     id = serializers.CharField(source='uuid', required=True)
     host = serializers.URLField(required=True)
-    displayName = serializers.CharField(source='user.uuid', max_length=36, required=True)
+    #displayName = serializers.CharField(source='user.uuid', max_length=36, required=True)
     class Meta:
         model = Author
-        fields = ('uuid', 'username')
+        fields = ('id', 'displayName', 'host')
+
 
 class FriendSerializerNoUrl(serializers.Serializer):
     """
@@ -195,7 +196,7 @@ class SingleCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('guid', 'comment', 'pubDate')
+        fields = ('author', 'guid', 'comment', 'pubDate')
 
 
 class ProfileFriendSerializer(serializers.Serializer):
