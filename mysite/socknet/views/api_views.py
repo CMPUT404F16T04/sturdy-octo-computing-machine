@@ -163,8 +163,7 @@ class PostsQuery(APIView):
                 else:
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
-                # TODO: Setup host attribute for authors
-                post.author.host = request.get_host()
+                post.author.host = "http://" + request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
