@@ -69,8 +69,7 @@ class PostsSerializer(serializers.ModelSerializer):
         """
         Checks that the content type is valid
         """
-        if value != "text/plain" and value != "text/x-markdown":
-
+        if value != "text/plain" and value != "text/x-markdown" and value != "text/markdown":
             raise serializers.ValidationError("The content type is not valid. Only text and markdown are accepted.")
         return value
 

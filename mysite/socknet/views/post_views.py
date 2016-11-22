@@ -63,7 +63,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 try:
                     data = json.loads(r.text)
                 except ValueError:
-                    posts.append(RemotePost("Error", "Received Value Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error"))
+                    posts.append(RemotePost("Json Error", "Received Value Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error", "Error", "Error"))
                 try:
                     for post_json in data['posts']:
                         serializer = PostsSerializer(data=post_json)
@@ -74,10 +74,10 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                         else:
                             post_data = serializer.validated_data
                             post_author = post_data['author']
-                            post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
+                            post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['url'])
                             posts.append(post)
-                except KeyError:
-                    posts.append(RemotePost("Error", "Received Key Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error"))
+                except KeyError, e:
+                    posts.append(RemotePost("Key Error", "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error"))
         return posts
 
     def test_func(self):
