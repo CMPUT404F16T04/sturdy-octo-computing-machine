@@ -397,7 +397,7 @@ class FriendRequest(APIView):
         friend.follow(author)
         return Response(status=status.HTTP_200_OK)
 
-class ViewRawImage(APIView):
+class ViewApiRawImage(APIView):
     """ After authentication verification it opens image as blob and then
     encode it to base64 and put that in the html.
     """

@@ -46,28 +46,38 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
     context_object_name = 'posts_list'
 
     def get_queryset(self):
-
         #r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
         #r = requests.get('http://winter-resonance.herokuapp.com', auth=HTTPBasicAuth('group1', 'group1forcmput404project'))
-        r = requests.get('https://api-bloggyblog404.herokuapp.com/posts/', auth=HTTPBasicAuth('test', 'test'))
+        #r = requests.get('https://api-bloggyblog404.herokuapp.com/posts/', auth=HTTPBasicAuth('test', 'test'))
         posts = []
-        print(r.text)
-        if (len(r.text) > 0):
-            try:
-                data = json.loads(r.text)
-            except ValueError:
-                posts.append(RemotePost("Error", "Received Value Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error"))
-            for post_json in data['posts']:
-                serializer = PostsSerializer(data=post_json)
-                valid = serializer.is_valid()
-                if not valid:
-                    # Ignore posts that are not valid
-                    print(serializer.errors)
-                else:
-                    post_data = serializer.validated_data
-                    post_author = post_data['author']
-                    post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
-                    posts.append(post)
+        for n in Node.objects.all():
+            print "Fetching data from Node: " + n.name
+            url = n.url
+            # In case entered like host.com/api instead of host.com/api/
+            if url[-1] is not "/":
+                url = url + "/"
+            r = requests.get(url + 'posts/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+            print(r.text)
+            if (len(r.text) > 0):
+                data = {}
+                try:
+                    data = json.loads(r.text)
+                except ValueError:
+                    posts.append(RemotePost("Error", "Received Value Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error"))
+                try:
+                    for post_json in data['posts']:
+                        serializer = PostsSerializer(data=post_json)
+                        valid = serializer.is_valid()
+                        if not valid:
+                            # Ignore posts that are not valid
+                            print(serializer.errors)
+                        else:
+                            post_data = serializer.validated_data
+                            post_author = post_data['author']
+                            post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'], post_data['content'], post_author['displayName'], post_author['url'])
+                            posts.append(post)
+                except KeyError:
+                    posts.append(RemotePost("Error", "Received Key Error: Other groups json could not be decoded.", "text/plain", r.text, "Error", "Error"))
         return posts
 
     def test_func(self):
@@ -217,5 +227,19 @@ class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
         context['image_usr'] = imgobj.author.user.username
         context['image_made'] = imgobj.created_on
         context['image_id'] = imgobj.id
+        context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
+        return context
+
+class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
+    """ After authentication verification it opens image as blob and then
+    encode it to base64 and put that in the html.
+    """
+    model= ImageServ
+    template_name = "socknet/post_templates/imager.html"
+    login_url = '/login/' # For login mixin
+    def get_context_data(self, **kwargs):
+        context = super(ViewRawImage, self).get_context_data(**kwargs)
+        parent_key = self.kwargs.get('img')
+        imgobj = ImageServ.objects.get(pk=parent_key)
         context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
         return context
