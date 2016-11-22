@@ -122,6 +122,8 @@ class Author(models.Model):
         all_friends.sort(key=lambda x: x.name.lower())
         return all_friends
 
+    def get_friend_models(self):
+        return self.friends
     def get_pending_friend_request_count(self):
         return len(self.get_pending_friend_requests())
 
@@ -205,7 +207,6 @@ class Author(models.Model):
         local_uuids = [friend.uuid for friend in self.friends.all()]
         foreign_uuids = [friend.id for friend in self.foreign_friends.all()]
         return local_uuids + foreign_uuids
-
 
 class Post(models.Model):
     """ Represents a post made by a user """
