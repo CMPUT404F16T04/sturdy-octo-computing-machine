@@ -60,7 +60,7 @@ class AuthorPostsViewSet(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
-                post.author.host = ""
+                post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
@@ -113,7 +113,7 @@ class PostsQuery(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
-                post.author.host = ""
+                post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
@@ -174,7 +174,7 @@ class PostIDQuery(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
-                post.author.host = ""
+                post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
                 posts_serializer = PostsSerializer(post)
