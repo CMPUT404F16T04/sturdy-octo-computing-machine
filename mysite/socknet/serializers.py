@@ -76,7 +76,7 @@ class PostsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        exclude = ('created_on', 'img_link', 'markdown')
+        exclude = ('created_on', 'imglink', 'markdown')
 
 class AuthorSerializer(serializers.ModelSerializer):
     """
@@ -199,26 +199,26 @@ class SingleCommentSerializer(serializers.ModelSerializer):
         fields = ('guid', 'comment', 'pubDate')
 
 
-class ProfileFriendSerializer(serializers.Serializer): 
+class ProfileFriendSerializer(serializers.Serializer):
     #id = serializers.CharField(max_length = 64) # uuid is 36 characters
     id = serializers.CharField(source='uuid', required =True)
     host = serializers.SerializerMethodField()
     displayName = serializers.CharField(max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
-    def get_host(self,obj): 
+    def get_host(self,obj):
         host = "https://cmput404f16t04dev.herokuapp.com/"
         return host
     class Meta:
         model = Author
         fields = ('id','host','displayName','url')
 
-class ProfileSerializer(serializers.Serializer): 
+class ProfileSerializer(serializers.Serializer):
     """
     Serializer for getting a specific authors Profile
     """
     id = serializers.CharField(source='uuid', required=True)
     host = serializers.CharField(max_length = 128)
-    displayName = serializers.CharField(max_length=150, required=True) 
+    displayName = serializers.CharField(max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
     friends = serializers.SerializerMethodField()
     def get_friends(self, obj):
@@ -231,4 +231,3 @@ class ProfileSerializer(serializers.Serializer):
     class Meta:
         model = Author
         fields = ('id','host','displayName','url')
-   
