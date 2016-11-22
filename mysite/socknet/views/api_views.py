@@ -112,7 +112,7 @@ class AuthorViewAllTheirPosts(APIView):
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
-                post.author.host = ""
+                post.author.host = request.get_host()
                 post.author.github = post.author.github_url
 
             posts_serializer = PostsSerializer(posts, many=True)
@@ -269,11 +269,6 @@ class CommentsViewSet(APIView):
                 return Response({'Error': 'Something went wrong. Post is None'}, status=status.HTTP_404_NOT_FOUND)
 
             final_queryset = Comment.objects.filter(parent_post=post).order_by('-created_on')
-
-            # id = serializers.CharField(source='uuid', required=True)
-            # host = serializers.URLField(required=True)
-            # displayName = serializers.CharField(source='user.uuid', max_length=36, required=True)
-
             paginator = PostsPagination()
             comments = paginator.paginate_queryset(final_queryset, request)
             for commie in comments:

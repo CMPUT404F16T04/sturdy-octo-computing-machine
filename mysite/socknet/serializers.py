@@ -86,7 +86,6 @@ class AuthorSerializer(serializers.ModelSerializer):
     """
     id = serializers.CharField(source='uuid', required=True)
     host = serializers.URLField(required=True)
-    #displayName = serializers.CharField(source='user.uuid', max_length=36, required=True)
     class Meta:
         model = Author
         fields = ('id', 'displayName', 'host')
