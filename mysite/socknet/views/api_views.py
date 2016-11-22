@@ -107,7 +107,7 @@ class AuthorViewAllTheirPosts(APIView):
                     post.contentType = "text/plain"
                 else:
                     post.contentType = "text/x-markdown"
-                post.author.id = post.author_id
+                post.author.id = post.author.uuid
                 # TODO: Setup host attribute for authors
                 post.author.host = ""
                 post.author.github = post.author.github_url
