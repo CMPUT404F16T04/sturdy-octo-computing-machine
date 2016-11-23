@@ -121,10 +121,12 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             friend_uuid = decoded_json['friend']['id']
             is_local = decoded_json['friend']['is_local']
             friend = None
-            if is_local:
+            if is_local == "True":
                 friend = Author.objects.get(uuid=friend_uuid)
+                is_local = True
             else:
                 friend = ForeignAuthor.objects.get(id=friend_uuid)
+                is_local = False
             author = request.user.author
             if action_type == "unfriend":
                 author.delete_friend(friend, is_local)
@@ -189,13 +191,13 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
             action_type = decoded_json['action']
             friend_uuid = decoded_json['friend']['id']
             is_local = decoded_json['friend']['is_local']
-            print(is_local)
-            print(type(is_local))
             friend = None
             if is_local == "True":
                 friend = Author.objects.get(uuid=friend_uuid)
+                is_local = True
             else:
                 friend = ForeignAuthor.objects.get(id=friend_uuid)
+                is_local = False
             author = request.user.author
             if action_type == "decline_friend_request":
                 author.decline_friend_request(friend_uuid, is_local)
