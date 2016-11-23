@@ -7,7 +7,7 @@
         </div>
         <div class="post-id-label">
             {{ post.visibility }} post submitted by
-            <a class="author-label" href="% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %">{{ post.author_display_name }}</a>
+            <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
             on {{ post.published }} from {{ post.node.name }}
         </div>
         <div class="post-description">
