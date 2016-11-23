@@ -453,7 +453,7 @@ class FriendRequest(APIView):
             if ForeignAuthor.objects.filter(id=friend_data['id']).exists():
                 friend = ForeignAuthor.objects.get(id=friend_data['id'])
             else:
-                print(author_data['host'])
+                print(friend_data['host'])
                 node = Node.objects.get(url=friend_data['host'])
                 friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node)
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
