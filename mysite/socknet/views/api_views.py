@@ -412,7 +412,7 @@ class FriendRequest(APIView):
         # Validate the request data
         serializer = FriendRequestSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(reason=serializer.errors, status_code=status.HTTP_400_BAD_REQUEST)
+            return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
         data = serializer.validated_data
         author_data = data.get('author')
         friend_data = data.get('friend')
@@ -430,7 +430,7 @@ class FriendRequest(APIView):
 
         # If neither author is local, we shouldn't be getting the request.
         if (author is None) and (friend is None):
-            return Response(reason="Neither Author is Local", status_code=status.HTTP_400_BAD_REQUEST)
+            return Response({'Error': 'Neither author is local to this server.'}, status.HTTP_400_BAD_REQUEST)
 
         # If either author is forgein, we should create them in the db if they are not there already.
         if (author is None):

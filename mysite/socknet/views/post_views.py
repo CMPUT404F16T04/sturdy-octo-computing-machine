@@ -61,7 +61,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 data = {}
                 try:
                     data = json.loads(r.text)
-                except ValueError, e:
+                except e:
                     posts.append(RemotePost("Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error", "Error"))
                 try:
                     for post_json in data['posts']:
