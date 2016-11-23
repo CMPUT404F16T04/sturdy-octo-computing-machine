@@ -6,58 +6,67 @@
     {% else %}
         <h1 id="profile-heading">{{ profile_author.display_name }}'s Profile!</h1>
         <!-- Author is viewing someone else's profile, display button that allows
-             them to follow, unfollow, unfriend, etc.
-        <a id="friend_anchor" href="#" class="friend-anchor login-button float-right"
-        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}" data-islocal="True"></a>
-        -->
+             them to follow, unfollow, unfriend, etc. -->
+        <a id="friend_anchor" href="#" class="login-button float-right"
+            data-uuid="{{ profile_author.id }}" data-username="{{ profile_author.display_name }}"
+            data-status="{{ is_friend }}" data-islocal="False"></a>
+        <hr class="profile-divider"/>
+        <!-- Profile fields -->
+        <div class="profile-field">
+            <span class="profile-label">Host: </span>{{ profile_author.node.name }}
+            {% if not profile_author.node.name %}
+                None
+            {% endif %}
+        </div>
     {% endif %}
-    <hr class="profile-divider"/>
-    <!-- Profile fields -->
-    <div class="profile-field">
-        <span class="profile-label">Host: </span>{{ profile_author.node.name }}
-        {% if not profile_author.node.name %}
-            None
-        {% endif %}
-    </div>
 </div>
-
-<!-- The stream for the profile's author
-<div class="postList">
-    <ol class="feed">
-        {% for post in context_list %}
-            <li class="post">
-                {% include "socknet/post_templates/subtemplate_post.html" %}
-            </li>
-        {% endfor %}
-    </ol>
-  </div>
 {% endblock %}
 
 {% block scripts %}
 {% load static from staticfiles %}
-<script src="{% static 'js/friend_request_handler.js' %}"></script>
 <script type="text/javascript">
-    // authorUUID and url are needed in friend_request_handler (above)
-    var authorUUID = "{{ user.author.uuid }}";
-    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
-
     $(document).ready(function() {
-        console.log("Profile is loaded");
-        console.log("Action button: "+"{{ button_action }}")
-        if ("{{ user.author.uuid }}" !== "{{ profile_author.uuid }}") {
-            // Set text of friend button based on current relationship
-            if("{{ button_action }}" === "unfriend") {
-                $('#friend_anchor').text("Unfriend");
-            } else if ("{{ button_action }}" === "follow") {
-                $('#friend_anchor').text("Follow");
-            } else if ("{{ button_action }}" === "accept_friend_request") {
-                $('#friend_anchor').text("Accept Friend Request");
-            } else if ("{{ button_action }}" === "unfollow") {
-                $('#friend_anchor').text("Unfollow");
+        console.log("Remote Profile is loaded");
+        var url = "{% url 'remote_profile' nodeID=profile_author.node.id authorUUID=profile_author.id %}";
+
+        // Set text of friend button based on current relationship
+        if("{{ is_friend }}" === "False") {
+            $('#friend_anchor').text("Send Friend Request");
+        }
+
+        $('#friend_anchor').click(function (e) {
+            var id = $(this).attr('id');
+            var status = $(this).data("status");
+            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
+
+            // Send a friend request
+            if (status == "False") {
+                e.preventDefault(); // Disable link
+                console.log("Author wants to friend: "+$(this).data("username"));
+                // Unfriend with ajax so we don't have to reload the page.
+                var jsonData = {
+                    "action": "friend_request"
+                    }
+                var jsonStr = JSON.stringify(jsonData)
+                console.log(jsonStr);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: jsonStr,
+                    contentType: "application/json",
+                    success: function() { friendSuccess(id); },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }); // End of ajax
             }
+        }); // End of clicker
+
+        function friendSuccess(id) {
+            console.log("Friend successful!");
+            console.log(id);
+            $('#'+id).css("background-color", "grey")
         }
     });
 </script>
--->
-
 {% endblock scripts %}
