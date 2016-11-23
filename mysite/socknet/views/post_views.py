@@ -109,6 +109,57 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
         context['comments'] = comments
         return context
 
+class ViewRemotePost(LoginRequiredMixin, generic.detail.DetailView):
+    """ Displays the details of a remote foreign post """
+    template_name = 'socknet/post_templates/view_remote_post.html'
+    login_url = '/login/' # For login mixin
+
+    def get_queryset(self):
+        pid = self.kwargs['pk']
+
+        comments = []
+        for n in Node.objects.all():
+            print "Fetching data from Node: " + n.name
+            url = n.url
+            # In case entered like host.com/api instead of host.com/api/
+            if url[-1] is not "/":
+                url = url + "/"
+            #r = requests.get(url + 'posts/' + str(pid) + "/" , auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+            r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+            if (len(r.text) > 0):
+                data = {}
+                try:
+                    data = json.loads(r.text)
+                except ValueError, e:
+                    comments.append(RemotePost("Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error"))
+                try:
+                    print data
+                    """
+                    for post_json in data['posts']:
+                        serializer = PostsSerializer(data=post_json)
+                        valid = serializer.is_valid()
+                        if not valid:
+                            # Ignore posts that are not valid
+                            print(serializer.errors)
+                        else:
+                            post_data = serializer.validated_data
+                            post_author = post_data['author']
+                            post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'],
+                                post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'])
+                            comments.append(post)
+                            """
+                except KeyError, e:
+                    comments.append(RemotePost("Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error"))
+        return comments
+
+    def test_func(self):
+        try:
+            self.request.user.author
+        except:
+            return False
+        else:
+            return True
+
 class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new post """
     model = Post
