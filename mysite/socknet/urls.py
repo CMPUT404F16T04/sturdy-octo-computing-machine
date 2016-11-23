@@ -43,6 +43,7 @@ urlpatterns = [
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewProfile.as_view(), name='profile'),
+    url(r'^remote_node/(?P<nodeID>[0-9]+)/remote_profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewRemoteProfile.as_view(), name='remote_profile'),
     url(r'^edit_profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.EditProfile.as_view(), name='editprofile'),
 
     # Friend Management

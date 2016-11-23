@@ -1,5 +1,7 @@
 import json
 import uuid
+import requests
+from requests.auth import HTTPBasicAuth
 
 from django.shortcuts import get_object_or_404
 from django.views import generic
@@ -9,10 +11,10 @@ from socknet.utils import ForbiddenContent403
 
 from socknet.models import *
 from socknet.forms import *
+from socknet.serializers import ProfileSerializer
 
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
-    model= Post
     template_name = "socknet/author_templates/profile.html"
     login_url = '/login/' # For login mixin
 
@@ -201,3 +203,60 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
                 return HttpResponse(status=200, content=author.get_pending_friend_request_count())
             else:
                 return HttpResponse(status=500)
+
+class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
+    """ Display a remote author's profile """
+    template_name = "socknet/author_templates/remote_profile.html"
+    login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewRemoteProfile, self).get_context_data(**kwargs)
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
+        nodeId = self.kwargs.get('nodeID')
+        node = get_object_or_404(Node, id=nodeId)
+        # Get the author from the other group
+        url = node.url
+        if url[-1] is not "/":
+            url = url + "/"
+        response = requests.get(url + 'author/' + authorUUID + "/", auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+        print(response.text)
+
+        # Ensure we got a 200
+        if response.status_code is not 200:
+            context['error'] = "Error: Response code was " + str(response.status_code)
+            return context
+
+        # Ensure we got data back
+        if (len(response.text) < 0):
+            context['error'] = "Error: No JSON was sent back."
+            return context
+
+        # Parse the json
+        try:
+            json_data = json.loads(response.text)
+        except ValueError, error:
+            context['error'] = "Error: " + str(error)
+            return context
+
+        print("\n ------------ DATA ---------------")
+        print(json_data)
+
+        #
+        serializer = ProfileSerializer(data=json_data)
+        # Ensure the data is valid
+        if not serializer.is_valid():
+            context['error'] = "Validation Error: " + str(serializer.errors)
+
+        author_data = serializer.validated_data
+        print("\n -------------- VALIDATED DATA ---------------")
+        print(author_data)
+
+        # If the author is not in the db, create a new model
+        foreign_author = None
+        try:
+            foreign_author = ForeignAuthor.objects.get(id=authorUUID)
+        except ForeignAuthor.DoesNotExist:
+            foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
+            foreign_author.save()
+        context['profile_author'] = foreign_author
+        return context
