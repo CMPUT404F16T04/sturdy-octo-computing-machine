@@ -446,7 +446,7 @@ class FriendRequest(APIView):
                 author.save()
             # Friend exists on our server. We should forward this request to the other server and record that we sent the request.
             friend.pending_foreign_friends.add(author)
-            return Reponse(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
 
         if (friend is None):
             if ForeignAuthor.objects.filter(id=friend_data['id']).exists():
