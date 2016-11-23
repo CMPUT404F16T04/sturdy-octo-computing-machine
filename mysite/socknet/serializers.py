@@ -209,6 +209,15 @@ class ProfileFriendSerializer(serializers.Serializer):
         model = Author
         fields = ('id','host','displayName','url')
 
+class ProfileForeignFriendSerializer(serializers.Serializer): 
+    id = serializers.CharField(source='uuid', required =True)
+    host = serializers.CharField(source = 'node', required=True)
+    displayName = serializers.CharField(max_length=150, required=True)
+    url = serializers.CharField(max_length=256, required=True)
+
+    class Meta: 
+        model = ForeignAuthor
+        fields = ('id','host','displayName','url')
 class ProfileSerializer(serializers.Serializer):
     """
     Serializer for getting a specific authors Profile
@@ -220,10 +229,11 @@ class ProfileSerializer(serializers.Serializer):
     friends = serializers.SerializerMethodField()
     def get_friends(self, obj):
         friends = []
-        friend_uuids = obj.friends.all()
-        serializer = ProfileFriendSerializer(friend_uuids,many=True)
-        print(serializer.data)
-        return serializer.data
+        local_friends = obj.friends.all()
+        local_serializer = ProfileFriendSerializer(local_friends,many=True)
+        foreign_friends = obj.foreign_friends.all()
+        foreign_serializer = ProfileForeignFriendSerializer(foreign_friends,many=True)
+        return local_serializer.data+foreign_serializer.data
 
     class Meta:
         model = Author
