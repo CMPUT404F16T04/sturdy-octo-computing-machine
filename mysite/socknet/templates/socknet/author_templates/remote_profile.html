@@ -20,6 +20,29 @@
         </div>
     {% endif %}
 </div>
+<ol class="feed">
+    {% for post in posts %}
+        <li class="post">
+            <div class="first-line">
+                <h1>{{ post.title }}</h1>
+            </div>
+            <div class="post-id-label">
+                {{ post.visibility }} post submitted by
+                <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
+                on {{ post.published }} from {{ post.node.name }}
+            </div>
+            <div class="post-description">
+                {{post.description}}
+            </div>
+            <article class="content">
+                {{post.content|safe}}
+            </article>
+        </li>
+    {% endfor %}
+</ol>
+{% if not posts %}
+<h2>No Posts</h2>
+{% endif %}
 {% endblock %}
 
 {% block scripts %}

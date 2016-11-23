@@ -7,11 +7,11 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
-from socknet.utils import ForbiddenContent403
+from socknet.utils import ForbiddenContent403, RemotePost
 
 from socknet.models import *
 from socknet.forms import *
-from socknet.serializers import ProfileSerializer
+from socknet.serializers import ProfileSerializer,PostsSerializer
 
 class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     """ Displays an Authors profile """
@@ -218,7 +218,10 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
         nodeId = self.kwargs.get('nodeID')
         node = get_object_or_404(Node, id=nodeId)
-        # Get the author from the other group
+
+        """
+        Get the remote author
+        """
         url = node.url
         if url[-1] is not "/":
             url = url + "/"
@@ -280,6 +283,35 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                 # We will error if there is no friends in the json or the json could not be parsed
                 context['is_friend'] = "Error"
         """
+
+        """
+        Get the remote author's posts
+        """
+        posts = []
+        r = requests.get(url + 'posts/', auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+        if (len(r.text) > 0):
+            data = {}
+            try:
+                data = json.loads(r.text)
+            except e:
+                posts.append(RemotePost("Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error", "Error"))
+            try:
+                for post_json in data['posts']:
+                    posts_serializer = PostsSerializer(data=post_json)
+                    valid = posts_serializer.is_valid()
+                    if not valid:
+                        # Ignore posts that are not valid
+                        print(posts_serializer.errors)
+                    else:
+                        post_data = posts_serializer.validated_data
+                        post_author = post_data['author']
+                        post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
+                            post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],node)
+                        posts.append(post)
+                context['posts'] = posts
+            except KeyError, e:
+                posts.append(RemotePost("Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error", "Error"))
+
         return context
 
     def check_url(self, url):
