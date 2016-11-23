@@ -167,9 +167,8 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
                 if postdata['count'] > 0:
                     postdat = postdata['posts']
                     postdata = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
-                                postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['id'],n)
+                                postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
             except KeyError, error:
-                print "AAAAAAA"
                 context['error'] = "Error: KeyError, " + str(error)
                 return context
         context['post'] = postdata
