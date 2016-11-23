@@ -475,7 +475,7 @@ class ProfileView(APIView):
 
             serializer = ProfileSerializer(author)
 
-            author.host = request.get_host()
+            author.host = "http://" + request.get_host()
 
             return Response(serializer.data)
         except Author.DoesNotExist:
