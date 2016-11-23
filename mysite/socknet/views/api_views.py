@@ -441,7 +441,7 @@ class FriendRequest(APIView):
             if ForeignAuthor.objects.filter(id=author_data['id']).exists():
                 author = ForeignAuthor.objects.get(id=author_data['id'])
             else:
-                node = Node.objects.get(url=author_data.host)
+                node = Node.objects.get(url=author_data['host'])
                 author = ForeignAuthor(id=author_data['id'], display_name=author_data['display_name'], node=node)
             # Friend exists on our server. We should forward this request to the other server and record that we sent the request.
             friend.foreign_friends_im_following.add(author)
