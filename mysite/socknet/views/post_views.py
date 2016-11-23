@@ -62,7 +62,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 try:
                     data = json.loads(r.text)
                 except e:
-                    posts.append(RemotePost("Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error", "Error"))
+                    posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error", "Error"))
                 try:
                     for post_json in data['posts']:
                         serializer = PostsSerializer(data=post_json)
@@ -74,11 +74,12 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                         else:
                             post_data = serializer.validated_data
                             post_author = post_data['author']
-                            post = RemotePost(post_data['title'], post_data['description'], post_data['contentType'],
-                                post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'], n)
+
+                            post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
+                                post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
                             posts.append(post)
                 except KeyError, e:
-                    posts.append(RemotePost("Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error", "Error"))
+                    posts.append(RemotePost("0", "Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error", "Error"))
         return posts
 
     def test_func(self):
@@ -126,35 +127,52 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
             # In case entered like host.com/api instead of host.com/api/
             if url[-1] is not "/":
                 url = url + "/"
-            #r = requests.get(url + 'posts/' + str(pid) + "/" , auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+            rpost = requests.get(url + 'posts/' + str(pid), auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
             r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-            print "\nResponse:"
-            print r.text
+            print "Response received"
+            print "comments status code:" + str(r.status_code)
+            print "post status code:" + str(rpost.status_code)
+            #print rpost.text
+            #print r.text
 
             # Ensure we got a 200
             if r.status_code is not 200:
-                context['error'] = "Error: Response code was " + str(r.status_code)
+                context['error'] = "Error: Response code of url/posts/{id}/comments was " + str(r.status_code)
+                return context
+            if rpost.status_code is not 200:
+                context['error'] = "Error: Response code of url/posts/{id} was " + str(r.status_code)
                 return context
 
             # Ensure we got data back
             if (len(r.text) < 0):
-                context['error'] = "Error: No JSON was sent back."
+                context['error'] = "Error: No JSON from url/posts/{id}/comments was sent back."
                 return context
+            if (len(rpost.text) < 0):
+                context['error'] = "Error: No JSON from url/posts/{id} was sent back."
+                return context
+
             data = {}
+            postdata = None
             try:
                 data = json.loads(r.text)
+                postdata = json.loads(rpost.text)
             except ValueError, error:
                 context['error'] = "Error: " + str(error)
                 return context
             try:
-                print "\n ------------ DATA ---------------"
                 for i in data['comments']:
                     # at utils.py RemoteComment((self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node)
                     dat = RemoteComment(i['guid'], "", i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
                     comments.append(dat)
+                if postdata['count'] > 0:
+                    postdat = postdata['posts']
+                    postdata = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
+                                postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['id'],n)
             except KeyError, error:
+                print "AAAAAAA"
                 context['error'] = "Error: KeyError, " + str(error)
                 return context
+        context['post'] = postdata
         context['num_comments'] = len(comments)
         context['comments_list'] = comments
         return context
