@@ -41,7 +41,7 @@ class UserAdmin(admin.ModelAdmin):
             # Assign each selected user to an author
             if not Author.objects.filter(user=user).exists():
                 new_author = Author(user=user, displayName=user.username)
-                new_author.url = "http://" + request.get_host() + "/author/" + str(new_author.uuid) + "/"
+                new_author.url = "http://" + request.get_host() + "/api/author/" + str(new_author.uuid) + "/"
                 new_author.host = "http://" + request.get_host()+ "/api"
                 new_author.save()
 
