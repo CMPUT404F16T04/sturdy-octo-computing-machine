@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from socknet.models import *
 from socknet.forms import *
 from socknet.serializers import *
-from socknet.utils import ForbiddenContent403, RemotePost
+from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment
 
 # For images
 import os
@@ -108,6 +108,63 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
             comments = paginator.page(paginator.num_pages)
         context['comments'] = comments
         return context
+
+class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
+    """ Displays the details of a remote foreign post """
+    template_name = 'socknet/post_templates/view_remote_post.html'
+    login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(ViewRemotePost, self).get_context_data(**kwargs)
+        pid = self.kwargs['pk']
+
+        comments = []
+        for n in Node.objects.all():
+            print "Fetching data from Node: " + n.name
+            url = n.url
+            # In case entered like host.com/api instead of host.com/api/
+            if url[-1] is not "/":
+                url = url + "/"
+            #r = requests.get(url + 'posts/' + str(pid) + "/" , auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+            r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+            print "\nResponse:"
+            print r.text
+
+            # Ensure we got a 200
+            if r.status_code is not 200:
+                context['error'] = "Error: Response code was " + str(r.status_code)
+                return context
+
+            # Ensure we got data back
+            if (len(r.text) < 0):
+                context['error'] = "Error: No JSON was sent back."
+                return context
+            data = {}
+            try:
+                data = json.loads(r.text)
+            except ValueError, error:
+                context['error'] = "Error: " + str(error)
+                return context
+            try:
+                print "\n ------------ DATA ---------------"
+                for i in data['comments']:
+                    # at utils.py RemoteComment((self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node)
+                    dat = RemoteComment(i['guid'], "", i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
+                    comments.append(dat)
+            except KeyError, error:
+                context['error'] = "Error: KeyError, " + str(error)
+                return context
+        context['num_comments'] = len(comments)
+        context['comments_list'] = comments
+        return context
+
+    def test_func(self):
+        try:
+            self.request.user.author
+        except:
+            return False
+        else:
+            return True
 
 class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
     """ Displays a form for creating a new post """
