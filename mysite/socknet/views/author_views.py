@@ -241,7 +241,6 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
         print("\n ------------ DATA ---------------")
         print(json_data)
 
-        #
         serializer = ProfileSerializer(data=json_data)
         # Ensure the data is valid
         if not serializer.is_valid():
@@ -256,7 +255,74 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
         try:
             foreign_author = ForeignAuthor.objects.get(id=authorUUID)
         except ForeignAuthor.DoesNotExist:
-            foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
-            foreign_author.save()
+            try:
+                foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
+                foreign_author.save()
+            except KeyError, error:
+                # This means id, display name, node, or url was missing
+                context['error'] = "Key Error: " + str(error)
+                return context
         context['profile_author'] = foreign_author
+        context['is_friend'] = self.request.user.author.is_friend(foreign_author.id)
+
+        """
+        # Ask if the authors are friends
+        response = requests.get(url + 'friends/' + authorUUID + "/" + str(self.request.user.author.uuid) + "/", auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+        # Ensure we got a 200
+        if (response.status_code is not 200) or (len(response.text) < 0):
+            # If we couldn't check then display an error
+            context['is_friend'] = "Error"
+            return context
+        else:
+            try:
+                json_data = json.loads(response.text)
+                context['is_friend'] = json_data['friends']
+            except:
+                # We will error if there is no friends in the json or the json could not be parsed
+                context['is_friend'] = "Error"
+        """
         return context
+
+    def check_url(self, url):
+        if len(url) > 0 and ("http://" not in url):
+            return "http://" + url
+        return url
+
+    def post(self, request, *args, **kwargs):
+        if request.is_ajax():
+            # Send a friend request to a remote node
+            decoded_json = json.loads(request.body)
+            if decoded_json['action'] == "friend_request":
+                nodeId = self.kwargs.get('nodeID')
+                node = get_object_or_404(Node, id=nodeId)
+                authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
+                authorUUID = uuid.UUID(authorUUID)
+                foreign_author = get_object_or_404(ForeignAuthor, id=authorUUID)
+                local_author = self.request.user.author
+                url = node.url
+                if url[-1] is not "/":
+                    url = url + "/"
+                data = {
+                    "query": "friendrequest",
+                    "author": {
+                        "id": str(local_author.uuid),
+                        "host": self.check_url(local_author.host),
+                        "displayName": local_author.displayName
+
+                    },
+                    "friend": {
+                        "id": str(foreign_author.id),
+                        "host": self.check_url(foreign_author.node.url),
+                        "displayName": foreign_author.display_name,
+                        "url": self.check_url(foreign_author.url)
+                    }
+                }
+                json_data = json.dumps(data) # encode
+                print(json_data)
+                print(url + "friendrequest/")
+                response = requests.post(url=url + "friendrequest/", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+                print(response.status_code)
+                print(response)
+                return HttpResponse(status=200)
+        # Returning 500 right now since nothing else should be posting to this page
+        return HttpResponse(status=500)

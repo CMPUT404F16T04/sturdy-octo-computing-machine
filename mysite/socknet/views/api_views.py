@@ -412,10 +412,13 @@ class FriendRequest(APIView):
         # Validate the request data
         serializer = FriendRequestSerializer(data=request.data)
         if not serializer.is_valid():
+            print(serializer.errors)
             return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
         data = serializer.validated_data
         author_data = data.get('author')
         friend_data = data.get('friend')
+        print(author_data)
+        print(friend_data)
         author = None
         friend = None
         # Check that either the author or friend exists locally.
@@ -430,6 +433,7 @@ class FriendRequest(APIView):
 
         # If neither author is local, we shouldn't be getting the request.
         if (author is None) and (friend is None):
+            print("The Author are not local")
             return Response({'Error': 'Neither author is local to this server.'}, status.HTTP_400_BAD_REQUEST)
 
         # If either author is forgein, we should create them in the db if they are not there already.
@@ -437,7 +441,7 @@ class FriendRequest(APIView):
             if ForeignAuthor.objects.filter(id=author_data['id']).exists():
                 author = ForeignAuthor.objects.get(id=author_data['id'])
             else:
-                node = Node.objects.get(url=author_data.host)
+                node = Node.objects.get(url=author_data['host'])
                 author = ForeignAuthor(id=author_data['id'], display_name=author_data['display_name'], node=node)
             # Friend exists on our server. We should forward this request to the other server and record that we sent the request.
             friend.foreign_friends_im_following.add(author)
