@@ -8,8 +8,8 @@
                 </div>
                 <div class="post-id-label">
                     {{ post.visibility }} post submitted by
-                    <a class="author-label" href="#">{{ post.author_display_name }}</a>
-                    on {{ post.published }}
+                    <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
+                    on {{ post.published }} from {{ post.node.name }} and {{ post.node.id }}
                 </div>
                 <div class="post-description">
                     {{post.description}}

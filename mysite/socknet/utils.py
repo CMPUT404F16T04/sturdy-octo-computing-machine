@@ -78,7 +78,7 @@ class RemotePost():
     """
     An object that represents a remote post.
     """
-    def __init__(self, title, description, content_type, content, visibility, published, author_display_name, author_id):
+    def __init__(self, title, description, content_type, content, visibility, published, author_display_name, author_id, node):
         self.title = title
         self.description = description
         self.content_type = content_type
@@ -86,6 +86,7 @@ class RemotePost():
         self.published = published
         self.author_display_name = author_display_name
         self.author_id = author_id
+        self.node = node
         if content_type is "text/plain":
             self.content = HTMLsafe.get_converted_content(False, content)
         else:
