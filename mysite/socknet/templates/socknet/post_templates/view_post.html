@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="content-box">
-    {% include "socknet/subtemplate_post.html" %}
+    {% include "socknet/post_templates/subtemplate_post.html" %}
     <div class="post-actions">
         <div class="action">
             <a href="{% url 'create_comment' post_pk=post.pk %}">Write Comment</a>

@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 {% load static from staticfiles %}
-    <div class="friend-title">People I Follow</div>
-    <!-- Only display people I am following who are NOT also my friends -->
+    <div class="friend-title">People I Follow (Local Node)</div>
+    <!-- This doesn't really work for foreign people, since there is no notification for cancelling a pending friend request -->
+    <!-- Only display local people I am following who are NOT also my friends -->
     {% for follower_of in user.author.get_following_only %}
         <div class="friend-box">
             <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>

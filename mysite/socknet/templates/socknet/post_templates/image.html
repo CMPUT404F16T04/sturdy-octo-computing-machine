@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="image-container">
+Image: {{image_id}}<br/>
+Uploaded by {{image_usr}} on {{image_made}} UTC.<br/>
+<a onclick="window.history.back()" href="#">Go Back</a>
+  <p id='imgcon'>
+      <img id='theimage' src={{b64}}>
+  </p>
+</div>
+{% endblock %}

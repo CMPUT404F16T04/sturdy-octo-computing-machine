@@ -40,7 +40,9 @@ class UserAdmin(admin.ModelAdmin):
         for user in queryset:
             # Assign each selected user to an author
             if not Author.objects.filter(user=user).exists():
-                new_author = Author(user=user)
+                new_author = Author(user=user, displayName=user.username)
+                new_author.url = "http://" + request.get_host() + "/author/" + str(new_author.uuid) + "/"
+                new_author.host = "http://" + request.get_host()+ "/api"
                 new_author.save()
 
         rows_updated = queryset.update(is_active=True)
@@ -50,8 +52,6 @@ class UserAdmin(admin.ModelAdmin):
             message_bit = "%s users were" % rows_updated
         self.message_user(request, "%s successfully approved." % message_bit)
     approve_users.short_description = "Approve Selected Users"
-
-
 
 class AuthorAdmin(admin.ModelAdmin):
     """
@@ -63,10 +63,10 @@ class AuthorAdmin(admin.ModelAdmin):
     ordering = ['user']
 
     # Field sets control which fields are displayed on the admin "add" and "change" pages
-    readonly_fields=('friends', 'who_im_following', 'ignored')
+    readonly_fields=('friends', 'who_im_following', 'ignored', 'foreign_friends')
     fieldsets = (
         (None, {
-            'fields': ('user', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored')
+            'fields': ('user', 'displayName','host', 'url', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored', 'foreign_friends', 'pending_foreign_friends')
         }),
     )
 
@@ -78,12 +78,36 @@ class AuthorAdmin(admin.ModelAdmin):
             return self.readonly_fields + ('user',)
         return self.readonly_fields
 
+class ConfigAdmin(admin.ModelAdmin):
+    """
+    A custom admin page for the AdminConfig model.
+    Do not allow add or delete actions for this object.
+    """
+    def get_actions(self, request):
+        # Code from: http://stackoverflow.com/questions/4043843/in-django-admin-how-do-i-disable-the-delete-link
+        # Disable delete
+        actions = super(ConfigAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
+    def has_delete_permission(self, request, obj=None):
+        # Disable delete
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+# Our site config
+admin.site.register(AdminConfig, ConfigAdmin)
+
 # Unregister default user so that ours is used
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
 # Models we want to be able to edit in admin
+admin.site.register(Node)
 admin.site.register(Post)
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Comment)
 admin.site.register(ImageServ)
+admin.site.register(ForeignAuthor)

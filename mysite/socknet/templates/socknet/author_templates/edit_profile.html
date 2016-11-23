@@ -8,6 +8,10 @@
             <form method="post" action="{% url 'editprofile' authorUUID=user.author.uuid %}">
                 {% csrf_token %}
                 <div class="form-group">
+                    <label for="about_me">Display Name</label>
+                    <input id="displayName"  class="form-control" name="displayName" type="text " maxLength="64">{{ user.author.display_name }}</input>
+                </div>
+                <div class="form-group">
                     <label for="birthday">Enter Birthday (yyyy-mm-dd)</label>
                     <input id="birthday"  class="form-control" name="birthday" type="date" autofocus="true" value='{{ user.author.birthday|date:'Y-m-d' }}'>
                 </div>

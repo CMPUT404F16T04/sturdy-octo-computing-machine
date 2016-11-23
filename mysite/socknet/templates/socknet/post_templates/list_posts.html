@@ -3,7 +3,7 @@
     <ol class="feed">
         {% for post in posts_list %}
             <li class="post">
-                {% include "socknet/subtemplate_post.html" %}
+                {% include "socknet/post_templates/subtemplate_post.html" %}
                 <div class="post-actions">
                     <div class="action">
                         <a href="{% url 'view_post' pk=post.pk %}">View Comments</a>

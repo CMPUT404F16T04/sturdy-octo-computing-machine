@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static from staticfiles %}
+    <div class="friend-title">My Friends</div>
+    {% if count > 0 %}
+        <div class="friends-table col-md-12">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Node</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                {% for friend in friends %}
+                <tr id="{{friend.uuid}}">
+                    <td class="col-md-5">{{friend.name}}</td>
+                    <td class="col-md-5">{{friend.node_name}}</td>
+                    <td class="col-md-2">
+                        <a href="#" class="friend-anchor btn btn-danger btn-xs"
+                        data-uuid="{{ friend.uuid }}" data-username="{{ friend.name }}"
+                        data-status="unfriend" data-islocal="{{ friend.is_local}}">
+                            Delete <span class="glyphicon glyphicon-remove"></span>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% else %}
+        <div class="content-box">You haven't made friends yet!</div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    // authorUUID and url are needed in friend_request_handler (above)
+    var authorUUID = "{{ user.author.uuid }}";
+    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+    $(document).ready(function() {
+        console.log("Manage Friends Loaded");
+        $('.friend-anchor').click(function () {
+            var id = $(this).attr('id');
+            var status = $(this).data("status");
+            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
+            var friendUUID = $(this).data("uuid");
+            var is_local = $(this).data("islocal");
+
+            // HANDLE UNFRIEND ACTION
+            if (status == "unfriend") {
+                console.log("Author wants to unfriend: "+$(this).data("username"));
+                // Unfriend with ajax so we don't have to reload the page.
+                var jsonData = {
+                    "action": "unfriend",
+                    "author": {
+                        "id": authorUUID
+                    },
+                    "friend": {
+                        "id": friendUUID,
+                        "is_local": is_local
+                    }
+                };
+                var jsonStr = JSON.stringify(jsonData);
+                console.log(jsonStr);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: jsonStr,
+                    contentType: "application/json",
+                    success: function() { unfriendSuccess(friendUUID); },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                });
+            }
+        });
+
+        function unfriendSuccess(id) {
+            console.log("Unfriend successful!");
+            console.log(id)
+            $('#'+id).remove();
+        }
+    });
+</script>
+{% endblock scripts %}

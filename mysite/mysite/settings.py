@@ -40,9 +40,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'socknet.apps.SocknetConfig',
     'rest_framework',
+    'corsheaders',
 )
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -127,9 +129,8 @@ MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'static'))
 # Tom Christie
 # http://www.django-rest-framework.org/#installation
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+
 }
+
+# https://github.com/ottoyiu/django-cors-headers
+CORS_ORIGIN_ALLOW_ALL = True

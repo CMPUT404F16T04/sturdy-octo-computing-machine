@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class = "content-box">
+    {% if error %}
+        <h1 id="profile-heading">Error: {{ error }}</h1>
+    {% else %}
+        <h1 id="profile-heading">{{ profile_author.display_name }}'s Profile!</h1>
+        <!-- Author is viewing someone else's profile, display button that allows
+             them to follow, unfollow, unfriend, etc. -->
+        <a id="friend_anchor" href="#" class="login-button float-right"
+            data-uuid="{{ profile_author.id }}" data-username="{{ profile_author.display_name }}"
+            data-status="{{ is_friend }}" data-islocal="False"></a>
+        <hr class="profile-divider"/>
+        <!-- Profile fields -->
+        <div class="profile-field">
+            <span class="profile-label">Host: </span>{{ profile_author.node.name }}
+            {% if not profile_author.node.name %}
+                None
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+<ol class="feed">
+    {% for post in posts %}
+        <li class="post">
+            <div class="first-line">
+                <h1>{{ post.title }}</h1>
+            </div>
+            <div class="post-id-label">
+                {{ post.visibility }} post submitted by
+                <span class="author-label" >{{ post.author_display_name }}</span>
+                on {{ post.published }} from {{ post.node.name }}
+            </div>
+            <div class="post-description">
+                {{post.description}}
+            </div>
+            <article class="content">
+                {{post.content|safe}}
+            </article>
+        </li>
+    {% endfor %}
+</ol>
+{% if not posts %}
+<h2>No Posts</h2>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% load static from staticfiles %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        console.log("Remote Profile is loaded");
+        var url = "{% url 'remote_profile' nodeID=profile_author.node.id authorUUID=profile_author.id %}";
+
+        // Set text of friend button based on current relationship
+        if("{{ is_friend }}" === "False") {
+            $('#friend_anchor').text("Send Friend Request");
+        }
+
+        $('#friend_anchor').click(function (e) {
+            var id = $(this).attr('id');
+            var status = $(this).data("status");
+            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
+
+            // Send a friend request
+            if (status == "False") {
+                e.preventDefault(); // Disable link
+                console.log("Author wants to friend: "+$(this).data("username"));
+                // Unfriend with ajax so we don't have to reload the page.
+                var jsonData = {
+                    "action": "friend_request"
+                    }
+                var jsonStr = JSON.stringify(jsonData)
+                console.log(jsonStr);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: jsonStr,
+                    contentType: "application/json",
+                    success: function() { friendSuccess(id); },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }); // End of ajax
+            }
+        }); // End of clicker
+
+        function friendSuccess(id) {
+            console.log("Friend successful!");
+            console.log(id);
+            $('#'+id).data("status" , "Pending");
+            $('#'+id).removeAttr("href");
+            $('#'+id).css("background-color", "#EEEEEE")
+            $('#'+id).text("Friend Request Sent")
+        }
+    });
+</script>
+{% endblock scripts %}

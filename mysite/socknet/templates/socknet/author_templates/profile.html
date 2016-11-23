@@ -11,10 +11,16 @@
         <!-- Author is viewing someone else's profile, display button that allows
              them to follow, unfollow, unfriend, etc. -->
         <a id="friend_anchor" href="#" class="friend-anchor login-button float-right"
-        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}"></a>
+        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}" data-islocal="True"></a>
     {% endif %}
     <hr class="profile-divider"/>
     <!-- Profile fields -->
+    <div class="profile-field">
+        <span class="profile-label">Display Name: </span>{{ profile_author.displayName }}
+        {% if not profile_author.displayName %}
+        None
+        {% endif %}
+    </div>
     <div class="profile-field">
         <span class="profile-label">Birthday: </span>{{ profile_author.birthday }}
     </div>
@@ -37,7 +43,7 @@
     <ol class="feed">
         {% for post in context_list %}
             <li class="post">
-                {% include "socknet/subtemplate_post.html" %}
+                {% include "socknet/post_templates/subtemplate_post.html" %}
             </li>
         {% endfor %}
     </ol>

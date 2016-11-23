@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="content-box">
+        <div class="first-line">
+            <h1>{{ post.title }}</h1>
+        </div>
+        <div class="post-id-label">
+            {{ post.visibility }} post submitted by
+            <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
+            on {{ post.published }} from {{ post.node.name }}
+        </div>
+        <div class="post-description">
+            {{post.description}}
+        </div>
+        <article class="content">
+            {{post.content|safe}}
+        </article>
+        <div class="post-actions">
+            <div class="action">
+
+                <a href="">Write Comment</a>
+            </div>
+            <a onclick="window.history.back()" href="#">Return to Post List</a>
+        </div>
+</div>
+
+<br/>
+{% if num_comments > 0 %}
+<ol class="comment-container">
+    {% for comment in comments_list %}
+      <li>
+        <div>
+            <a class="author-label" href=""></a>
+        </div>
+        <div class="author-date">
+             {{ comment.published }} UTC
+        </div>
+        <article class="content">
+            {{comment.content|safe}}
+        </article>
+      </li>
+      <hr class="comment-divider"/>
+    {% endfor %}
+</ol>
+{% else %}
+    <div class="content-box">There are no comments on this post.</div>
+{% endif %}
+{% endblock %}
