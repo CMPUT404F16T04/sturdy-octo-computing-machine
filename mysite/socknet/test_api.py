@@ -149,8 +149,8 @@ class FriendAPITests(APITestCase):
         # Confirm no pending request
         self.assertTrue(len(self.author.get_pending_friend_requests()) is 0)
         # Create the request data
-        author = {"id": str(self.author.uuid), "host": self.local_node.url, "display_name": "Bob"}
-        friend = {"id": str(self.author2.uuid), "host": self.local_node.url, "display_name": "Joe", "url": self.local_node.url+"/"+str(self.author2.uuid)}
+        author = {"id": str(self.author.uuid), "host": self.local_node.url, "displayName": "Bob"}
+        friend = {"id": str(self.author2.uuid), "host": self.local_node.url, "displayName": "Joe", "url": self.local_node.url+"/"+str(self.author2.uuid)}
         request_data = json.dumps({"query": "friendrequest", "author": author, "friend": friend})
         # Make the request
         url = "/api/friendrequest/"
@@ -169,8 +169,8 @@ class FriendAPITests(APITestCase):
         # Confirm no pending request
         self.assertFalse(self.foreign_author in self.author.pending_foreign_friends.all())
         # Create the request data
-        author = {"id": str(self.author.uuid), "host": self.local_node.url, "display_name": "Bob"}
-        friend = {"id": str(self.foreign_author.id), "host": self.node.url, "display_name": "Joe", "url": self.node.url+"/"+str(self.author2.uuid)}
+        author = {"id": str(self.author.uuid), "host": self.local_node.url, "displayName": "Bob"}
+        friend = {"id": str(self.foreign_author.id), "host": self.node.url, "displayName": "Joe", "url": self.node.url+"/"+str(self.author2.uuid)}
         request_data = json.dumps({"query": "friendrequest", "author": author, "friend": friend})
         # Make the request
         url = "/api/friendrequest/"

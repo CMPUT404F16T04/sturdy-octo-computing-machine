@@ -99,7 +99,7 @@ class FriendSerializerNoUrl(serializers.Serializer):
     """
     id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
     host = serializers.CharField(max_length=128, required=True)
-    display_name = serializers.CharField(max_length=150, required=True)
+    displayName = serializers.CharField(max_length=150, required=True)
 
     def validate_author(self, value):
         """
@@ -109,12 +109,6 @@ class FriendSerializerNoUrl(serializers.Serializer):
             valid_uuid = uuid.UUID(value)
         except ValueError:
             raise serializers.ValidationError("UUID is not valid.")
-        return value
-
-    def validate_host(self, value):
-        node = Node.objects.filter(url=value).exists()
-        if not node:
-            raise serializers.ValidationError('Unknown host: %s' % value)
         return value
 
 class FriendSerializer(serializers.Serializer):
@@ -125,7 +119,7 @@ class FriendSerializer(serializers.Serializer):
     """
     id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
     host = serializers.CharField(max_length=128, required=True)
-    display_name = serializers.CharField(max_length=150, required=True)
+    displayName = serializers.CharField(max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
 
     def validate_author(self, value):
@@ -136,12 +130,6 @@ class FriendSerializer(serializers.Serializer):
             valid_uuid = uuid.UUID(value)
         except ValueError:
             raise serializers.ValidationError("UUID is not valid.")
-        return value
-
-    def validate_host(self, value):
-        node = Node.objects.filter(url=value).exists()
-        if not node:
-            raise serializers.ValidationError('Unknown host: %s' % value)
         return value
 
 class FriendsQuerySerializer(serializers.Serializer):
@@ -204,18 +192,18 @@ class ProfileFriendSerializer(serializers.Serializer):
     host = serializers.CharField(max_length=256, required=True)
     displayName = serializers.CharField(max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
-  
+
     class Meta:
         model = Author
         fields = ('id','host','displayName','url')
 
-class ProfileForeignFriendSerializer(serializers.Serializer): 
+class ProfileForeignFriendSerializer(serializers.Serializer):
     id = serializers.CharField(source='uuid', required =True)
     host = serializers.CharField(source = 'node', required=True)
     displayName = serializers.CharField(max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
 
-    class Meta: 
+    class Meta:
         model = ForeignAuthor
         fields = ('id','host','displayName','url')
 class ProfileSerializer(serializers.Serializer):

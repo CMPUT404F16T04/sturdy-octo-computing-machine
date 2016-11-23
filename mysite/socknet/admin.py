@@ -42,7 +42,7 @@ class UserAdmin(admin.ModelAdmin):
             if not Author.objects.filter(user=user).exists():
                 new_author = Author(user=user, displayName=user.username)
                 new_author.url = "http://" + request.get_host() + "/author/" + str(new_author.uuid) + "/"
-                new_author.host = "http://" + request.get_host()
+                new_author.host = "http://" + request.get_host()+ "/api"
                 new_author.save()
 
         rows_updated = queryset.update(is_active=True)

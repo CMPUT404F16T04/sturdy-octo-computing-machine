@@ -284,7 +284,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
         return context
 
     def check_url(self, url):
-        if len(url) > 0:
+        if len(url) > 0 and ("http://" not in url):
             return "http://" + url
         return url
 
@@ -318,6 +318,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                     }
                 }
                 json_data = json.dumps(data) # encode
+                print(json_data)
                 print(url + "friendrequest/")
                 response = requests.post(url=url + "friendrequest/", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
                 print(response.status_code)
