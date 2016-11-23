@@ -69,6 +69,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                         valid = serializer.is_valid()
                         if not valid:
                             # Ignore posts that are not valid
+                            print("error")
                             print(serializer.errors)
                         else:
                             post_data = serializer.validated_data
