@@ -111,12 +111,6 @@ class FriendSerializerNoUrl(serializers.Serializer):
             raise serializers.ValidationError("UUID is not valid.")
         return value
 
-    def validate_host(self, value):
-        node = Node.objects.filter(url=value).exists()
-        if not node:
-            raise serializers.ValidationError('Unknown host: %s' % value)
-        return value
-
 class FriendSerializer(serializers.Serializer):
     """
     Serializer for an author (id, host, displayName, url)
@@ -136,12 +130,6 @@ class FriendSerializer(serializers.Serializer):
             valid_uuid = uuid.UUID(value)
         except ValueError:
             raise serializers.ValidationError("UUID is not valid.")
-        return value
-
-    def validate_host(self, value):
-        node = Node.objects.filter(url=value).exists()
-        if not node:
-            raise serializers.ValidationError('Unknown host: %s' % value)
         return value
 
 class FriendsQuerySerializer(serializers.Serializer):
