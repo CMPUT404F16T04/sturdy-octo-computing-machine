@@ -10,6 +10,14 @@ from socknet.serializers import *
 from socknet.models import Author, Post, ImageServ, Comment
 from socknet import external_requests
 
+### HELPER FUNCTIONS ###
+
+def get_page_size(request, paginator):
+    if (request.GET.get('size')):
+        return int(request.GET.get('size'))
+    else:
+        return paginator.page_size
+
 ### PAGINATION ###
 class PostsPagination(PageNumberPagination):
     page_size = 50
@@ -71,7 +79,7 @@ class AuthorPostsViewSet(APIView):
             response = {
                 "query" : "posts",
                 "count" : len(final_queryset),
-                "size": paginator.page_size,
+                "size": get_page_size(request, paginator),
                 "posts" : posts_serializer.data}
            # Do not return previous if page is 0.
             if (paginator.get_previous_link() is not None):
@@ -123,7 +131,7 @@ class AuthorViewAllTheirPosts(APIView):
             response = {
                 "query" : "posts",
                 "count" : len(final_queryset),
-                "size": paginator.page_size,
+                "size": get_page_size(request, paginator),
                 "posts" : posts_serializer.data}
             # Do not return previous if page is 0.
             if (paginator.get_previous_link() is not None):
@@ -178,7 +186,7 @@ class PostsQuery(APIView):
             response = {
                 "query" : "posts",
                 "count" : len(posts_queryset),
-                "size": paginator.page_size,
+                "size": get_page_size(request, paginator),
                 "posts" : posts_serializer.data}
            # Do not return previous if page is 0.
             if (paginator.get_previous_link() is not None):
@@ -291,7 +299,7 @@ class CommentsViewSet(APIView):
             response = {
                 "query" : "comments",
                 "count" : len(final_queryset),
-                "size": paginator.page_size,
+                "size": get_page_size(request, paginator),
                 "comments" : comments_serializer.data}
             # Do not return previous if page is 0.
             if (paginator.get_previous_link() is not None):
