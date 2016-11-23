@@ -78,7 +78,8 @@ class RemotePost():
     """
     An object that represents a remote post.
     """
-    def __init__(self, title, description, content_type, content, visibility, published, author_display_name, author_id, node):
+    def __init__(self, postid, title, description, content_type, content, visibility, published, author_display_name, author_id, node):
+        self.id = postid
         self.title = title
         self.description = description
         self.content_type = content_type

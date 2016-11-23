@@ -17,6 +17,9 @@
                 <article class="content">
                     {{post.content|safe}}
                 </article>
+                <div>
+                    <a href="{% url 'view_remote_post' pk=post.id %} ">View Comment</a>
+                </div>
             </li>
         {% endfor %}
     </ol>
