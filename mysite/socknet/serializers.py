@@ -201,12 +201,10 @@ class SingleCommentSerializer(serializers.ModelSerializer):
 class ProfileFriendSerializer(serializers.Serializer):
     #id = serializers.CharField(max_length = 64) # uuid is 36 characters
     id = serializers.CharField(source='uuid', required =True)
-    host = serializers.SerializerMethodField()
+    host = serializers.CharField(max_length=256, required=True)
     displayName = serializers.CharField(max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
-    def get_host(self,obj):
-        host = "https://cmput404f16t04dev.herokuapp.com/"
-        return host
+  
     class Meta:
         model = Author
         fields = ('id','host','displayName','url')

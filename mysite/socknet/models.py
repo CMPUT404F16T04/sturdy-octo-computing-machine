@@ -33,6 +33,7 @@ class ForeignAuthor(models.Model):
     display_name=models.CharField(max_length=150, default='test')
     node = models.ForeignKey(Node, related_name="my_node")
     url = models.URLField(default='')
+    #host = models.URLField(default ='')
 
     def __str__(self):
         return self.display_name
@@ -67,6 +68,7 @@ class Author(models.Model):
     birthday = models.DateField(null=True,blank=True)
     displayName = models.CharField(max_length=64, blank=True)
     url = models.URLField(blank=True)
+    host = models.URLField(default='')
 
     def __str__(self):
         return self.user.get_username()

@@ -42,6 +42,7 @@ class UserAdmin(admin.ModelAdmin):
             if not Author.objects.filter(user=user).exists():
                 new_author = Author(user=user, displayName=user.username)
                 new_author.url = "http://" + request.get_host() + "/author/" + str(new_author.uuid) + "/"
+                new_author.host = "http://" + request.get_host()
                 new_author.save()
 
         rows_updated = queryset.update(is_active=True)
@@ -65,7 +66,7 @@ class AuthorAdmin(admin.ModelAdmin):
     readonly_fields=('friends', 'who_im_following', 'ignored', 'foreign_friends')
     fieldsets = (
         (None, {
-            'fields': ('user', 'displayName', 'url', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored', 'foreign_friends')
+            'fields': ('user', 'displayName','host', 'url', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored', 'foreign_friends')
         }),
     )
 
