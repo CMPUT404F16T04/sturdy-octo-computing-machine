@@ -28,7 +28,7 @@
             </div>
             <div class="post-id-label">
                 {{ post.visibility }} post submitted by
-                <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
+                <span class="author-label" >{{ post.author_display_name }}</span>
                 on {{ post.published }} from {{ post.node.name }}
             </div>
             <div class="post-description">
@@ -89,7 +89,7 @@
             console.log("Friend successful!");
             console.log(id);
             $('#'+id).data("status" , "Pending");
-            $('#'+id).removeAttr("href"); 
+            $('#'+id).removeAttr("href");
             $('#'+id).css("background-color", "#EEEEEE")
             $('#'+id).text("Friend Request Sent")
         }

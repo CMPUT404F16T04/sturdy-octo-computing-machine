@@ -62,7 +62,9 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 try:
                     data = json.loads(r.text)
                 except ValueError, e:
-                    posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error", "Error"))
+                    print("Error from group: " + n.name)
+                    print(e)
+                    #posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
                 try:
                     for post_json in data['posts']:
                         serializer = PostsSerializer(data=post_json)
@@ -79,7 +81,9 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                                 post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
                             posts.append(post)
                 except KeyError, e:
-                    posts.append(RemotePost("0", "Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error", "Error"))
+                    print("Error from group: " + n.name)
+                    print(e)
+                    #posts.append(RemotePost("0", "Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
         return posts
 
     def test_func(self):
