@@ -441,8 +441,9 @@ class FriendRequest(APIView):
             if ForeignAuthor.objects.filter(id=author_data['id']).exists():
                 author = ForeignAuthor.objects.get(id=author_data['id'])
             else:
+                print(author_data['host'])
                 node = Node.objects.get(url=author_data['host'])
-                author = ForeignAuthor(id=author_data['id'], display_name=author_data['display_name'], node=node)
+                author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node)
             # Friend exists on our server. We should forward this request to the other server and record that we sent the request.
             friend.foreign_friends_im_following.add(author)
             external_requests.send_friend_request(node, author_data, friend)
@@ -452,8 +453,9 @@ class FriendRequest(APIView):
             if ForeignAuthor.objects.filter(id=friend_data['id']).exists():
                 friend = ForeignAuthor.objects.get(id=friend_data['id'])
             else:
+                print(author_data['host'])
                 node = Node.objects.get(url=friend_data['host'])
-                friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['display_name'], node=node)
+                friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node)
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
             author.pending_foreign_friends.add(friend)
             return Response(status=status.HTTP_200_OK)
