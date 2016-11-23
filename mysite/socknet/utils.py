@@ -94,3 +94,25 @@ class RemotePost():
 
     def __str__(self):
         return self.title + " " + self.author_display_name + " " + self.author_url
+
+class RemoteComment():
+    """
+    An object that represents a remote object
+    """
+    def __init__(self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node):
+        self.id = guid
+        self.content_type = content_type
+        self.published = pubdate
+        self.author_display_name = author_display_name
+        self.author_id = author_id
+        self.author_host = auth_host
+        self.node = node
+        if content_type is "text/plain":
+            self.content = HTMLsafe.get_converted_content(False, content)
+        elif content_type is "text/markdown":
+            self.content = HTMLsafe.get_converted_content(True, content)
+        else:
+            self.content = HTMLsafe.get_converted_content(False, content)
+
+    def __str__(self):
+        return "Comment: " + self.content + " by " + self.author_display_name + " " + self.author_host

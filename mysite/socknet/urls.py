@@ -26,11 +26,14 @@ urlpatterns = [
 
     # Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),
-    url(r'^remote_posts/$', post_views.ListRemotePosts.as_view(), name='list_remote_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewPost.as_view(), name='view_post'),
     url(r'^posts/create/$', post_views.CreatePost.as_view(), name='create_post'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/delete/$', post_views.DeletePost.as_view(), name='author_check_delete'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/update/$', post_views.UpdatePost.as_view(), name='author_check_update'),
+
+    url(r'^remote_posts/$', post_views.ListRemotePosts.as_view(), name='list_remote_posts'),
+    url(r'^remote_posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewRemotePost.as_view(), name='view_remote_post'),
+
 
     # Comments
     url(r'^comment/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewComment.as_view(), name='view_comment'),
