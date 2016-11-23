@@ -32,7 +32,7 @@
         // Set text of friend button based on current relationship
         if("{{ is_friend }}" === "False") {
             $('#friend_anchor').text("Send Friend Request");
-        } 
+        }
 
         $('#friend_anchor').click(function (e) {
             var id = $(this).attr('id');
@@ -65,7 +65,10 @@
         function friendSuccess(id) {
             console.log("Friend successful!");
             console.log(id);
-            $('#'+id).css("background-color", "grey")
+            $('#'+id).data("status" , "Pending");
+            $('#'+id).removeAttr("href"); 
+            $('#'+id).css("background-color", "#EEEEEE")
+            $('#'+id).text("Friend Request Sent")
         }
     });
 </script>

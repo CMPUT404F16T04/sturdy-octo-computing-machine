@@ -238,17 +238,12 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             context['error'] = "Error: " + str(error)
             return context
 
-        print("\n ------------ DATA ---------------")
-        print(json_data)
-
         serializer = ProfileSerializer(data=json_data)
         # Ensure the data is valid
         if not serializer.is_valid():
             context['error'] = "Validation Error: " + str(serializer.errors)
 
         author_data = serializer.validated_data
-        print("\n -------------- VALIDATED DATA ---------------")
-        print(author_data)
 
         # If the author is not in the db, create a new model
         foreign_author = None
