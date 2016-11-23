@@ -417,6 +417,8 @@ class FriendRequest(APIView):
         data = serializer.validated_data
         author_data = data.get('author')
         friend_data = data.get('friend')
+        print(author_data)
+        print(friend_data)
         author = None
         friend = None
         # Check that either the author or friend exists locally.
