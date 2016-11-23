@@ -189,8 +189,10 @@ class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
             action_type = decoded_json['action']
             friend_uuid = decoded_json['friend']['id']
             is_local = decoded_json['friend']['is_local']
+            print(is_local)
+            print(type(is_local))
             friend = None
-            if is_local:
+            if is_local == "True":
                 friend = Author.objects.get(uuid=friend_uuid)
             else:
                 friend = ForeignAuthor.objects.get(id=friend_uuid)
