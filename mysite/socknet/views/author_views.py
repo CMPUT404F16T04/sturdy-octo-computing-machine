@@ -288,7 +288,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
         Get the remote author's posts
         """
         posts = []
-        r = requests.get(url + 'posts/', auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+        r = requests.get(url + 'author/' + authorUUID  + '/posts', auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
         if (len(r.text) > 0):
             data = {}
             try:
