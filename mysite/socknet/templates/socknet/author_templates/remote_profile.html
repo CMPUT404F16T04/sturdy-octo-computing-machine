@@ -18,6 +18,18 @@
                 None
             {% endif %}
         </div>
+        <div class="profile-field">
+            <span class="profile-label">Id: </span>{{ profile_author.id }}
+            {% if not profile_author.id %}
+                None
+            {% endif %}
+        </div>
+        <div class="profile-field">
+            <span class="profile-label">URL: </span>{{ profile_author.url }}
+            {% if not profile_author.node.name %}
+                None
+            {% endif %}
+        </div>
     {% endif %}
 </div>
 <ol class="feed">
