@@ -1,10 +1,10 @@
 # sturdy-octo-computing-machine
 ## CMPUT 404 Fall 2016 Team Project
-Based on [Abram Hindle's CMPUT404-project-socialdistribution ](https://github.com/abramhindle/CMPUT404-project-socialdistribution/)
+##### Based on [Abram Hindle's CMPUT404-project-socialdistribution ](https://github.com/abramhindle/CMPUT404-project-socialdistribution/)
 
-Travis Status: ![Travis Status](https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machine.svg)
+##### Live Demo from 'develop': <http://cmput404f16t04dev.herokuapp.com/>
 
-Link to Travis: https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machine
+##### Travis Status: [![Travis Status](https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machine.svg)](https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machine)
 
 ### Contributors
 * [Victoria Bobey](github.com/vbobey)
