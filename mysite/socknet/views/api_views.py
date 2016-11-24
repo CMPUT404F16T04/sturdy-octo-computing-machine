@@ -121,7 +121,7 @@ class AuthorViewAllTheirPosts(APIView):
                 else:
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
-                post.author.host = "http://" + request.get_host() "/api"
+                post.author.host = "http://" + request.get_host() + "/api"
                 if len(post.author.github_url) > 0:
                     post.author.github = "http://" + post.author.github_url
                 else:
@@ -175,7 +175,7 @@ class PostsQuery(APIView):
                 else:
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
-                post.author.host = "http://" + request.get_host() "/api"
+                post.author.host = "http://" + request.get_host() + "/api"
                 if len(post.author.github_url) > 0:
                     post.author.github = "http://" + post.author.github_url
                 else:
@@ -240,7 +240,7 @@ class PostIDQuery(APIView):
                 else:
                     post.contentType = "text/x-markdown"
                 post.author.id = post.author.uuid
-                post.author.host = "http://" + request.get_host() "/api"
+                post.author.host = "http://" + request.get_host() +  "/api"
                 if len(post.author.github_url) > 0:
                     post.author.github = "http://" + post.author.github_url
                 else:
@@ -292,7 +292,7 @@ class CommentsViewSet(APIView):
                 commie.guid = commie.id
                 commie.pubDate = commie.created_on
                 commie.author.id = commie.author.uuid
-                commie.author.host = "http://" + request.get_host() "/api"
+                commie.author.host = "http://" + request.get_host() + "/api"
                 commie.author.displayName = commie.author.displayName
 
             comments_serializer = SingleCommentSerializer(comments, many=True)
@@ -480,7 +480,7 @@ class ProfileView(APIView):
 
             serializer = ProfileSerializer(author)
 
-            author.host = "http://" + request.get_host() "/api"
+            author.host = "http://" + request.get_host() +  "/api"
 
             return Response(serializer.data)
         except Author.DoesNotExist:
