@@ -225,30 +225,35 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
         url = node.url
         if url[-1] is not "/":
             url = url + "/"
+        print "Node url: " + url
         response = requests.get(url + 'author/' + authorUUID + "/", auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
-        print(response.text)
+        #print(response.text)
 
         # Ensure we got a 200
         if response.status_code is not 200:
-            context['error'] = "Error: Response code was " + str(response.status_code)
-            return context
+            e = "Error: Response code was " + str(response.status_code)
+            context['error'] = e
+            print e
 
         # Ensure we got data back
         if (len(response.text) < 0):
-            context['error'] = "Error: No JSON was sent back."
-            return context
+            e = "Error: No JSON was sent back."
+            context['error'] = e
+            print e
 
         # Parse the json
+        json_data = None
         try:
             json_data = json.loads(response.text)
         except ValueError, error:
             context['error'] = "Error: " + str(error)
-            return context
+            print "Error: " + str(error)
 
         serializer = ProfileSerializer(data=json_data)
         # Ensure the data is valid
         if not serializer.is_valid():
             context['error'] = "Validation Error: " + str(serializer.errors)
+            print "Validation Error: " + str(serializer.errors)
 
         author_data = serializer.validated_data
 
@@ -263,7 +268,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             except KeyError, error:
                 # This means id, display name, node, or url was missing
                 context['error'] = "Key Error: " + str(error)
-                return context
+                print "Key Error: " + str(error)
+        print foreign_author
         context['profile_author'] = foreign_author
         context['is_friend'] = self.request.user.author.is_friend(foreign_author.id)
 
