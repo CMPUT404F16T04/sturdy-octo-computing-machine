@@ -4,7 +4,7 @@
         {% for post in posts_list %}
             <li class="post">
                 <div class="first-line">
-                    <h1>{{ post.title }}</h1>
+                    <a href="{% url 'view_remote_post' pk=post.id %} "><h1>{{ post.title }}</h1></a>
                 </div>
                 <div class="post-id-label">
                     {{ post.visibility }} post submitted by
