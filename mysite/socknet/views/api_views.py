@@ -294,6 +294,10 @@ class CommentsViewSet(APIView):
                 commie.author.id = commie.author.uuid
                 commie.author.host = "http://" + request.get_host() + "/api"
                 commie.author.displayName = commie.author.displayName
+                if commie.markdown:
+                    commie.contentType = "text/x-markdown"
+                else:
+                    commie.contentType = "text/plain"
 
             comments_serializer = SingleCommentSerializer(comments, many=True)
             response = {

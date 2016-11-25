@@ -180,11 +180,16 @@ class SingleCommentSerializer(serializers.ModelSerializer):
     comment = serializers.CharField(source='content', required=True)
     pubDate = serializers.DateTimeField(source='created_on', required=True)
     guid = serializers.CharField(source='id', max_length=36, required=True) # a uuid is 36 characters
+    contentType = serializers.SerializerMethodField('contyp')
+
+    def contyp(self, contyp):
+        if contyp.markdown:
+            return "text/x-markdown"
+        return "text/plain"
 
     class Meta:
         model = Comment
-        fields = ('author', 'guid', 'comment', 'pubDate')
-
+        fields = ('author', 'guid', 'comment', 'pubDate', 'contentType')
 
 class ProfileFriendSerializer(serializers.Serializer):
     #id = serializers.CharField(max_length = 64) # uuid is 36 characters
