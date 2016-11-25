@@ -15,8 +15,13 @@
 	    </div>
 	    <label for="content">Content</label>
 	    <div class="content-options">
-	        <div id="markdown-btn" class="btn btn-default">
-	            <input id="id_markdown" name="markdown" type="checkbox"  style="display: none;"/>
+			{% if post.markdown == True %}
+	        	<div id="markdown-btn" class="btn btn-default"  style="background-color: #E6E6E6;">
+            	<input id="id_markdown" name="markdown" type="checkbox"  style="display: none;" checked="checked"/>
+			{% else %}
+				<div id="markdown-btn" class="btn btn-default" style="background-color: white;">
+				<input id="id_markdown" name="markdown" type="checkbox"  style="display: none;"/>
+			{% endif %}
 	            Markdown
 	        </div>
 	        <select id="visibility-select" class="selectpicker" name="visibility">
@@ -27,7 +32,7 @@
 	          <option value="SERVERONLY">Server Only</option>
 	        </select>
 	        <label class="btn btn-default">
-	            Attach Image <input id="id_image" type="file" name="image" style="display: none;">
+	            Attach New Image <input id="id_image" type="file" name="image" style="display: none;">
 	        </label>
 	        <!-- Fill in the filename when a file is selected -->
 	        <span id="filename"></span>
@@ -45,7 +50,7 @@
 <script type="text/javascript">
     $('#id_image').change(function(){
         // Inform the user when a file has been selected
-		// From: http://stackoverflow.com/questions/6365858/use-jquery-to-get-the-file-inputs-selected-filename-without-the-path 
+		// From: http://stackoverflow.com/questions/6365858/use-jquery-to-get-the-file-inputs-selected-filename-without-the-path
         var filename = $('#id_image').val().split('\\').pop();
         $('#filename').text(filename)
     });

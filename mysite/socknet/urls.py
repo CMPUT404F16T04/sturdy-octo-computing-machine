@@ -42,7 +42,7 @@ urlpatterns = [
     # Images
     url(r'^images/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewImage.as_view(), name='view_image'),
     # Redirect static access through Authentication first.
-    url(r'^media/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewRawImage.as_view(), name='view_raw_image'),
+    url(r'^media/(?P<img>[0-9A-Fa-f-]+)$', post_views.raw_image_serve, name='view_raw_image'),
 
     # Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewProfile.as_view(), name='profile'),

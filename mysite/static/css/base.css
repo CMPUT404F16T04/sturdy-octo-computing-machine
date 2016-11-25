@@ -147,6 +147,11 @@ article.content {
     word-wrap: break-word;
 }
 
+/* Restrict the post's markdown image size */
+article > p > img {
+     max-width: 100%;
+}
+
 .post-actions {
     display:inline-flex;
 }

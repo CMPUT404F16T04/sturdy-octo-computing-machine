@@ -4,7 +4,7 @@ import json
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.views.generic.edit import DeleteView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
@@ -221,7 +221,14 @@ class CreatePost(LoginRequiredMixin, generic.edit.CreateView):
             img = ImageServ.objects.create_image(image_dat, self.request.user.author, form.instance, imagetype)
             # Update field of the created post with the image path.
             form.instance.imglink = img.id
+            link_str = "http://" + self.request.get_host() + "/media/" + str(img.id)
+            # If post already close to 512 max char, link may be cut or even not be there...
+            if form.instance.markdown:
+                form.instance.content = form.instance.content + "\n![Attached Image](" + link_str + ")"
+            else:
+                form.instance.content = form.instance.content + "\nLinked image: " + link_str
             form.instance.save(update_fields=['imglink'])
+            form.instance.save(update_fields=['content'])
         return http_res_obj
 
 class DeletePost(LoginRequiredMixin, generic.edit.DeleteView):
@@ -309,16 +316,16 @@ class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
         context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
         return context
 
-class ViewRawImage(LoginRequiredMixin, generic.base.TemplateView):
-    """ After authentication verification it opens image as blob and then
-    encode it to base64 and put that in the html.
-    """
-    model= ImageServ
-    template_name = "socknet/post_templates/imager.html"
-    login_url = '/login/' # For login mixin
-    def get_context_data(self, **kwargs):
-        context = super(ViewRawImage, self).get_context_data(**kwargs)
-        parent_key = self.kwargs.get('img')
-        imgobj = ImageServ.objects.get(pk=parent_key)
-        context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
-        return context
+"""
+No authentication, it opens image as blob and then
+encode it to base64 and put that in the html.
+"""
+def raw_image_serve(request, img):
+    imgobj = ImageServ.objects.get(pk=img)
+    imgdat = imgobj.image
+    #return FileResponse(imgobj.image)
+    r = HttpResponse()
+    r["Content-Type"] = imgobj.imagetype
+    r["Content-Length"] = len(imgdat)
+    r.write(imgdat)
+    return r

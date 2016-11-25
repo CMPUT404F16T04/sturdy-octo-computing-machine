@@ -28,21 +28,13 @@
     {{post.view_content|safe}}
 </article>
 <!-- # imglink uuid > 0 is because empty uuid is 32 0s -->
-{% if post.imglink > 0 %}
-    <script type='text/javascript'>
-      $.get("/media/{{post.imglink}}", function(data, status) {
-        if( status === "success") {
-          $('#{{post.id}}').html(data);
-          $('img').css("maxWidth", "100%")
-        }
-      });
-    </script>
+{% if post.imglink > 0 and post.markdown == False %}
     <p>
         <center>
         Attached Image:
         <br/>
         <a id="{{post.id}}" href="/images/{{post.imglink}}">
-            View Attached Image
+            <img src="/media/{{post.imglink}}" alt="View Attached Image" style="max-width:100%"></img>
         </a>
         </center>
     </p>
