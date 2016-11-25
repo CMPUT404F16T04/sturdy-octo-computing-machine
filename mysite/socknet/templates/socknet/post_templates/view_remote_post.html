@@ -3,18 +3,22 @@
 
 <div class="content-box">
         <div class="first-line">
-            <h1>{{ post.title }}</h1>
+            <h1>{{ postdat.title }}</h1>
         </div>
+        {% if postdat.author_id is not None %}
         <div class="post-id-label">
-            {{ post.visibility }} post submitted by
-            <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
-            on {{ post.published }} from {{ post.node.name }}
+            {{ postdat.visibility }} post submitted by
+            <a class="author-label" href="{% url 'remote_profile' nodeID=postdat.node.id authorUUID=postdat.author_id %}">{{ postdat.author_display_name }}</a>
+            on {{ postdat.published }} from {{ postdat.node.name }}
         </div>
+        {% else %}
+            Error loading post author: {{error}}
+        {% endif %}
         <div class="post-description">
-            {{post.description}}
+            {{postdat.description}}
         </div>
         <article class="content">
-            {{post.content|safe}}
+            {{postdat.content|safe}}
         </article>
         <div class="post-actions">
             <div class="action">

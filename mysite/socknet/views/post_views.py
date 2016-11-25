@@ -51,7 +51,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
         #r = requests.get('https://api-bloggyblog404.herokuapp.com/posts/', auth=HTTPBasicAuth('test', 'test'))
         posts = []
         for n in Node.objects.all():
-            print "Fetching data from Node: " + n.name
+            print "Fetching Post Lists data from Node: " + n.name
             url = n.url
             # In case entered like host.com/api instead of host.com/api/
             if url[-1] is not "/":
@@ -63,7 +63,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                     data = json.loads(r.text)
                 except ValueError, e:
                     print("Error from group: " + n.name)
-                    print(e)
+                    print(str(e))
                     #posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
                 try:
                     for post_json in data['posts']:
@@ -82,8 +82,9 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                             posts.append(post)
                 except KeyError, e:
                     print("Error from group: " + n.name)
-                    print(e)
-                    #posts.append(RemotePost("0", "Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
+                    print(str(e))
+        if len(posts) > 0:
+            return sorted(posts, reverse=True, key=lambda RemotePost: RemotePost.published)
         return posts
 
     def test_func(self):
@@ -125,12 +126,14 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         pid = self.kwargs['pk']
 
         comments = []
+        post_original = None
         for n in Node.objects.all():
-            print "Fetching data from Node: " + n.name
+            print "Fetching Post & Comment data from Node: " + n.name
             url = n.url
             # In case entered like host.com/api instead of host.com/api/
             if url[-1] is not "/":
                 url = url + "/"
+            print "API URL: " + url
             rpost = requests.get(url + 'posts/' + str(pid), auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
             r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
             print "Response received"
@@ -141,41 +144,47 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
 
             # Ensure we got a 200
             if r.status_code is not 200:
-                context['error'] = "Error: Response code of url/posts/{id}/comments was " + str(r.status_code)
-                return context
+                err = "Error: Response code of url/posts/{id}/comments was " + str(r.status_code)
+                context['error'] = err
+                print err
             if rpost.status_code is not 200:
-                context['error'] = "Error: Response code of url/posts/{id} was " + str(r.status_code)
-                return context
-
+                err = "Error: Response code of url/posts/{id} was " + str(r.status_code)
+                context['error'] = err
+                print err
             # Ensure we got data back
             if (len(r.text) < 0):
-                context['error'] = "Error: No JSON from url/posts/{id}/comments was sent back."
-                return context
+                err = "Error: No JSON from url/posts/{id}/comments was sent back."
+                context['error'] = err
+                print err
             if (len(rpost.text) < 0):
-                context['error'] = "Error: No JSON from url/posts/{id} was sent back."
-                return context
-
-            data = {}
-            postdata = None
+                err = "Error: No JSON from url/posts/{id} was sent back."
+                context['error'] = err
+                print err
+            datafind = {}
+            postfind = None
             try:
-                data = json.loads(r.text)
-                postdata = json.loads(rpost.text)
+                postfind = json.loads(rpost.text)
+                datafind = json.loads(r.text)
             except ValueError, error:
                 context['error'] = "Error: " + str(error)
-                return context
+                print("ValueError json loads in post_views.py ViewRemotePost" + str(error))
             try:
-                for i in data['comments']:
+                if postfind is not None :
+                    postdat = postfind['posts']
+                    post_original = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
+                                postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
+                for i in datafind['comments']:
                     # at utils.py RemoteComment((self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node)
                     dat = RemoteComment(i['guid'], "", i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
                     comments.append(dat)
-                if postdata['count'] > 0:
-                    postdat = postdata['posts']
-                    postdata = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
-                                postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
             except KeyError, error:
-                context['error'] = "Error: KeyError, " + str(error)
-                return context
-        context['post'] = postdata
+                context['error'] = "Error: comments KeyError, " + str(error)
+                print("KeyError json loads for comments in post_views.py ViewRemotePost" + str(error))
+        try:
+            context['post_auth_id'] = post_original.author_id
+        except AttributeError, error:
+            context['post_auth_id'] = None
+        context['postdat'] = post_original
         context['num_comments'] = len(comments)
         context['comments_list'] = comments
         return context
