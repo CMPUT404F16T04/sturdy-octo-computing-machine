@@ -477,7 +477,8 @@ class ProfileView(APIView):
         try:
             author = Author.objects.get(uuid=authorid)
             author.host = request.get_host()
-
+            # 'ForeignAuthor' object has no attribute 'uuid' thus assign it.
+            author.id = author.uuid
             serializer = ProfileSerializer(author)
 
             author.host = "http://" + request.get_host() +  "/api"
