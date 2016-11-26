@@ -53,7 +53,7 @@
     {% endfor %}
 </ol>
 {% if not posts %}
-<h2>No Posts</h2>
+    <h2>No Posts</h2>
 {% endif %}
 {% endblock %}
 
@@ -67,6 +67,10 @@
         // Set text of friend button based on current relationship
         if("{{ is_friend }}" === "False") {
             $('#friend_anchor').text("Send Friend Request");
+        } else {
+            $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> Friends</span>");
+            $('#friend_anchor').removeAttr("href");
+            $('#friend_anchor').css('cursor', 'default');
         }
 
         $('#friend_anchor').click(function (e) {
@@ -104,6 +108,7 @@
             $('#'+id).removeAttr("href");
             $('#'+id).css("background-color", "#EEEEEE")
             $('#'+id).text("Friend Request Sent")
+            $('#friend_anchor').css('cursor', 'default');
         }
     });
 </script>

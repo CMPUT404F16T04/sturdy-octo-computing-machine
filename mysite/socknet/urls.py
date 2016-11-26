@@ -8,32 +8,32 @@ from socknet.forms import CustomAuthenticationForm
 from socknet.views import api_views, admin_views, author_views, post_views
 
 urlpatterns = [
-    # API
-
+    # API: Friends
     url(r'^api/friends/(?P<authorid1>[0-9A-Fa-f-]+)/(?P<authorid2>[0-9A-Fa-f-]+)/', api_views.IsFriendQuery.as_view(), name="api_is_friend_query"),
     url(r'^api/friends/(?P<authorid>[0-9A-Fa-f-]+)/$', api_views.FriendsQuery.as_view(), name="api_friend_query"),
     url(r'^api/friendrequest/', api_views.FriendRequest.as_view(), name="api_friend_request"),
 
+    # API: Posts
     url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/$', api_views.PostIDQuery.as_view(), name="api_posts_id"),
     url(r'^api/posts/$', api_views.PostsQuery.as_view(), name="api_posts"),
+    url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/comments$', api_views.CommentsViewSet.as_view(), name="api_comments"),
+    url(r'^api/images/(?P<img>[0-9A-Fa-f-]+)$', api_views.ViewApiRawImage.as_view(), name='view_api_raw_image'),
+
+    # API: Author
     url(r'^api/author/posts', api_views.AuthorPostsViewSet.as_view(), name="api_author_posts"),
     url(r'^api/author/(?P<auth_id>[0-9A-Fa-f-]+)/posts/$', api_views.AuthorViewAllTheirPosts.as_view(), name="api_authors_posts"),
     url(r'^api/author/(?P<authorid>[0-9A-Fa-f-]+)/$', api_views.ProfileView.as_view(), name="api_profile_view"),
 
-    url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/comments$', api_views.CommentsViewSet.as_view(), name="api_comments"),
-
-    url(r'^api/images/(?P<img>[0-9A-Fa-f-]+)$', api_views.ViewApiRawImage.as_view(), name='view_api_raw_image'),
-
-    # Posts
+    # Local Posts
     url(r'^$', post_views.ListPosts.as_view(), name='list_posts'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewPost.as_view(), name='view_post'),
     url(r'^posts/create/$', post_views.CreatePost.as_view(), name='create_post'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/delete/$', post_views.DeletePost.as_view(), name='author_check_delete'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/update/$', post_views.UpdatePost.as_view(), name='author_check_update'),
 
+    # Remove Posts
     url(r'^remote_posts/$', post_views.ListRemotePosts.as_view(), name='list_remote_posts'),
     url(r'^remote_posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewRemotePost.as_view(), name='view_remote_post'),
-
 
     # Comments
     url(r'^comment/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewComment.as_view(), name='view_comment'),
@@ -44,10 +44,12 @@ urlpatterns = [
     # Redirect static access through Authentication first.
     url(r'^media/(?P<img>[0-9A-Fa-f-]+)$', post_views.raw_image_serve, name='view_raw_image'),
 
-    # Profile
+    # Local Profile
     url(r'^profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewProfile.as_view(), name='profile'),
-    url(r'^remote_node/(?P<nodeID>[0-9]+)/remote_profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewRemoteProfile.as_view(), name='remote_profile'),
     url(r'^edit_profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.EditProfile.as_view(), name='editprofile'),
+
+    # Remote Profile
+    url(r'^remote_node/(?P<nodeID>[0-9]+)/remote_profile/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ViewRemoteProfile.as_view(), name='remote_profile'),
 
     # Friend Management
     url(r'^friends/(?P<authorUUID>[0-9A-Fa-f-]+)/$', author_views.ManageFriends.as_view(), name='manage_friends'),
