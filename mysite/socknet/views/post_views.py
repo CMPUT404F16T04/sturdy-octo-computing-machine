@@ -315,9 +315,11 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CreateForeignComment, self).get_context_data(**kwargs)
-        context['foreign_pid'] = self.kwargs.get('pk')
+        pid = self.kwargs.get('pk')
         node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
-        make_comment_url = HTMLsafe.get_url_fixed(node_obj.url)
+        # POST to http://service/posts/{POST_ID}/comments
+        make_comment_url = HTMLsafe.get_url_fixed(node_obj.url) + "posts/" + pid + "/comments"
+        context['foreign_pid'] = pid
         context['foreign_node'] = node_obj
         context['create_comment_api'] = make_comment_url
         return context
