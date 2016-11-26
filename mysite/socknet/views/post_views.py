@@ -61,7 +61,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 data = {}
                 try:
                     data = json.loads(r.text)
-                except ValueError, e:
+                except Exception as e:
                     print("Error from group: " + n.name)
                     print(str(e))
                     #posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
@@ -80,7 +80,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                             post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
                                 post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
                             posts.append(post)
-                except KeyError, e:
+                except Exception as e:
                     print("Error from group: " + n.name)
                     print(str(e))
         if len(posts) > 0:

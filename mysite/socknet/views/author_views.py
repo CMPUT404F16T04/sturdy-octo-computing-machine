@@ -299,10 +299,9 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             data = {}
             try:
                 data = json.loads(r.text)
-            except e:
+            except Exception as e:
                 print("Error from group: " + n.name)
                 print(e)
-                #posts.append(RemotePost("Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error", "Error"))
             try:
                 for post_json in data['posts']:
                     posts_serializer = PostsSerializer(data=post_json)
@@ -317,10 +316,9 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                             post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],node)
                         posts.append(post)
                 context['posts'] = posts
-            except KeyError, e:
+            except Exception as e:
                 print("Error from group: " + n.name)
                 print(e)
-                #posts.append(RemotePost("Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error", "Error"))
 
         return context
 
