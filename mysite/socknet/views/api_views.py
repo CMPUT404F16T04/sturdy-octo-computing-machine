@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
 from socknet.models import Author, Post, ImageServ, Comment
-from socknet import external_requests
 
 ### HELPER FUNCTIONS ###
 
@@ -437,7 +436,7 @@ class FriendRequest(APIView):
 
         # If neither author is local, we shouldn't be getting the request.
         if (author is None) and (friend is None):
-            print("The Author are not local")
+            print("FRIEND REQUEST ERROR: The authors are not local")
             return Response({'Error': 'Neither author is local to this server.'}, status.HTTP_400_BAD_REQUEST)
 
         # If either author is forgein, we should create them in the db if they are not there already.
@@ -445,23 +444,31 @@ class FriendRequest(APIView):
             if ForeignAuthor.objects.filter(id=author_data['id']).exists():
                 author = ForeignAuthor.objects.get(id=author_data['id'])
             else:
-                node = Node.objects.get(url=author_data['host'])
+                node = None
+                try:
+                    node = Node.objects.get(url=author_data['host'])
+                except Author.DoesNotExist:
+                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node)
                 author.save()
-            # Friend exists on our server. We should forward this request to the other server and record that we sent the request.
+            # Friend exists on our server. Add the friend to the author's pending foreign friends list.
             friend.pending_foreign_friends.add(author)
-            return Response(status=status.HTTP_200_OK)
+            return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         if (friend is None):
             if ForeignAuthor.objects.filter(id=friend_data['id']).exists():
                 friend = ForeignAuthor.objects.get(id=friend_data['id'])
             else:
-                node = Node.objects.get(url=friend_data['host'])
+                node = None
+                try:
+                    node = Node.objects.get(url=author_data['host'])
+                except Author.DoesNotExist:
+                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node)
                 friend.save()
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
             author.pending_foreign_friends.add(friend)
-            return Response(status=status.HTTP_200_OK)
+            return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         # If we got here, then both authors are local.
         friend.follow(author)
@@ -480,11 +487,9 @@ class ProfileView(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
             author = Author.objects.get(uuid=authorid)
-            author.host = request.get_host()
             # 'ForeignAuthor' object has no attribute 'uuid' thus assign it.
             author.id = author.uuid
             serializer = ProfileSerializer(author)
-
             author.host = "http://" + request.get_host() +  "/api"
 
             return Response(serializer.data)
