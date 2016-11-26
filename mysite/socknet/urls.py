@@ -38,6 +38,7 @@ urlpatterns = [
     # Comments
     url(r'^comment/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewComment.as_view(), name='view_comment'),
     url(r'^posts/(?P<post_pk>[0-9A-Fa-f-]+)/comments/create/$', post_views.CreateComment.as_view(), name='create_comment'),
+    url(r'^remote_posts/(?P<pk>[0-9A-Fa-f-]+)/remote-node/(?P<nodeID>[0-9]+)/comments/create/$', post_views.CreateForeignComment.as_view(), name='create_foreign_comment'),
 
     # Images
     url(r'^images/(?P<img>[0-9A-Fa-f-]+)$', post_views.ViewImage.as_view(), name='view_image'),

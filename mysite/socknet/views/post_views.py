@@ -11,7 +11,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from socknet.models import *
 from socknet.forms import *
 from socknet.serializers import *
-from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment
+from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment, HTMLsafe
 
 # For images
 import os
@@ -52,10 +52,9 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
         posts = []
         for n in Node.objects.all():
             print "Fetching Post Lists data from Node: " + n.name
-            url = n.url
+            url = HTMLsafe.get_url_fixed(n.url)
             # In case entered like host.com/api instead of host.com/api/
-            if url[-1] is not "/":
-                url = url + "/"
+            print url
             r = requests.get(url + 'posts/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
             if (len(r.text) > 0):
                 data = {}
@@ -129,10 +128,8 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         post_original = None
         for n in Node.objects.all():
             print "Fetching Post & Comment data from Node: " + n.name
-            url = n.url
+            url = HTMLsafe.get_url_fixed(n.url)
             # In case entered like host.com/api instead of host.com/api/
-            if url[-1] is not "/":
-                url = url + "/"
             print "API URL: " + url
             rpost = requests.get(url + 'posts/' + str(pid), auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
             r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
@@ -309,6 +306,28 @@ class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
         parent_key = (self.kwargs.get('post_pk'))
         form.instance.parent_post = Post(id=parent_key)
         return super(CreateComment, self).form_valid(form)
+
+class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
+    """ Displays a form for creating a new foreign comment """
+    template_name = 'socknet/post_templates/create_foreign_comment.html'
+    fields = ['content', 'markdown']
+    login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateForeignComment, self).get_context_data(**kwargs)
+        context['foreign_pid'] = self.kwargs.get('pk')
+        node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
+        make_comment_url = HTMLsafe.get_url_fixed(node_obj.url)
+        context['foreign_node'] = node_obj
+        context['create_comment_api'] = make_comment_url
+        return context
+    """
+    def form_valid(self, form):
+        form.instance.author = self.request.user.author
+        parent_key = (self.kwargs.get('post_pk'))
+        form.instance.parent_post = Post(id=parent_key)
+        return super(CreateComment, self).form_valid(form)
+        """
 
 class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
     """ Get the normal image view. """
