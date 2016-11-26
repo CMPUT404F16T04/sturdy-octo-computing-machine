@@ -109,9 +109,9 @@ class RemoteComment():
         self.author_id = author_id
         self.author_host = auth_host
         self.node = node
-        if content_type is "text/plain":
+        if content_type == "text/plain":
             self.content = HTMLsafe.get_converted_content(False, content)
-        elif content_type is "text/markdown" or content_type is "text/x-markdown":
+        elif content_type == "text/markdown" or content_type == "text/x-markdown":
             self.content = HTMLsafe.get_converted_content(True, content)
         else:
             self.content = HTMLsafe.get_converted_content(False, content)

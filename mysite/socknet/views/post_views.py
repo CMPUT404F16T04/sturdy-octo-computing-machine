@@ -175,7 +175,7 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
                                 postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
                 for i in datafind['comments']:
                     # at utils.py RemoteComment((self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node)
-                    dat = RemoteComment(i['guid'], "", i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
+                    dat = RemoteComment(i['guid'], i['contentType'], i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
                     comments.append(dat)
             except KeyError, error:
                 context['error'] = "Error: comments KeyError, " + str(error)
