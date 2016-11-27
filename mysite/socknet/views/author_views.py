@@ -51,12 +51,17 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
         if request.is_ajax():
             # We are sending ajax POSTs from "follow" button
             decoded_json = json.loads(request.body)
-            friend_uuid = decoded_json['friend']['id']
+            friend_uuid = decoded_json['friend_id']
             friend = Author.objects.get(uuid=friend_uuid)
+            author = request.user.author
+            if author in friend.who_im_following.all():
+                author.accept_friend_request(friend_uuid, True)
+            else:
+                request.user.author.follow(friend)
             return HttpResponse(status=200)
         else:
             # Returning 500 right now since nothing else should be posting to this page
-            return HttpResponse(status=500)
+            return HttpResponse(status=400)
 
 class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     model = Author
@@ -160,16 +165,13 @@ class ManageFollowing(LoginRequiredMixin, generic.base.TemplateView):
             return ForbiddenContent403.denied()
         if request.is_ajax():
             decoded_json = json.loads(request.body)
-            action = decoded_json['action']
             friend_uuid = decoded_json['friend_id']
             friend = Author.objects.get(uuid=friend_uuid)
             author = request.user.author
-            if action == "unfollow":
-                author.unfollow(friend)
-                return HttpResponse(status=200)
-            else:
-                return HttpResponse(status=500)
-
+            author.unfollow(friend)
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=400)
 
 class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
     """ Accept and decline pending friend requests """

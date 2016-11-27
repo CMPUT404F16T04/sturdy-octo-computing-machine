@@ -8,13 +8,13 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Author</th>
-                            <th>Actions</th>
+                            <th class="col-md-10">Author</th>
+                            <th  class="col-md-2">Actions</th>
                         </tr>
                     </thead>
                     {% for follower in user.author.get_following_only %}
                     <tr id="{{follower.uuid}}">
-                        <td class="col-md-5">{{follower.displayName}}</td>
+                        <td class="col-md-10">{{follower.displayName}}</td>
                         <td class="col-md-2">
                             <a href="#" class="friend-anchor btn btn-danger btn-xs"
                             data-uuid="{{ follower.uuid }}" data-username="{{ follower.name }}">
@@ -43,7 +43,6 @@
             console.log("Author wants to unfollow: "+$(this).data("username"));
             // Unfollow with ajax so we don't have to reload the page.
             var jsonData = {
-                "action": "unfollow",
                 "friend_id": friendUUID
             };
             var jsonStr = JSON.stringify(jsonData);

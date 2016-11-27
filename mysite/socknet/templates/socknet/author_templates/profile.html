@@ -52,11 +52,8 @@
 
 {% block scripts %}
 {% load static from staticfiles %}
-<script src="{% static 'js/friend_request_handler.js' %}"></script>
 <script type="text/javascript">
-    // authorUUID and url are needed in friend_request_handler (above)
-    var authorUUID = "{{ user.author.uuid }}";
-    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+    var url = "{% url 'profile' authorUUID=user.author.uuid %}";
 
     $(document).ready(function() {
         console.log("Profile is loaded");
@@ -64,16 +61,65 @@
         if ("{{ user.author.uuid }}" !== "{{ profile_author.uuid }}") {
             // Set text of friend button based on current relationship
             if("{{ button_action }}" === "unfriend") {
-                $('#friend_anchor').text("Unfriend");
+                $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> Friends</span>");
+                $('#friend_anchor').removeAttr("href");
+                $('#friend_anchor').css("background-color", "#DDDDDD")
+                $('#friend_anchor').css('cursor', 'default');
             } else if ("{{ button_action }}" === "follow") {
                 $('#friend_anchor').text("Follow");
             } else if ("{{ button_action }}" === "accept_friend_request") {
-                $('#friend_anchor').text("Accept Friend Request");
+                $('#friend_anchor').text("Follow");
+                $('#friend_anchor').data("status" , "follow");
             } else if ("{{ button_action }}" === "unfollow") {
-                $('#friend_anchor').text("Unfollow");
+                $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> Following</span>");
+                $('#friend_anchor').removeAttr("href");
+                $('#friend_anchor').css("background-color", "#DDDDDD")
+                $('#friend_anchor').css('cursor', 'default');
             }
         }
+
+        // Handles ajax calls to send friend request and follow someone
+        $('.friend-anchor').click(function () {
+            var id = $(this).attr('id');
+            var status = $(this).data("status");
+            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
+            var friendUUID = $(this).data("uuid");
+            var is_local = $(this).data("islocal");
+
+            // HANDLE FOLLOW ACTION
+            if (status == "follow") {
+                console.log("This author wants to follow: "+$(this).data('username'));
+                // Follow with ajax so we don't have to reload the page.
+                var jsonData = {
+                    "friend_id": friendUUID
+                    }
+                var jsonStr = JSON.stringify(jsonData)
+                console.log(jsonStr);
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: jsonStr,
+                    contentType: "application/json",
+                    success: function () { followSuccess(); },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                });
+            }
+
+        });
+
+        function followSuccess() {
+            console.log("Follow successful!");
+            $('#friend_anchor').data("status" , "unfollow");
+            $('#friend_anchor').removeAttr("href");
+            $('#friend_anchor').css("background-color", "#DDDDDD")
+            $('#friend_anchor').text("");
+            $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> Following</span>");
+            $('#friend_anchor').css('cursor', 'default');
+            $('#friend_anchor').blur()
+        }
+
     });
 </script>
-
 {% endblock scripts %}

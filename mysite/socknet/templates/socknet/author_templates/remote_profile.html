@@ -71,6 +71,7 @@
             $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> Friends</span>");
             $('#friend_anchor').removeAttr("href");
             $('#friend_anchor').css('cursor', 'default');
+            $('#friend_anchor').css("background-color", "#DDDDDD")
         }
 
         $('#friend_anchor').click(function (e) {
@@ -103,12 +104,11 @@
 
         function friendSuccess(id) {
             console.log("Friend successful!");
-            console.log(id);
-            $('#'+id).data("status" , "Pending");
             $('#'+id).removeAttr("href");
-            $('#'+id).css("background-color", "#EEEEEE")
+            $('#'+id).css("background-color", "#DDDDDD")
             $('#'+id).text("Friend Request Sent")
-            $('#friend_anchor').css('cursor', 'default');
+            $('#'+id).css('cursor', 'default');
+            $('#'+id).blur();
         }
     });
 </script>
