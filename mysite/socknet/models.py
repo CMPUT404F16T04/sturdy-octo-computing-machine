@@ -8,6 +8,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 import uuid
 from itertools import chain
+from socknet.utils import is_FOAF_local
 
 class Node(models.Model):
     """
@@ -285,9 +286,9 @@ class PostManager(models.Model):
             friend_posts = Post.objects.filter(author=profile_author, visibility='FRIENDS')
             foaf_posts = Post.objects.filter(author=profile_author, visibility="FOAF")
             server_friends_posts = Post.objects.filter(author=profile_author, visibility="SERVERONLY")
-
-            # I am a FOAF
-
+        elif is_FOAF_local(current_author, profile_author):
+            # If I am a FOAF, then I can only see FRIENDS
+            foaf_posts = Post.objects.filter(author=profile_author, visibility="FOAF")
 
         # Combine the query sets, sort by most recent
         visible_posts = sorted(

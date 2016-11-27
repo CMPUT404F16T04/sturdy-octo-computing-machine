@@ -189,7 +189,9 @@ def is_FOAF_local(viewing_author, profile_author):
         - Check if any of the viewers friends are the profile author's friends
     """
     viewers_friends = viewing_author.get_all_friend_uuids()
-    profile_friends = viewing_author.get_all_friend_uuids()
+    print(viewers_friends)
+    profile_friends = profile_author.get_all_friend_uuids()
+    print(profile_friends)
     intersect = list(set(viewers_friends) & set(profile_friends))
     if len(intersect):
         return True
