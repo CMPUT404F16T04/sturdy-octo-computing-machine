@@ -45,7 +45,7 @@ class AuthorPostsViewSet(APIView):
             SEND EVERYTHING BUT SERVERONLY BECAUSE HINDLE SAID ITS THE CLIENTS
             RESPONSIBILITY TO FILTER SHIT
             """
-            final_queryset = Post.objects.filter(author=auth_obj).exclude(visibility="SERVERONLY").order_by('-created_on')
+            final_queryset = Post.objects.exclude(visibility="SERVERONLY").order_by('-created_on')
 
             paginator = PostsPagination()
             posts = paginator.paginate_queryset(final_queryset, request)
