@@ -118,3 +118,61 @@ class RemoteComment():
 
     def __str__(self):
         return "Comment: " + self.content + " by " + self.author_display_name + " " + self.author_host
+
+class PostDetails():
+    """
+    - An object that represents the details of a post
+    - Used for combining local and remote posts into 1 display
+    """
+    def __init__(self, post, is_local, node=None, uuid=None):
+        # Node and uuid are REQUIRED for remote posts
+        if is_local:
+            self.create_from_local_post(post)
+        else:
+            self.create_from_remote_post(post, node, uuid)
+
+    def create_from_local_post(self, local_post):
+        """
+        Create PostDetails based off of a local post
+        """
+        self.id = local_post.id
+        self.is_local = True
+        self.title = local_post.title
+        self.description = local_post.description
+        self.content = local_post.content
+        self.visibility = local_post.visibility
+        self.published = local_post.created_on
+        self.author_display_name = local_post.author.displayName
+        self.author_id = local_post.author.uuid
+        self.node = None
+
+
+    def create_from_remote_post(self, post_data, node, uuid):
+        """
+        Create PostDetails based off VALIDATED remote post data.
+        Expects the json for a single post.
+
+        Note: This function can throw a key error!
+        """
+        self.id = uuid
+        self.is_local = False
+        self.title = post_data['title']
+        self.description = post_data['description']
+        self.visibility = post_data['visibility']
+        self.published = post_data['published']
+        self.node = node
+
+        # Author fields
+        post_author = post_data['author']
+        self.author_display_name =  post_author['displayName']
+        self.author_id = post_author['id']
+
+        # Set content according to content type
+        content_type = post_data['contentType']
+        content = post_data['content']
+        if content_type == "text/plain":
+            self.content = HTMLsafe.get_converted_content(False, content)
+        elif content_type == "text/markdown" or content_type == "text/x-markdown":
+            self.content = HTMLsafe.get_converted_content(True, content)
+        else:
+            self.content = HTMLsafe.get_converted_content(False, content)

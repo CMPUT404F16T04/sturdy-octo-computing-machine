@@ -31,9 +31,12 @@ urlpatterns = [
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/delete/$', post_views.DeletePost.as_view(), name='author_check_delete'),
     url(r'^posts/(?P<pk>[0-9A-Fa-f-]+)/update/$', post_views.UpdatePost.as_view(), name='author_check_update'),
 
-    # Remove Posts
+    # Remote Posts
     url(r'^remote_posts/$', post_views.ListRemotePosts.as_view(), name='list_remote_posts'),
     url(r'^remote_posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewRemotePost.as_view(), name='view_remote_post'),
+
+    # Friends Posts (both local and remote)
+    url(r'^friends_posts/$', post_views.ListFriendsPosts.as_view(), name='list_friends_posts'),
 
     # Comments
     url(r'^comment/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewComment.as_view(), name='view_comment'),

@@ -4,12 +4,14 @@
         {% for post in posts_list %}
             <li class="post">
                 <div class="first-line">
-                    <a href="{% url 'view_remote_post' pk=post.id %} "><h1>{{ post.title }}</h1></a>
+                    <a href="{% url 'view_remote_post' pk=post.id %} ">
+                        <h3>{{ post.title }}</h3>
+                    </a>
                 </div>
                 <div class="post-id-label">
                     {{ post.visibility }} post submitted by
                     <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
-                    on {{ post.published }} from {{ post.node.name }}
+                    on {{ post.published }} from <span class="server-label">{{ post.node.name }}</span>
                 </div>
                 <div class="post-description">
                     {{post.description}}
@@ -24,6 +26,8 @@
         {% endfor %}
     </ol>
     {% if not posts_list %}
-    <h2>No Posts</h2>
+        <div class="content-box">
+            <h2>No remote posts to display :(</h2>
+        </div>
     {% endif %}
 {% endblock %}

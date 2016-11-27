@@ -37,6 +37,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'list_friends_posts' %}">
+                            <div class="glyphicon glyphicon-star navbar-icon"></div>
+                            Friends Posts
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'create_post' %}">
                             <div class="glyphicon glyphicon-pencil navbar-icon"></div>
                             New Post
@@ -51,7 +57,7 @@
                                 <span id="fr-label" class="navbar-fr-label badge">{{ user.author.get_pending_friend_request_count }}</span>
                                 {% endif %}
                             </div>
-                            Friends
+                            Friends Management
                             <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">

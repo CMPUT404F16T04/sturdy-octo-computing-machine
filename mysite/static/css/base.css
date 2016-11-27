@@ -136,6 +136,11 @@ li.post {
     color: #8F8E8E;
 }
 
+.server-label {
+    font-family: 'Roboto', sans-serif;
+    color: #006993;
+}
+
 .post-description {
     font-style: italic;
     color: #8F8E8E;

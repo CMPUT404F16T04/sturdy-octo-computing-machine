@@ -249,46 +249,31 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             context['error'] = "Error: " + str(error)
             print "Error: " + str(error)
 
-        serializer = ProfileSerializer(data=json_data)
-        # Ensure the data is valid
-        if not serializer.is_valid():
-            context['error'] = "Validation Error: " + str(serializer.errors)
-            print "Validation Error: " + str(serializer.errors)
+        if json_data: # Only do stuff if we actually have data
+            serializer = ProfileSerializer(data=json_data)
+            # Ensure the data is valid
+            if not serializer.is_valid():
+                context['error'] = "Validation Error: " + str(serializer.errors)
+                print "Validation Error: " + str(serializer.errors)
 
-        author_data = serializer.validated_data
+            author_data = serializer.validated_data
 
-        # If the author is not in the db, create a new model
-        foreign_author = None
-        try:
-            foreign_author = ForeignAuthor.objects.get(id=authorUUID)
-        except ForeignAuthor.DoesNotExist:
+            # If the author is not in the db, create a new model
+            foreign_author = None
             try:
-                foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
-                foreign_author.save()
-            except KeyError, error:
-                # This means id, display name, node, or url was missing
-                context['error'] = "Key Error: " + str(error)
-                print "Key Error: " + str(error)
-        print foreign_author
-        context['profile_author'] = foreign_author
-        context['is_friend'] = self.request.user.author.is_friend(foreign_author.id)
-
-        """
-        # Ask if the authors are friends
-        response = requests.get(url + 'friends/' + authorUUID + "/" + str(self.request.user.author.uuid) + "/", auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
-        # Ensure we got a 200
-        if (response.status_code is not 200) or (len(response.text) < 0):
-            # If we couldn't check then display an error
-            context['is_friend'] = "Error"
-            return context
-        else:
-            try:
-                json_data = json.loads(response.text)
-                context['is_friend'] = json_data['friends']
-            except:
-                # We will error if there is no friends in the json or the json could not be parsed
-                context['is_friend'] = "Error"
-        """
+                foreign_author = ForeignAuthor.objects.get(id=authorUUID)
+            except ForeignAuthor.DoesNotExist:
+                try:
+                    foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
+                    foreign_author.save()
+                except KeyError, error:
+                    # This means id, display name, node, or url was missing
+                    context['error'] = "Key Error: " + str(error)
+                    print "Key Error: " + str(error)
+            print foreign_author
+            if foreign_author: # Only do stuff if we actually have data
+                context['profile_author'] = foreign_author
+                context['is_friend'] = self.request.user.author.is_friend(foreign_author.id)
 
         """
         Get the remote author's posts
@@ -357,9 +342,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                     }
                 }
                 json_data = json.dumps(data) # encode
-                print(json_data)
-                print(url + "friendrequest/")
                 response = requests.post(url=url + "friendrequest/", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+                print("RESPONSE FROM SENDING FRIEND REQUEST")
                 print(response.status_code)
                 print(response)
                 return HttpResponse(status=200)
