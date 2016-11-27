@@ -42,19 +42,10 @@ class AuthorPostsViewSet(APIView):
 
         try:
             """
-            Never send server only
+            SEND EVERYTHING BUT SERVERONLY BECAUSE HINDLE SAID ITS THE CLIENTS
+            RESPONSIBILITY TO FILTER SHIT
             """
-            # All of the user's PUBLIC posts
-            public_queryset = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
-            # All of the user's PRIVATE posts
-            private_queryset = Post.objects.filter(visibility="PRIVATE", author__user=self.request.user).order_by('-created_on')
-            # TODO All of the user's FRIEND posts
-            friends_queryset = Post.objects.filter(visibility="FRIENDS", author__friends__user=self.request.user )
-            # TODO All of the user's FOAF posts
-
-            # Koliber Services
-            # http://stackoverflow.com/questions/1125844/howto-merge-2-django-querysets-in-one-and-make-a-select-distinct
-            final_queryset = public_queryset | server_queryset | private_queryset | friends_queryset
+            final_queryset = Post.objects.exclude(visibility="SERVERONLY").order_by('-created_on')
 
             paginator = PostsPagination()
             posts = paginator.paginate_queryset(final_queryset, request)

@@ -255,7 +255,7 @@ class Post(models.Model):
         elif (self.visibility == 'PRIVATE'):
             return 'Private'
         elif (self.visibility == 'SERVERONLY'):
-            return 'Server Only'
+            return 'Server Friends'
         else:
             return 'Unknown'
 
@@ -278,15 +278,21 @@ class PostManager(models.Model):
 
         public_posts = Post.objects.filter(author=profile_author, visibility='PUBLIC')
         friend_posts = {}
-        foaf_posts = {} # TODO IMPLEMENT FOAF
-        server_only_posts = {} # TODO IMPLEMENT SERVER ONLY
+        foaf_posts = {}
+        server_friends_posts = {}
 
         if current_author in profile_author.friends.all():
+            # If we are friends, then I can see FRIENDS, FOAF, and SERVERONLY
             friend_posts = Post.objects.filter(author=profile_author, visibility='FRIENDS')
+            foaf_posts = Post.objects.filter(author=profile_author, visibility="FOAF")
+            server_friends_posts = Post.objects.filter(author=profile_author, visibility="SERVERONLY")
+        
+            # I am a FOAF
+
 
         # Combine the query sets, sort by most recent
         visible_posts = sorted(
-            chain(public_posts, friend_posts, foaf_posts, server_only_posts),
+            chain(public_posts, friend_posts, foaf_posts, server_friends_posts),
             key=lambda instance: instance.created_on, reverse=True)
 
         return visible_posts
