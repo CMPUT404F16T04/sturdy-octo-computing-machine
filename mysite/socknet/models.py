@@ -66,7 +66,7 @@ class Author(models.Model):
     github_url = models.URLField(blank=True)
     about_me = models.CharField(max_length=1000, blank=True)
     birthday = models.DateField(null=True,blank=True)
-    displayName = models.CharField(max_length=64, blank=True)
+    displayName = models.CharField(max_length=150, blank=True)
     url = models.URLField(blank=True)
     host = models.URLField(default='')
 
@@ -105,7 +105,7 @@ class Author(models.Model):
         all_pending = []
         local_pending = self.get_pending_local_friend_requests()
         for author in local_pending:
-            all_pending.append(AuthorInfo(author.user.username, "Local", author.uuid, True))
+            all_pending.append(AuthorInfo(author.displayName, "Local", author.uuid, True))
         for author in self.pending_foreign_friends.all():
             all_pending.append(AuthorInfo(author.display_name, author.node.name, author.id, False))
         all_pending.sort(key=lambda x: x.name.lower())
@@ -118,7 +118,7 @@ class Author(models.Model):
         all_friends = []
         for author in self.friends.all():
             # Local friends
-            all_friends.append(AuthorInfo(author.user.username, "Local", author.uuid, True))
+            all_friends.append(AuthorInfo(author.displayName, "Local", author.uuid, True))
         for author in self.foreign_friends.all():
             all_friends.append(AuthorInfo(author.display_name, author.node.name, author.id, False))
         all_friends.sort(key=lambda x: x.name.lower())
@@ -126,6 +126,7 @@ class Author(models.Model):
 
     def get_friend_models(self):
         return self.friends
+
     def get_pending_friend_request_count(self):
         return len(self.get_pending_friend_requests())
 
@@ -210,7 +211,6 @@ class Author(models.Model):
         foreign_uuids = [friend.id for friend in self.foreign_friends.all()]
         return local_uuids + foreign_uuids
 
-
 class Post(models.Model):
     """ Represents a post made by a user """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -262,7 +262,7 @@ class Post(models.Model):
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
-        return self.author.user.username + ": " + self.content
+        return self.author.displayName + ": " + self.content
 
 class PostManager(models.Model):
 
@@ -344,7 +344,7 @@ class Comment(models.Model):
     # enable weird characters like lenny faces taken from:
     #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
     def __unicode__(self):
-        return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.user.username + ": " + self.content
+        return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.displayName + ": " + self.content
 
 class ImageManager(models.Manager):
     """ Helps creating an image object.
@@ -377,7 +377,7 @@ class ImageServ(models.Model):
         return reverse('view_image', args=[str(self.image)])
 
     def __unicode__(self):
-        return self.author.user.username + ", created on " + str(self.created_on) +"  image type: " + str(self.imagetype)
+        return self.author.displayName + ", created on " + str(self.created_on) +"  image type: " + str(self.imagetype)
 
 class AdminConfig(models.Model):
     url = models.URLField()

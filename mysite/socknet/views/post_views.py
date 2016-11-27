@@ -11,7 +11,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from socknet.models import *
 from socknet.forms import *
 from socknet.serializers import *
-from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment, HTMLsafe
+
+from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment, HTMLsafe, PostDetails
+
 
 # For images
 import os
@@ -46,9 +48,6 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
     context_object_name = 'posts_list'
 
     def get_queryset(self):
-        #r = requests.get('http://cmput404f16t04dev.herokuapp.com/api/posts', auth=HTTPBasicAuth('admin', 'cmput404'))
-        #r = requests.get('http://winter-resonance.herokuapp.com', auth=HTTPBasicAuth('group1', 'group1forcmput404project'))
-        #r = requests.get('https://api-bloggyblog404.herokuapp.com/posts/', auth=HTTPBasicAuth('test', 'test'))
         posts = []
         for n in Node.objects.all():
             print "Fetching Post Lists data from Node: " + n.name
@@ -60,7 +59,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 data = {}
                 try:
                     data = json.loads(r.text)
-                except ValueError, e:
+                except Exception as e:
                     print("Error from group: " + n.name)
                     print(str(e))
                     #posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
@@ -79,7 +78,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                             post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
                                 post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
                             posts.append(post)
-                except KeyError, e:
+                except Exception as e:
                     print("Error from group: " + n.name)
                     print(str(e))
         if len(posts) > 0:
@@ -93,6 +92,87 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
             return False
         else:
             return True
+
+class ListFriendsPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView):
+    template_name = 'socknet/post_templates/friends_posts.html'
+    login_url = '/login/' # For login mixin
+    context_object_name = 'posts_list'
+
+    def get_queryset(self):
+        posts_list = []
+        author = self.request.user.author
+
+        # Get all of the authors friends
+        local_friends = author.friends.all()
+        remote_friends = author.foreign_friends.all()
+
+        if len(local_friends) > 0:
+            for friend in local_friends:
+                # We want posts marked PUBLIC, FRIENDS, FOAF, SERVERONLY
+                # Since we are their friend, we should be allowed to see FOAF posts
+                local_posts = Post.objects.filter(author=friend).exclude(visibility="PRIVATE")
+                # Convert posts to PostDetail object
+                for post in local_posts:
+                    posts_list.append(PostDetails(post, True))
+
+        if len(remote_friends) > 0:
+            for friend in remote_friends:
+                print("Attempting to get posts from " + friend.display_name + " from " + friend.node.name)
+                # Get our friends posts
+                url = friend.node.url
+                if url[-1] is not "/":
+                    url = url + "/"
+                # Send the request to the other server
+                url = url + "author/" + str(friend.id) + "/posts/"
+                print(url)
+                response = None
+                try:
+                    response = requests.get(url=url, auth=HTTPBasicAuth(friend.node.foreignNodeUser, friend.node.foreignNodePass), timeout=5) # TIME OUT AFTER 5 SEC
+                    # Ensure we got a 200
+                except requests.exceptions.Timeout as e:
+                    print("The request timed out for " + friend.display_name + " from " + friend.node.name)
+
+                if response.status_code is not 200:
+                    error = "Error: Response code was " + str(response.status_code) + " for " + friend.display_name + " from " + friend.node.name
+                    print error
+                # Ensure we got data back
+                elif (len(response.text) < 0):
+                    error = "Error: No JSON was sent back for " + friend.display_name + " from " + friend.node.name
+                    print error
+                else:
+                    # At this point, we got a 200 and some data
+                    try:
+                        data = json.loads(response.text)
+                        # Loop through the posts
+                        for post_json in data['posts']:
+                            serializer = PostsSerializer(data=post_json)
+                            if not serializer.is_valid():
+                                print("Error: Post is not valid from " + friend.display_name + " from " + friend.node.name + " reason:")
+                                print(serializer.errors)
+                            else:
+                                post_uuid = uuid.UUID(post_json['id']) # If uuid is not valid, an error will be thrown
+                                # If the post json is valid, create a post details object.
+                                # Note: PostDetails will throw a key error if an essiential item is missing, such as title or content
+                                post = PostDetails(serializer.validated_data, False, friend.node, post_uuid)
+                                # Only display the post if it is PUBLIC, FOAF, or FRIENDS
+                                if post.visibility == "PUBLIC" or post.visibility == "FOAF" or post.visibility == "FRIENDS":
+                                    posts_list.append(post)
+                    except Exception as e:
+                        error = "Error: " + str(e) + " for " + friend.display_name + " from " + friend.node.name
+                        print error
+
+        if len(posts_list) > 0:
+            return sorted(posts_list, reverse=True, key=lambda PostDetails: PostDetails.published)
+        return posts_list
+
+    def test_func(self):
+        try:
+            self.request.user.author
+        except:
+            return False
+        else:
+            return True
+
 
 class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
     """ Displays the details of a single post """
@@ -340,7 +420,7 @@ class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
         context = super(ViewImage, self).get_context_data(**kwargs)
         parent_key = self.kwargs.get('img')
         imgobj = ImageServ.objects.get(pk=parent_key)
-        context['image_usr'] = imgobj.author.user.username
+        context['image_usr'] = imgobj.author.displayName
         context['image_made'] = imgobj.created_on
         context['image_id'] = imgobj.id
         context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)

@@ -30,6 +30,12 @@
                 None
             {% endif %}
         </div>
+        <div class="profile-field">
+            <span class="profile-label">About me: </span>{{ bio }}
+            {% if not bio %}
+                None
+            {% endif %}
+        </div>
     {% endif %}
 </div>
 <ol class="feed">
@@ -53,7 +59,9 @@
     {% endfor %}
 </ol>
 {% if not posts %}
-<h2>No Posts</h2>
+    <div class="content-box">
+        <h2>No Posts</h2>
+    </div>
 {% endif %}
 {% endblock %}
 
@@ -67,6 +75,11 @@
         // Set text of friend button based on current relationship
         if("{{ is_friend }}" === "False") {
             $('#friend_anchor').text("Send Friend Request");
+        } else {
+            $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> Friends</span>");
+            $('#friend_anchor').removeAttr("href");
+            $('#friend_anchor').css('cursor', 'default');
+            $('#friend_anchor').css("background-color", "#DDDDDD")
         }
 
         $('#friend_anchor').click(function (e) {
@@ -99,11 +112,11 @@
 
         function friendSuccess(id) {
             console.log("Friend successful!");
-            console.log(id);
-            $('#'+id).data("status" , "Pending");
             $('#'+id).removeAttr("href");
-            $('#'+id).css("background-color", "#EEEEEE")
+            $('#'+id).css("background-color", "#DDDDDD")
             $('#'+id).text("Friend Request Sent")
+            $('#'+id).css('cursor', 'default');
+            $('#'+id).blur();
         }
     });
 </script>

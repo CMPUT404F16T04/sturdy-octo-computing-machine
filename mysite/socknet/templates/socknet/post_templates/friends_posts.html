@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+    <ol class="feed">
+        {% for post in posts_list %}
+            <li class="post">
+                <!-- There are different links for viewing a local and remote post-->
+                {% if post.is_local %}
+                    <div class="first-line">
+                        <a href="{% url 'view_post' pk=post.id %} ">
+                            <h3>{{ post.title }}</h3>
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="first-line">
+                        <a href="{% url 'view_remote_post' pk=post.id %} ">
+                            <h3>{{ post.title }}</h3>
+                        </a>
+                    </div>
+                {% endif %}
+                <div class="post-id-label">
+                    {{ post.visibility }} post submitted by
+                    <!-- There are different links for viewing the author is author is local vs. remote -->
+                    {% if post.is_local %}
+                        <a class="author-label" href="{% url 'profile' authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
+                        on {{ post.published }} from <span class="server-label">local</span>
+                    {% else %}
+                        <a class="author-label" href="{% url 'remote_profile' nodeID=post.node.id authorUUID=post.author_id %}">{{ post.author_display_name }}</a>
+                        on {{ post.published }} from <span class="server-label">{{ post.node.name }}</span>
+                    {% endif %}
+                </div>
+                <div class="post-description">
+                    {{post.description}}
+                </div>
+                <article class="content">
+                    {{post.content|safe}}
+                </article>
+                <div>
+                    <!-- There are different links for viewing the comments on a local and remote post -->
+                    {% if post.is_local %}
+                        <a href="{% url 'view_post' pk=post.id %} ">View Comment</a>
+                    {% else %}
+                        <a href="{% url 'view_remote_post' pk=post.id %} ">View Comment</a>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+    </ol>
+    {% if not posts_list %}
+        <div class="content-box">
+            <h2>No friends posts to display :(</h2>
+        </div>
+    {% endif %}
+{% endblock %}

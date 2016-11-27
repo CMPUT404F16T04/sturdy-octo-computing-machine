@@ -2,7 +2,7 @@
 {% block content %}
   <h1>Parent Post id: {{parent-id}} Comment Id: {{comment.id}} parent-id {{comment.parent_post.id}}</h1>
   <p class="authordate">
-    Author: {{comment.author.user.username}}<br/>
+    Author: {{comment.author.displayName}}<br/>
     Created On (UTC): {{comment.created_on}}
   </p>
   <article class="content">{{comment.view_content|safe}}</article>

@@ -1,35 +1,69 @@
 {% extends "base.html" %}
 {% block content %}
-{% load static from staticfiles %}
-    <div class="friend-title">People I Follow (Local Node)</div>
-    <!-- This doesn't really work for foreign people, since there is no notification for cancelling a pending friend request -->
-    <!-- Only display local people I am following who are NOT also my friends -->
-    {% for follower_of in user.author.get_following_only %}
-        <div class="friend-box">
-            <img class="friend-profile-pic" src="{% static 'images/headshot.png' %}"/>
-            <div class="friend-name">
-                <a href="{% url 'profile' authorUUID=follower_of.uuid %}">{{ follower_of.user.username }}</a>
+    <div class="friend-title">People I Am Following (Local Node)</div>
+    {% if user.author.get_following_only.count > 0 %}
+        <!-- This doesn't really work for foreign people, since there is no notification for cancelling a pending friend request -->
+        <!-- Only display local people I am following who are NOT also my friends -->
+            <div class="friends-table col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th class="col-md-10">Author</th>
+                            <th  class="col-md-2">Actions</th>
+                        </tr>
+                    </thead>
+                    {% for follower in user.author.get_following_only %}
+                    <tr id="{{follower.uuid}}">
+                        <td class="col-md-10">{{follower.displayName}}</td>
+                        <td class="col-md-2">
+                            <a href="#" class="friend-anchor btn btn-danger btn-xs"
+                            data-uuid="{{ follower.uuid }}" data-username="{{ follower.name }}">
+                                Unfollow <span class="glyphicon glyphicon-remove"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
             </div>
-            <div class="friend-button">
-                <a id="{{ follower_of.uuid}}_button" href="#" class="friend-anchor btn btn-danger"
-                data-uuid="{{ follower_of.uuid }}" data-username="{{ follower_of.user.username }}" data-status="unfollow">Unfollow</a>
-            </div>
-        </div>
-    {% endfor %}
-    {% if user.author.get_following_only.count < 1 %}
-    <div class="content-box">You haven't followed anybody yet!</div>
+    {% else %}
+        <div class="content-box">You are not following anyone!</div>
     {% endif %}
 {% endblock %}
 
 {% block scripts %}
 {% load static from staticfiles %}
-<script src="{% static 'js/friend_request_handler.js' %}"></script>
 <script type="text/javascript">
-    // authorUUID and url are needed in friend_request_handler (above)
-    var authorUUID = "{{ user.author.uuid }}";
-    var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
+    var url = "{% url 'manage_following' authorUUID=user.author.uuid %}";
     $(document).ready(function() {
         console.log("Manage Following Loaded");
+        $('.friend-anchor').click(function () {
+            var id = $(this).attr('id');
+            var csrftoken = getCookie('csrftoken'); // From js/cookie.js
+            var friendUUID = $(this).data("uuid");
+            console.log("Author wants to unfollow: "+$(this).data("username"));
+            // Unfollow with ajax so we don't have to reload the page.
+            var jsonData = {
+                "friend_id": friendUUID
+            };
+            var jsonStr = JSON.stringify(jsonData);
+            console.log(jsonStr);
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: jsonStr,
+                contentType: "application/json",
+                success: function() { unfollowSuccess(friendUUID); },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            });
+        });
+
+        function unfollowSuccess(id) {
+            console.log("Unfollow successful!");
+            console.log(id)
+            $('#'+id).remove();
+        }
     });
 </script>
 {% endblock scripts %}

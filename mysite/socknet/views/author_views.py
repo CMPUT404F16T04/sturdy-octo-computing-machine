@@ -51,12 +51,17 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
         if request.is_ajax():
             # We are sending ajax POSTs from "follow" button
             decoded_json = json.loads(request.body)
-            friend_uuid = decoded_json['friend']['id']
+            friend_uuid = decoded_json['friend_id']
             friend = Author.objects.get(uuid=friend_uuid)
+            author = request.user.author
+            if author in friend.who_im_following.all():
+                author.accept_friend_request(friend_uuid, True)
+            else:
+                request.user.author.follow(friend)
             return HttpResponse(status=200)
         else:
             # Returning 500 right now since nothing else should be posting to this page
-            return HttpResponse(status=500)
+            return HttpResponse(status=400)
 
 class EditProfile(LoginRequiredMixin,generic.edit.UpdateView):
     model = Author
@@ -131,15 +136,9 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             if action_type == "unfriend":
                 author.delete_friend(friend, is_local)
                 return HttpResponse(status=200,  content=friend_uuid)
-            elif action_type == "unfollow":
-                author.unfollow(friend)
-                return HttpResponse(status=200)
-            elif action_type == "follow":
-                author.follow(friend)
-                return HttpResponse(status=200)
             elif action_type == "accept_friend_request":
                 author.accept_friend_request(friend_uuid, is_local)
-                return HttpResponse(status=200)
+                return HttpResponse(status=200, content=friend_uuid)
             else:
                 print("MANAGE FRIEND POST: Unknown action")
                 return HttpResponse(status=500)
@@ -156,6 +155,23 @@ class ManageFollowing(LoginRequiredMixin, generic.base.TemplateView):
         if authorUUID != self.request.user.author.uuid:
             return ForbiddenContent403.denied()
         return super(ManageFollowing, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
+        # Convert uuid from url into a proper UUID field
+        authorUUID = uuid.UUID(authorUUID)
+        # Ensure that someone else is not trying to edit who we are following
+        if authorUUID != self.request.user.author.uuid:
+            return ForbiddenContent403.denied()
+        if request.is_ajax():
+            decoded_json = json.loads(request.body)
+            friend_uuid = decoded_json['friend_id']
+            friend = Author.objects.get(uuid=friend_uuid)
+            author = request.user.author
+            author.unfollow(friend)
+            return HttpResponse(status=200)
+        else:
+            return HttpResponse(status=400)
 
 class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
     """ Accept and decline pending friend requests """
@@ -231,13 +247,13 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
 
         # Ensure we got a 200
         if response.status_code is not 200:
-            e = "Error: Response code was " + str(response.status_code)
+            e = "View Remote Profile Error: Response code was " + str(response.status_code) + " from " + node.name
             context['error'] = e
             print e
 
         # Ensure we got data back
         if (len(response.text) < 0):
-            e = "Error: No JSON was sent back."
+            e = "View Remote Profile Error: No JSON was sent back. From " + node.name
             context['error'] = e
             print e
 
@@ -247,48 +263,37 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             json_data = json.loads(response.text)
         except ValueError, error:
             context['error'] = "Error: " + str(error)
-            print "Error: " + str(error)
+            print "View Remote Profile Error: " + str(error) + " from " + node.name
 
-        serializer = ProfileSerializer(data=json_data)
-        # Ensure the data is valid
-        if not serializer.is_valid():
-            context['error'] = "Validation Error: " + str(serializer.errors)
-            print "Validation Error: " + str(serializer.errors)
+        if json_data: # Only do stuff if we actually have data
+            serializer = ProfileSerializer(data=json_data)
+            # Ensure the data is valid
+            if not serializer.is_valid():
+                context['error'] = "Validation Error: " + str(serializer.errors)
+                print "View Remote Profile Validation Error: " + str(serializer.errors) + " from " + node.name
 
-        author_data = serializer.validated_data
+            author_data = serializer.validated_data
 
-        # If the author is not in the db, create a new model
-        foreign_author = None
-        try:
-            foreign_author = ForeignAuthor.objects.get(id=authorUUID)
-        except ForeignAuthor.DoesNotExist:
+            # Put in the bio
+            if 'bio' in json_data:
+                context['bio'] = json_data['bio']
+
+            # If the author is not in the db, create a new model
+            foreign_author = None
             try:
-                foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
-                foreign_author.save()
-            except KeyError, error:
-                # This means id, display name, node, or url was missing
-                context['error'] = "Key Error: " + str(error)
-                print "Key Error: " + str(error)
-        print foreign_author
-        context['profile_author'] = foreign_author
-        context['is_friend'] = self.request.user.author.is_friend(foreign_author.id)
-
-        """
-        # Ask if the authors are friends
-        response = requests.get(url + 'friends/' + authorUUID + "/" + str(self.request.user.author.uuid) + "/", auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
-        # Ensure we got a 200
-        if (response.status_code is not 200) or (len(response.text) < 0):
-            # If we couldn't check then display an error
-            context['is_friend'] = "Error"
-            return context
-        else:
-            try:
-                json_data = json.loads(response.text)
-                context['is_friend'] = json_data['friends']
-            except:
-                # We will error if there is no friends in the json or the json could not be parsed
-                context['is_friend'] = "Error"
-        """
+                foreign_author = ForeignAuthor.objects.get(id=authorUUID)
+            except ForeignAuthor.DoesNotExist:
+                try:
+                    foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
+                    foreign_author.save()
+                except KeyError, error:
+                    # This means id, display name, node, or url was missing
+                    context['error'] = "Key Error: " + str(error)
+                    print "View Remote Profile Key Error: " + str(error) + " from " + node.name
+            print foreign_author
+            if foreign_author: # Only do stuff if we actually have data
+                context['profile_author'] = foreign_author
+                context['is_friend'] = self.request.user.author.is_friend(foreign_author.id)
 
         """
         Get the remote author's posts
@@ -299,10 +304,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             data = {}
             try:
                 data = json.loads(r.text)
-            except e:
-                print("Error from group: " + n.name)
-                print(e)
-                #posts.append(RemotePost("Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "Error", "Error", "Error"))
+            except Exception as e:
+                print("View Remote Profile Fetch Posts Error: " + str(e) + " from " + node.name)
             try:
                 for post_json in data['posts']:
                     posts_serializer = PostsSerializer(data=post_json)
@@ -317,10 +320,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                             post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],node)
                         posts.append(post)
                 context['posts'] = posts
-            except KeyError, e:
-                print("Error from group: " + n.name)
-                print(e)
-                #posts.append(RemotePost("Key Error from "+ n.name, "Key Error on field: " + str(e), "Error", r.text, "Error", "Error", "Error", "Error", "Error"))
+            except Exception as e:
+                print("View Remote Profile Fetch Posts Error: " + str(e) + " from " + node.name)
 
         return context
 
@@ -359,9 +360,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                     }
                 }
                 json_data = json.dumps(data) # encode
-                print(json_data)
-                print(url + "friendrequest/")
                 response = requests.post(url=url + "friendrequest/", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+                print("RESPONSE FROM SENDING FRIEND REQUEST")
                 print(response.status_code)
                 print(response)
                 return HttpResponse(status=200)

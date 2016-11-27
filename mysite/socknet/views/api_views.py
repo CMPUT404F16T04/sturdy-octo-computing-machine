@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
 from socknet.models import Author, Post, ImageServ, Comment
-from socknet import external_requests
 
 ### HELPER FUNCTIONS ###
 
@@ -42,20 +41,20 @@ class AuthorPostsViewSet(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
         try:
-            # All PUBLIC posts on our server
+            """
+            Never send server only
+            """
+            # All of the user's PUBLIC posts
             public_queryset = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
-            # All SERVERONLY posts from our server
-            server_queryset = Post.objects.filter(visibility="SERVERONLY").order_by('-created_on')
-            # All of the user's own PRIVATE posts
+            # All of the user's PRIVATE posts
             private_queryset = Post.objects.filter(visibility="PRIVATE", author__user=self.request.user).order_by('-created_on')
-            # TODO: All of the posts by the request user's friends
+            # TODO All of the user's FRIEND posts
             friends_queryset = Post.objects.filter(visibility="FRIENDS", author__friends__user=self.request.user )
-
-            # TODO: All posts of friends of a friend (FOAF)
+            # TODO All of the user's FOAF posts
 
             # Koliber Services
             # http://stackoverflow.com/questions/1125844/howto-merge-2-django-querysets-in-one-and-make-a-select-distinct
-            final_queryset = public_queryset | server_queryset | private_queryset | friends_queryset
+            final_queryset = public_queryset | private_queryset | friends_queryset
 
             paginator = PostsPagination()
             posts = paginator.paginate_queryset(final_queryset, request)
@@ -91,7 +90,7 @@ class AuthorPostsViewSet(APIView):
 
             return Response(response)
         except Author.DoesNotExist:
-            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Error': 'The author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 class AuthorViewAllTheirPosts(APIView):
     """
@@ -141,11 +140,11 @@ class AuthorViewAllTheirPosts(APIView):
                 response['next'] = paginator.get_next_link()
             return Response(response)
         except Author.DoesNotExist:
-            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Error': 'Author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 class PostsQuery(APIView):
     """
-    API endpoint that allows posts to be viewed or edited.
+    API endpoint that gets all posts marked as PUBLIC
     GET /api/posts
     """
     authentication_classes = (BasicAuthentication,)
@@ -154,8 +153,7 @@ class PostsQuery(APIView):
 
     def get(self, request, format=None):
         """
-        Return a list of the authors friends.
-        GET http://service/friends/<authorid>
+        Return all public posts
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
@@ -198,12 +196,12 @@ class PostsQuery(APIView):
 
             return Response(response)
         except Author.DoesNotExist:
-            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Error': 'Author does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 class PostIDQuery(APIView):
     """
-    API endpoint that allows posts to be viewed or edited.
-    GET /api/posts
+    API endpoint that sends a single posts info
+    GET /api/posts/<postid>
     """
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -212,23 +210,21 @@ class PostIDQuery(APIView):
     def get(self, request, post_id, format=None):
         """
         Return a list of the authors friends.
-        GET http://service/friends/<authorid>
+        GET api/posts/<postid>
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
         try:
             post = Post.objects.filter(id=post_id).first()
             if (post is None):
-                return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'Error': 'Post does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
             # Authentication validation
-            # TODO: Make this better. I wrote this with my brain in sleep mode.
+            # Hindle said the client is responsible for filtering visibility stuff
             if (post.visibility == "PRIVATE" and post.author.user != self.request.user):
                 return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
-            if (post.visibility == "FRIENDS" and not post.author.friends.filter(user=self.request.user)):
+            if (post.visibility == "SERVERONLY"):
                 return Response({'Error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
-            # TODO: FOAF :O
-            # TODO: SERVERONLY
 
             else:
                 # TODO: Difference in source vs origin?
@@ -255,16 +251,7 @@ class PostIDQuery(APIView):
 
                 return Response(response)
         except Author.DoesNotExist:
-            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
-
-class AuthorViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that
-    """
-    authentication_classes = (BasicAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+            return Response({'Error': 'Author does not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
 class CommentsViewSet(APIView):
     """
@@ -283,7 +270,7 @@ class CommentsViewSet(APIView):
         try:
             post = Post.objects.filter(id=post_id).first()
             if (post is None):
-                return Response({'Error': 'Something went wrong. Post is None'}, status=status.HTTP_404_NOT_FOUND)
+                return Response({'Error': 'Post doest not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
             final_queryset = Comment.objects.filter(parent_post=post).order_by('-created_on')
             paginator = PostsPagination()
@@ -315,7 +302,7 @@ class CommentsViewSet(APIView):
 
             return Response(response)
         except Author.DoesNotExist:
-            return Response({'Error': 'Something went wrong.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'Error': 'Author does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 class IsFriendQuery(APIView):
     """
@@ -437,7 +424,7 @@ class FriendRequest(APIView):
 
         # If neither author is local, we shouldn't be getting the request.
         if (author is None) and (friend is None):
-            print("The Author are not local")
+            print("FRIEND REQUEST ERROR: The authors are not local")
             return Response({'Error': 'Neither author is local to this server.'}, status.HTTP_400_BAD_REQUEST)
 
         # If either author is forgein, we should create them in the db if they are not there already.
@@ -445,23 +432,31 @@ class FriendRequest(APIView):
             if ForeignAuthor.objects.filter(id=author_data['id']).exists():
                 author = ForeignAuthor.objects.get(id=author_data['id'])
             else:
-                node = Node.objects.get(url=author_data['host'])
+                node = None
+                try:
+                    node = Node.objects.get(url=author_data['host'])
+                except Author.DoesNotExist:
+                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node)
                 author.save()
-            # Friend exists on our server. We should forward this request to the other server and record that we sent the request.
+            # Friend exists on our server. Add the friend to the author's pending foreign friends list.
             friend.pending_foreign_friends.add(author)
-            return Response(status=status.HTTP_200_OK)
+            return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         if (friend is None):
             if ForeignAuthor.objects.filter(id=friend_data['id']).exists():
                 friend = ForeignAuthor.objects.get(id=friend_data['id'])
             else:
-                node = Node.objects.get(url=friend_data['host'])
+                node = None
+                try:
+                    node = Node.objects.get(url=author_data['host'])
+                except Author.DoesNotExist:
+                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node)
                 friend.save()
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
             author.pending_foreign_friends.add(friend)
-            return Response(status=status.HTTP_200_OK)
+            return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         # If we got here, then both authors are local.
         friend.follow(author)
@@ -480,11 +475,9 @@ class ProfileView(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
             author = Author.objects.get(uuid=authorid)
-            author.host = request.get_host()
             # 'ForeignAuthor' object has no attribute 'uuid' thus assign it.
             author.id = author.uuid
             serializer = ProfileSerializer(author)
-
             author.host = "http://" + request.get_host() +  "/api"
 
             return Response(serializer.data)

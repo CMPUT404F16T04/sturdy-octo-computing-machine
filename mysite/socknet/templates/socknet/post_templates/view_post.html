@@ -15,7 +15,7 @@
     {% for comment in comments %}
       <li>
         <div>
-            <a class="author-label" href="{% url 'profile' authorUUID=comment.author.uuid %}">{{ comment.author.user.username }}</a>
+            <a class="author-label" href="{% url 'profile' authorUUID=comment.author.uuid %}">{{ comment.author.displayName }}</a>
         </div>
         <div class="author-date">
             {{ comment.created_on }} UTC
