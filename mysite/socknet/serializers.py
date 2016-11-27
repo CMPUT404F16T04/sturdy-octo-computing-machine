@@ -218,6 +218,7 @@ class ProfileSerializer(serializers.Serializer):
     id = serializers.CharField(source='uuid', required=True)
     host = serializers.CharField(max_length = 128)
     displayName = serializers.CharField(max_length=150, required=True)
+    bio = serializers.CharField(source='about_me', max_length=1000, required=False, allow_null=True, allow_blank=True)
     url = serializers.CharField(max_length=256, required=True)
     friends = serializers.SerializerMethodField()
     def get_friends(self, obj):
@@ -230,4 +231,4 @@ class ProfileSerializer(serializers.Serializer):
 
     class Meta:
         model = Author
-        fields = ('id','host','displayName','url')
+        fields = ('id','host','displayName','url','about_me')

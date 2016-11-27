@@ -274,6 +274,10 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
 
             author_data = serializer.validated_data
 
+            # Put in the bio
+            if 'bio' in json_data:
+                context['bio'] = json_data['bio']
+
             # If the author is not in the db, create a new model
             foreign_author = None
             try:

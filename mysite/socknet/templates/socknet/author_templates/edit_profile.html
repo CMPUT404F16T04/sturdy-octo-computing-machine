@@ -9,11 +9,11 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="about_me">Display Name</label>
-                    <input id="displayName"  class="form-control" name="displayName" type="text " maxLength="64">{{ user.author.display_name }}</input>
+                    <input id="displayName"  class="form-control" name="displayName" type="text " maxLength="150"  autofocus="true" required="true" value="{{ user.author.displayName }}"></input>
                 </div>
                 <div class="form-group">
                     <label for="birthday">Enter Birthday (yyyy-mm-dd)</label>
-                    <input id="birthday"  class="form-control" name="birthday" type="date" autofocus="true" value='{{ user.author.birthday|date:'Y-m-d' }}'>
+                    <input id="birthday"  class="form-control" name="birthday" type="date" value='{{ user.author.birthday|date:'Y-m-d' }}'>
                 </div>
                 <div class="form-group">
                     <label for="github_url">Github URL</label>

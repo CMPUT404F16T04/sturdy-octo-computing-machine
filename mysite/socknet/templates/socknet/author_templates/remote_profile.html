@@ -30,6 +30,12 @@
                 None
             {% endif %}
         </div>
+        <div class="profile-field">
+            <span class="profile-label">About me: </span>{{ bio }}
+            {% if not bio %}
+                None
+            {% endif %}
+        </div>
     {% endif %}
 </div>
 <ol class="feed">
@@ -53,7 +59,9 @@
     {% endfor %}
 </ol>
 {% if not posts %}
-    <h2>No Posts</h2>
+    <div class="content-box">
+        <h2>No Posts</h2>
+    </div>
 {% endif %}
 {% endblock %}
 
