@@ -211,6 +211,7 @@ class ProfileForeignFriendSerializer(serializers.Serializer):
     class Meta:
         model = ForeignAuthor
         fields = ('id','host','displayName','url')
+        
 class ProfileSerializer(serializers.Serializer):
     """
     Serializer for getting a specific authors Profile

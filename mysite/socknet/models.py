@@ -266,11 +266,10 @@ class Post(models.Model):
 
 class PostManager(models.Model):
 
-    def get_profile_posts(self, profile_author, current_author):
+    def get_local_profile_posts(self, profile_author, current_author):
         """
         Returns the posts to display when viewing someone's profile.
-
-        FOAF and Server Only are NOT implemented yet.
+        This is for local profiles only.
         """
         # If someone is viewing their own page, they can see all posts
         if profile_author == current_author:
@@ -286,7 +285,7 @@ class PostManager(models.Model):
             friend_posts = Post.objects.filter(author=profile_author, visibility='FRIENDS')
             foaf_posts = Post.objects.filter(author=profile_author, visibility="FOAF")
             server_friends_posts = Post.objects.filter(author=profile_author, visibility="SERVERONLY")
-        
+
             # I am a FOAF
 
 
