@@ -35,7 +35,6 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    // authorUUID and url are needed in friend_request_handler (above)
     var authorUUID = "{{ user.author.uuid }}";
     var url = "{% url 'manage_friends' authorUUID=user.author.uuid %}";
     $(document).ready(function() {

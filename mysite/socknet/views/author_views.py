@@ -131,15 +131,9 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
             if action_type == "unfriend":
                 author.delete_friend(friend, is_local)
                 return HttpResponse(status=200,  content=friend_uuid)
-            elif action_type == "unfollow":
-                author.unfollow(friend)
-                return HttpResponse(status=200)
-            elif action_type == "follow":
-                author.follow(friend)
-                return HttpResponse(status=200)
             elif action_type == "accept_friend_request":
                 author.accept_friend_request(friend_uuid, is_local)
-                return HttpResponse(status=200)
+                return HttpResponse(status=200, content=friend_uuid)
             else:
                 print("MANAGE FRIEND POST: Unknown action")
                 return HttpResponse(status=500)
@@ -156,6 +150,26 @@ class ManageFollowing(LoginRequiredMixin, generic.base.TemplateView):
         if authorUUID != self.request.user.author.uuid:
             return ForbiddenContent403.denied()
         return super(ManageFollowing, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        authorUUID = self.kwargs.get('authorUUID', self.request.user.author)
+        # Convert uuid from url into a proper UUID field
+        authorUUID = uuid.UUID(authorUUID)
+        # Ensure that someone else is not trying to edit who we are following
+        if authorUUID != self.request.user.author.uuid:
+            return ForbiddenContent403.denied()
+        if request.is_ajax():
+            decoded_json = json.loads(request.body)
+            action = decoded_json['action']
+            friend_uuid = decoded_json['friend_id']
+            friend = Author.objects.get(uuid=friend_uuid)
+            author = request.user.author
+            if action == "unfollow":
+                author.unfollow(friend)
+                return HttpResponse(status=200)
+            else:
+                return HttpResponse(status=500)
+
 
 class ManageFriendRequests(LoginRequiredMixin, generic.base.TemplateView):
     """ Accept and decline pending friend requests """

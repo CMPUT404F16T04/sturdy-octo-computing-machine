@@ -126,6 +126,7 @@ class Author(models.Model):
 
     def get_friend_models(self):
         return self.friends
+
     def get_pending_friend_request_count(self):
         return len(self.get_pending_friend_requests())
 
