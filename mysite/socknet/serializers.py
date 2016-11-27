@@ -203,7 +203,7 @@ class ProfileFriendSerializer(serializers.Serializer):
         fields = ('id','host','displayName','url')
 
 class ProfileForeignFriendSerializer(serializers.Serializer):
-    id = serializers.CharField(source='id', required =True)
+    id = serializers.CharField(required =True)
     host = serializers.CharField(source = 'node', required=True)
     displayName = serializers.CharField(max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
