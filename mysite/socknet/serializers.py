@@ -222,10 +222,12 @@ class ProfileSerializer(serializers.Serializer):
     url = serializers.CharField(max_length=256, required=True)
     friends = serializers.SerializerMethodField()
     def get_friends(self, obj):
-        friends = []
+        print(obj)
         local_friends = obj.friends.all()
+        print (local_friends)
         local_serializer = ProfileFriendSerializer(local_friends,many=True)
         foreign_friends = obj.foreign_friends.all()
+        print(foreign_friends)
         foreign_serializer = ProfileForeignFriendSerializer(foreign_friends,many=True)
         return local_serializer.data+foreign_serializer.data
 

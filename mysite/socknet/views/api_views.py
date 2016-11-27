@@ -475,10 +475,7 @@ class ProfileView(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
             author = Author.objects.get(uuid=authorid)
-            # 'ForeignAuthor' object has no attribute 'uuid' thus assign it.
-            author.id = author.uuid
             serializer = ProfileSerializer(author)
-            author.host = "http://" + request.get_host() +  "/api"
 
             return Response(serializer.data)
         except Author.DoesNotExist:
