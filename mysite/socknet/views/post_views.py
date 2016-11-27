@@ -109,7 +109,7 @@ class ListFriendsPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView
             for friend in local_friends:
                 # We want posts marked PUBLIC, FRIENDS, FOAF, SERVERONLY
                 # Since we are their friend, we should be allowed to see FOAF posts
-                local_posts = Post.objects.filter(author=friend).exclude(visibility__in=["SERVERONLY", "PRIVATE"])
+                local_posts = Post.objects.filter(author=friend).exclude(visibility="PRIVATE")
                 # Convert posts to PostDetail object
                 for post in local_posts:
                     posts_list.append(PostDetails(post, True))
