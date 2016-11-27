@@ -54,7 +54,7 @@ class AuthorPostsViewSet(APIView):
 
             # Koliber Services
             # http://stackoverflow.com/questions/1125844/howto-merge-2-django-querysets-in-one-and-make-a-select-distinct
-            final_queryset = public_queryset | server_queryset | private_queryset | friends_queryset
+            final_queryset = public_queryset | private_queryset | friends_queryset
 
             paginator = PostsPagination()
             posts = paginator.paginate_queryset(final_queryset, request)
