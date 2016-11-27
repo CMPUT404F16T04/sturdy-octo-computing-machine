@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class = "content-box">
-    <h1 id="profile-heading">{{ profile_author.user.username }}'s Profile!</h1>
+    <h1 id="profile-heading">{{ profile_author.displayName }}</h1>
     {% if profile_author.uuid == user.author.uuid %}
         <!-- Author is viewing their own profile, display edit button -->
         <form id="edit" action="{% url 'editprofile' authorUUID=user.author.uuid %}">
@@ -11,7 +11,7 @@
         <!-- Author is viewing someone else's profile, display button that allows
              them to follow, unfollow, unfriend, etc. -->
         <a id="friend_anchor" href="#" class="friend-anchor login-button float-right"
-        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.user.username }}" data-status="{{ button_action }}" data-islocal="True"></a>
+        data-uuid="{{ profile_author.uuid }}" data-username="{{ profile_author.displayName }}" data-status="{{ button_action }}" data-islocal="True"></a>
     {% endif %}
     <hr class="profile-divider"/>
     <!-- Profile fields -->

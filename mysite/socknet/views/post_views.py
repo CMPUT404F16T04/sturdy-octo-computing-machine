@@ -397,7 +397,7 @@ class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
         context = super(ViewImage, self).get_context_data(**kwargs)
         parent_key = self.kwargs.get('img')
         imgobj = ImageServ.objects.get(pk=parent_key)
-        context['image_usr'] = imgobj.author.user.username
+        context['image_usr'] = imgobj.author.displayName
         context['image_made'] = imgobj.created_on
         context['image_id'] = imgobj.id
         context['b64'] = "data:" + imgobj.imagetype + ";base64," +  base64.b64encode(imgobj.image)
