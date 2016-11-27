@@ -41,6 +41,9 @@ class AuthorPostsViewSet(APIView):
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
         try:
+            """
+            Never send server only
+            """
             # All of the user's PUBLIC posts
             public_queryset = Post.objects.filter(visibility="PUBLIC").order_by('-created_on')
             # All of the user's PRIVATE posts

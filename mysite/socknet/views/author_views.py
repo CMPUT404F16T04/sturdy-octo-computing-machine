@@ -247,13 +247,13 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
 
         # Ensure we got a 200
         if response.status_code is not 200:
-            e = "Error: Response code was " + str(response.status_code)
+            e = "View Remote Profile Error: Response code was " + str(response.status_code) + " from " + node.name
             context['error'] = e
             print e
 
         # Ensure we got data back
         if (len(response.text) < 0):
-            e = "Error: No JSON was sent back."
+            e = "View Remote Profile Error: No JSON was sent back. From " + node.name
             context['error'] = e
             print e
 
@@ -263,14 +263,14 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             json_data = json.loads(response.text)
         except ValueError, error:
             context['error'] = "Error: " + str(error)
-            print "Error: " + str(error)
+            print "View Remote Profile Error: " + str(error) + " from " + node.name
 
         if json_data: # Only do stuff if we actually have data
             serializer = ProfileSerializer(data=json_data)
             # Ensure the data is valid
             if not serializer.is_valid():
                 context['error'] = "Validation Error: " + str(serializer.errors)
-                print "Validation Error: " + str(serializer.errors)
+                print "View Remote Profile Validation Error: " + str(serializer.errors) + " from " + node.name
 
             author_data = serializer.validated_data
 
@@ -285,7 +285,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                 except KeyError, error:
                     # This means id, display name, node, or url was missing
                     context['error'] = "Key Error: " + str(error)
-                    print "Key Error: " + str(error)
+                    print "View Remote Profile Key Error: " + str(error) + " from " + node.name
             print foreign_author
             if foreign_author: # Only do stuff if we actually have data
                 context['profile_author'] = foreign_author
@@ -301,8 +301,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             try:
                 data = json.loads(r.text)
             except Exception as e:
-                print("Error from group: " + n.name)
-                print(e)
+                print("View Remote Profile Fetch Posts Error: " + str(e) + " from " + node.name)
             try:
                 for post_json in data['posts']:
                     posts_serializer = PostsSerializer(data=post_json)
@@ -318,8 +317,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                         posts.append(post)
                 context['posts'] = posts
             except Exception as e:
-                print("Error from group: " + n.name)
-                print(e)
+                print("View Remote Profile Fetch Posts Error: " + str(e) + " from " + node.name)
 
         return context
 
