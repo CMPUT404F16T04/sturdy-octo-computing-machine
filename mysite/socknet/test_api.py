@@ -8,8 +8,6 @@ import uuid
 
 class FriendAPITests(APITestCase):
     def setUp(self):
-        self.client = APIClient()
-
         # Make some local authors
         self.user = mommy.make(User)
         self.user2 = mommy.make(User)
@@ -187,3 +185,34 @@ class FriendAPITests(APITestCase):
         """
         # TODO
         pass
+
+class PostsAPITests(APITestCase):
+    def setUp(self):
+        self.client = APIClient(HTTP_HOST='127.0.0.1:8000')
+
+        self.user = mommy.make(User)
+        self.author = mommy.make(Author, user=self.user)
+
+        self.post = mommy.make(Post,
+                               author=self.author,
+                               title="Example Title",
+                               content="Example Content.",
+                               markdown=False)
+
+        self.client.force_authenticate(user=self.user)
+
+    def test_posts(self):
+        """
+        GET  http://service/posts
+        """
+
+        url = "/api/posts/"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(decoded_json['posts'][0]['title'], "Example Title", "Post title does not match.")
+        self.assertEqual(decoded_json['posts'][0]['description'], "No description provided.", "Post description does not match.")
+        self.assertEqual(decoded_json['posts'][0]['content'], "Example Content.", "Post content does not match.")
+        self.assertEqual(decoded_json['posts'][0]['visibility'], "PUBLIC", "Post visibility does not match.")
+        self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
