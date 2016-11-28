@@ -328,7 +328,7 @@ class CommentsViewSet(APIView):
 
         return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
         """
-        return Response(status=200, content="YES")
+        return Response(status=200)
 class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
