@@ -53,7 +53,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
             # In case entered like host.com/api instead of host.com/api/
             if url[-1] is not "/":
                 url = url + "/"
-            r = requests.get(url + 'posts/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+            r = requests.get(url + 'posts', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
 
             if r.status_code is not 200:
                 print("Error response code was bad: " + str(r.status_code) + " from: " + n.name)
@@ -127,7 +127,7 @@ class ListFriendsPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView
                 if url[-1] is not "/":
                     url = url + "/"
                 # Send the request to the other server
-                url = url + "author/" + str(friend.id) + "/posts/"
+                url = url + "author/" + str(friend.id) + "/posts"
                 print(url)
                 response = None
                 try:
