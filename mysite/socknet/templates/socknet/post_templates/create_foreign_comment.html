@@ -4,7 +4,7 @@
 <h1>Add Comment</h1>
 {{foreign_pid}}
 {{foreign_node.url}}
-<form method="post" action="{{create_comment_api}}">
+<form method="post" >
     {% csrf_token %}
     <div class="content-options">
         <div id="markdown-btn" class="btn btn-default">

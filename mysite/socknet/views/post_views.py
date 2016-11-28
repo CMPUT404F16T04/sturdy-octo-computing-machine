@@ -1,5 +1,6 @@
 import uuid
 import json
+import datetime
 
 from django.shortcuts import get_object_or_404
 from django.views import generic
@@ -60,7 +61,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                 try:
                     data = json.loads(r.text)
                 except Exception as e:
-                    print("Error from group: " + n.name)
+                    print("Error from group: " + n.name + ", json.loads did not work")
                     print(str(e))
                     #posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
                 try:
@@ -79,8 +80,9 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
                                 post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
                             posts.append(post)
                 except Exception as e:
-                    print("Error from group: " + n.name)
-                    print(str(e))
+                    print("Error from group: " + n.name + ", error creating remote post object somehow")
+                    print("error: " + str(e))
+                    print "data contains: " + str(data)
         if len(posts) > 0:
             return sorted(posts, reverse=True, key=lambda RemotePost: RemotePost.published)
         return posts
@@ -403,13 +405,57 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
         context['foreign_node'] = node_obj
         context['create_comment_api'] = make_comment_url
         return context
-    """
-    def form_valid(self, form):
-        form.instance.author = self.request.user.author
-        parent_key = (self.kwargs.get('post_pk'))
-        form.instance.parent_post = Post(id=parent_key)
-        return super(CreateComment, self).form_valid(form)
-        """
+
+    def post(self, request, *args, **kwargs):
+        bdy = request.body
+        auth = self.request.user.author
+        ls = bdy.split("&")
+        params = {}
+        for each in ls:
+            v = each.split("=")
+            params[v[0]] = v[1]
+
+        markdown = "text/plain"
+        if params.get(markdown,"off").lower() == "on":
+            markdown = "text/x-markdown"
+
+        node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
+
+        cmt = {
+            "author":{
+               # ID of the Author (UUID)
+               "id": str(auth.uuid),
+               "host": str(request.get_host()),
+               "displayName": str(auth.displayName),
+               # url to the authors information
+               "url": request.get_host() + "/author/" + str(auth.uuid),
+               # HATEOS url for Github API
+               "github": str(auth.github_url)
+            },
+            "comment": params['content'],
+            "contentType": markdown,
+            # ISO 8601 TIMESTAMP
+            "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
+            # ID of the Comment (UUID)
+            "guid": str(uuid.uuid4())
+        }
+        url_str = str(HTMLsafe.get_url_fixed(node_obj.url))
+        url_post = url_str + "posts/" + self.kwargs.get('pk')
+        add = {
+            "query" : "addComment",
+            "post" : url_post,
+            "comments" : cmt
+            }
+        head = {
+            "content-type" : "application/json"
+        }
+        req = requests.post(url_post + '/comments', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=add, headers=head)
+        print add
+        print "Received status code:" + str(req.status_code)
+        # content_type="application/json"
+        r = HttpResponse(status=200)
+        r.write(url_post + "<br>" + str(add) + "<br> received status code: " + str(req.status_code) + "<br>" + str(req.text))
+        return r
 
 class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
     """ Get the normal image view. """
