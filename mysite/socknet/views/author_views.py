@@ -375,16 +375,16 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                 data = {
                     "query": "friendrequest",
                     "author": {
-                        "id": str(local_author.uuid),
-                        "host": self.check_url(local_author.host),
-                        "displayName": local_author.displayName
-
-                    },
-                    "friend": {
                         "id": str(foreign_author.id),
                         "host": self.check_url(foreign_author.node.url),
-                        "displayName": foreign_author.display_name,
-                        "url": self.check_url(foreign_author.url)
+                        "displayName": foreign_author.display_name
+                    },
+                    "friend": {
+                        "id": str(local_author.uuid),
+                        "host": self.check_url(local_author.host),
+                        "displayName": local_author.displayName,
+                        "url": self.check_url(local_author.url)
+
                     }
                 }
                 json_data = json.dumps(data) # encode
