@@ -204,13 +204,14 @@ class ProfileFriendSerializer(serializers.Serializer):
 
 class ProfileForeignFriendSerializer(serializers.Serializer):
     id = serializers.CharField(required =True)
-    host = serializers.CharField(source = 'node', required=True)
+    host = serializers.CharField(source = 'node.url', required=True)
     displayName = serializers.CharField(source = 'display_name', max_length=150, required=True)
     url = serializers.CharField(max_length=256, required=True)
 
     class Meta:
         model = ForeignAuthor
         fields = ('id','host','displayName','url')
+
 class ProfileSerializer(serializers.Serializer):
     """
     Serializer for getting a specific authors Profile

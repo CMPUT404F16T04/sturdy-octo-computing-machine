@@ -7,9 +7,13 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
+<<<<<<< HEAD
 from socknet.utils import ForbiddenContent403, RemotePost
 from django.core.validators import URLValidator
 
+=======
+from socknet.utils import *
+>>>>>>> e8c457603bd618be30030fc06c2ea2b7d284a8a3
 
 from socknet.models import *
 from socknet.forms import *
@@ -27,7 +31,7 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
         profile_author = get_object_or_404(Author, uuid=authorUUID)
         context['profile_author'] = profile_author
         post_manager = PostManager()
-        context['context_list'] = post_manager.get_profile_posts(profile_author, self.request.user.author)
+        context['context_list'] = post_manager.get_local_profile_posts(profile_author, self.request.user.author)
 
         URLval = URLValidator(verify_exists=True)
         githubValid = False
@@ -254,7 +258,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
         if url[-1] is not "/":
             url = url + "/"
         print "Node url: " + url
-        response = requests.get(url + 'author/' + authorUUID + "/", auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+        response = requests.get(url + 'author/' + authorUUID , auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
         #print(response.text)
 
         # Ensure we got a 200
@@ -264,7 +268,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             print e
 
         # Ensure we got data back
-        if (len(response.text) < 0):
+        if (len(response.text) < 1):
             e = "View Remote Profile Error: No JSON was sent back. From " + node.name
             context['error'] = e
             print e
@@ -294,6 +298,13 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             foreign_author = None
             try:
                 foreign_author = ForeignAuthor.objects.get(id=authorUUID)
+                try:
+                    # Update display name if it changed
+                    if foreign_author.display_name != author_data['displayName']:
+                        foreign_author.display_name = author_data['displayName']
+                        foreign_author.save()
+                except KeyError, error:
+                    print "View Remote Profile Key Error: " + str(error) + " from " + node.name
             except ForeignAuthor.DoesNotExist:
                 try:
                     foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
@@ -302,10 +313,18 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                     # This means id, display name, node, or url was missing
                     context['error'] = "Key Error: " + str(error)
                     print "View Remote Profile Key Error: " + str(error) + " from " + node.name
-            print foreign_author
-            if foreign_author: # Only do stuff if we actually have data
+
+            is_FOAF = False
+            is_friend = False
+            if foreign_author: # Only do stuff if we actually have an object.
                 context['profile_author'] = foreign_author
-                context['is_friend'] = self.request.user.author.is_friend(foreign_author.id)
+                is_friend = self.request.user.author.is_friend(foreign_author.id)
+                context['is_friend'] = is_friend
+                if is_friend:
+                    is_FOAF = True
+                else:
+                    is_FOAF = is_FOAF_remote(self.request.user.author, foreign_author)
+                print("Is FOAF? " + str(is_FOAF))
 
         """
         Get the remote author's posts
@@ -330,8 +349,21 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                         post_author = post_data['author']
                         post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
                             post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],node)
-                        posts.append(post)
+                        """
+                        FILTER POSTS BY VISIBIITY
+                        """
+                        if post.visibility == "PUBLIC":
+                            # We can see all public posts
+                            posts.append(post)
+                        if is_friend and (post.visibility == "FOAF" or post.visibility == "FRIENDS"):
+                            # Friends should be allowed to see both FRIEND and FOAF posts
+                            posts.append(post)
+                        elif is_FOAF and post.visibility == "FOAF":
+                            # If we are not friends, but FOAF
+                            posts.append(post)
+
                 context['posts'] = posts
+
             except Exception as e:
                 print("View Remote Profile Fetch Posts Error: " + str(e) + " from " + node.name)
 
@@ -372,7 +404,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                     }
                 }
                 json_data = json.dumps(data) # encode
-                response = requests.post(url=url + "friendrequest/", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+                response = requests.post(url=url + "friendrequest", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
                 print("RESPONSE FROM SENDING FRIEND REQUEST")
                 print(response.status_code)
                 print(response)

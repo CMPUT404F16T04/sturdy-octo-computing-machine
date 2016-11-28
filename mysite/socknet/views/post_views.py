@@ -1,5 +1,6 @@
 import uuid
 import json
+import datetime
 
 from django.shortcuts import get_object_or_404
 from django.views import generic
@@ -11,7 +12,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from socknet.models import *
 from socknet.forms import *
 from socknet.serializers import *
-from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment, PostDetails
+
+from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment, HTMLsafe, PostDetails
+
 
 # For images
 import os
@@ -48,37 +51,43 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
     def get_queryset(self):
         posts = []
         for n in Node.objects.all():
-            print "Fetching Post Lists data from Node: " + n.name
+            print "\nFetching Post Lists data from Node: " + n.name
             url = n.url
             # In case entered like host.com/api instead of host.com/api/
-            if url[-1] is not "/":
-                url = url + "/"
-            r = requests.get(url + 'posts/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-            if (len(r.text) > 0):
+            url = HTMLsafe.get_url_fixed(n.url)
+            # In case entered like host.com/api instead of host.com/api/
+            print url
+            r = requests.get(url + 'posts', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+
+            if r.status_code is not 200:
+                print("Error response code was bad: " + str(r.status_code) + " from: " + n.name)
+            elif (len(r.text) < 1):
+                print("Response was empty from: " + n.name)
+            else:
                 data = {}
                 try:
+                    # Parse the json
                     data = json.loads(r.text)
-                except Exception as e:
-                    print("Error from group: " + n.name)
-                    print(str(e))
-                    #posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
-                try:
-                    for post_json in data['posts']:
-                        serializer = PostsSerializer(data=post_json)
-                        valid = serializer.is_valid()
-                        if not valid:
-                            # Ignore posts that are not valid
-                            print("error")
-                            print(serializer.errors)
-                        else:
-                            post_data = serializer.validated_data
-                            post_author = post_data['author']
+                    try:
+                        for post_json in data['posts']:
+                            serializer = PostsSerializer(data=post_json)
+                            valid = serializer.is_valid()
+                            if not valid:
+                                # Ignore posts that are not valid
+                                print("Error from group: " + n.name + ", serializer is not valid.")
+                                print(serializer.errors)
+                            else:
+                                post_data = serializer.validated_data
+                                post_author = post_data['author']
 
-                            post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
-                                post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
-                            posts.append(post)
+                                post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
+                                    post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
+                                posts.append(post)
+                    except Exception as e:
+                        print("Error from group: " + n.name + "while parsing post data")
+                        print(str(e))
                 except Exception as e:
-                    print("Error from group: " + n.name)
+                    print("Error from group: " + n.name + "after calling json.loads:")
                     print(str(e))
         if len(posts) > 0:
             return sorted(posts, reverse=True, key=lambda RemotePost: RemotePost.published)
@@ -122,7 +131,7 @@ class ListFriendsPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView
                 if url[-1] is not "/":
                     url = url + "/"
                 # Send the request to the other server
-                url = url + "author/" + str(friend.id) + "/posts/"
+                url = url + "author/" + str(friend.id) + "/posts"
                 print(url)
                 response = None
                 try:
@@ -207,10 +216,8 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         post_original = None
         for n in Node.objects.all():
             print "Fetching Post & Comment data from Node: " + n.name
-            url = n.url
+            url = HTMLsafe.get_url_fixed(n.url)
             # In case entered like host.com/api instead of host.com/api/
-            if url[-1] is not "/":
-                url = url + "/"
             print "API URL: " + url
             rpost = requests.get(url + 'posts/' + str(pid), auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
             r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
@@ -387,6 +394,75 @@ class CreateComment(LoginRequiredMixin, generic.edit.CreateView):
         parent_key = (self.kwargs.get('post_pk'))
         form.instance.parent_post = Post(id=parent_key)
         return super(CreateComment, self).form_valid(form)
+
+class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
+    """ Displays a form for creating a new foreign comment """
+    template_name = 'socknet/post_templates/create_foreign_comment.html'
+    fields = ['content', 'markdown']
+    login_url = '/login/' # For login mixin
+
+    def get_context_data(self, **kwargs):
+        context = super(CreateForeignComment, self).get_context_data(**kwargs)
+        pid = self.kwargs.get('pk')
+        node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
+        # POST to http://service/posts/{POST_ID}/comments
+        make_comment_url = HTMLsafe.get_url_fixed(node_obj.url) + "posts/" + pid + "/comments"
+        context['foreign_pid'] = pid
+        context['foreign_node'] = node_obj
+        context['create_comment_api'] = make_comment_url
+        return context
+
+    def post(self, request, *args, **kwargs):
+        bdy = request.body
+        auth = self.request.user.author
+        ls = bdy.split("&")
+        params = {}
+        for each in ls:
+            v = each.split("=")
+            params[v[0]] = v[1]
+
+        markdown = "text/plain"
+        if params.get(markdown,"off").lower() == "on":
+            markdown = "text/x-markdown"
+
+        node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
+
+        cmt = {
+            "author":{
+               # ID of the Author (UUID)
+               "id": str(auth.uuid),
+               "host": str(request.get_host()),
+               "displayName": str(auth.displayName),
+               # url to the authors information
+               "url": request.get_host() + "/author/" + str(auth.uuid),
+               # HATEOS url for Github API
+               "github": str(auth.github_url)
+            },
+            "comment": params['content'],
+            "contentType": markdown,
+            # ISO 8601 TIMESTAMP
+            "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
+            # ID of the Comment (UUID)
+            "guid": str(uuid.uuid4())
+        }
+        url_str = str(HTMLsafe.get_url_fixed(node_obj.url))
+        url_post = url_str + "posts/" + self.kwargs.get('pk')
+        add = {
+            "query" : "addComment",
+            "post" : str(url_post),
+            "comments" : cmt
+            }
+        head = {
+            "content-type" : "application/json"
+        }
+        req = requests.post(url_post + '/comments', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
+        print add
+        print "Received status code:" + str(req.status_code)
+        print str(req.text)
+        # content_type="application/json"
+        r = HttpResponse(status=200)
+        r.write(url_post + "<br>" + str(add) + "<br> received status code: " + str(req.status_code) + "<br>" + str(req.text))
+        return r
 
 class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
     """ Get the normal image view. """

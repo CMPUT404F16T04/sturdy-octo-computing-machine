@@ -254,8 +254,8 @@ class CommentsViewSet(APIView):
 
     def get(self, request, post_id, format=None):
         """
-        Return a list of the authors friends.
-        GET http://service/friends/<authorid>
+        Return a list of the post's comments
+        GET http://service/posts/<POST_ID>/comments
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
@@ -295,6 +295,40 @@ class CommentsViewSet(APIView):
         except Author.DoesNotExist:
             return Response({'Error': 'Author does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
+    def post(self, request, post_id, format=None):
+        """
+        Posts to comments to create a comment.
+        POST to http://service/posts/<POST_ID>/comments
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        print post_id
+        print "AAAAA " + str(request.data)
+        """# Validate the request data
+        serializer = FriendsQuerySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
+        data = serializer.validated_data
+
+        # Check that the author in the json data matches the author in the url
+        if (authorid != data.get('author')):
+            return Response({"Error": "The author uuid in the data does not match the author uuid in the url."}, status.HTTP_400_BAD_REQUEST)
+
+        # Check that the author exists
+        try:
+            author = Author.objects.get(uuid=authorid)
+        except Author.DoesNotExist:
+            return Response({"Error": "The author does not exist."}, status.HTTP_404_NOT_FOUND)
+
+        #  Check if anyone is the author's friend
+        friend_uuids = author.get_all_friend_uuids()
+        matching_uuids = []
+        for friend_id in data.get('authors'):
+            if uuid.UUID(friend_id) in friend_uuids:
+                matching_uuids.append(friend_id)
+
+        return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
+        """
+        return Response(status=200, content="YES")
 class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
@@ -426,10 +460,15 @@ class FriendRequest(APIView):
                 node = None
                 try:
                     node = Node.objects.get(url=author_data['host'])
-                except Author.DoesNotExist:
+                except Node.DoesNotExist:
                     return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
-                author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node)
-                author.save()
+                try:
+                    author_url = node.url + '/author/' + str(author_data['id'])
+                    author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node, url=author_url)
+                    author.save()
+                except Exception as error:
+                    print("Error in friend request" + str(e))
+                    return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Friend exists on our server. Add the friend to the author's pending foreign friends list.
             friend.pending_foreign_friends.add(author)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
@@ -441,10 +480,14 @@ class FriendRequest(APIView):
                 node = None
                 try:
                     node = Node.objects.get(url=author_data['host'])
-                except Author.DoesNotExist:
+                except Node.DoesNotExist:
                     return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
-                friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node)
-                friend.save()
+                try:
+                    friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
+                    friend.save()
+                except Exception as error:
+                    print("Error in friend request" + str(e))
+                    return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
             author.pending_foreign_friends.add(friend)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
