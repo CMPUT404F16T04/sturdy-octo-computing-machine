@@ -295,13 +295,14 @@ class CommentsViewSet(APIView):
         except Author.DoesNotExist:
             return Response({'Error': 'Author does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request, format=None):
+    def post(self, request, post_id, format=None):
         """
         Posts to comments to create a comment.
         POST to http://service/posts/<POST_ID>/comments
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
-        print request.data
+        print post_id
+        print "AAAAA " + str(request.data)
         """# Validate the request data
         serializer = FriendsQuerySerializer(data=request.data)
         if not serializer.is_valid():
