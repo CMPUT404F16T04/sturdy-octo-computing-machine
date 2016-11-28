@@ -48,7 +48,7 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
     def get_queryset(self):
         posts = []
         for n in Node.objects.all():
-            print "Fetching Post Lists data from Node: " + n.name
+            print "\nFetching Post Lists data from Node: " + n.name
             url = n.url
             # In case entered like host.com/api instead of host.com/api/
             if url[-1] is not "/":
@@ -56,34 +56,34 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
             r = requests.get(url + 'posts/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
 
             if r.status_code is not 200:
-                print("Error response code was bad: " + str(r.status_code) + "from: " + n.name)
+                print("Error response code was bad: " + str(r.status_code) + " from: " + n.name)
             elif (len(r.text) < 1):
                 print("Response was empty from: " + n.name)
             else:
                 data = {}
                 try:
+                    # Parse the json
                     data = json.loads(r.text)
-                except Exception as e:
-                    print("Error from group: " + n.name)
-                    print(str(e))
-                    #posts.append(RemotePost("0", "Json Error from "+ n.name, "Json could not be decoded", str(e), r.text, "Error", "Error", "9732b4fd-3576-45db-a4a8-9bd07843c2ca", "Error", "Error"))
-                try:
-                    for post_json in data['posts']:
-                        serializer = PostsSerializer(data=post_json)
-                        valid = serializer.is_valid()
-                        if not valid:
-                            # Ignore posts that are not valid
-                            print("error")
-                            print(serializer.errors)
-                        else:
-                            post_data = serializer.validated_data
-                            post_author = post_data['author']
+                    try:
+                        for post_json in data['posts']:
+                            serializer = PostsSerializer(data=post_json)
+                            valid = serializer.is_valid()
+                            if not valid:
+                                # Ignore posts that are not valid
+                                print("Error from group: " + n.name + ", serializer is not valid.")
+                                print(serializer.errors)
+                            else:
+                                post_data = serializer.validated_data
+                                post_author = post_data['author']
 
-                            post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
-                                post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
-                            posts.append(post)
+                                post = RemotePost(post_json['id'], post_data['title'], post_data['description'], post_data['contentType'],
+                                    post_data['content'], post_data['visibility'], post_data['published'], post_author['displayName'], post_author['id'],n)
+                                posts.append(post)
+                    except Exception as e:
+                        print("Error from group: " + n.name + "while parsing post data")
+                        print(str(e))
                 except Exception as e:
-                    print("Error from group: " + n.name)
+                    print("Error from group: " + n.name + "after calling json.loads:")
                     print(str(e))
         if len(posts) > 0:
             return sorted(posts, reverse=True, key=lambda RemotePost: RemotePost.published)
