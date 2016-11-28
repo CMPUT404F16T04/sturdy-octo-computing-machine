@@ -336,6 +336,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                         """
                         FILTER POSTS BY VISIBIITY
                         """
+                        print("Checking post " + post.title + " for " + post.author_display_name)
+                        print(post.visibility)
                         if post.visibility == "PUBLIC":
                             # We can see all public posts
                             posts.append(post)
