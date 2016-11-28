@@ -282,6 +282,13 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             foreign_author = None
             try:
                 foreign_author = ForeignAuthor.objects.get(id=authorUUID)
+                try:
+                    # Update display name if it changed
+                    if foreign_author.display_name != author_data['displayName']:
+                        foreign_author.display_name = author_data['displayName']
+                        foreign_author.save()
+                except KeyError, error:
+                    print "View Remote Profile Key Error: " + str(error) + " from " + node.name
             except ForeignAuthor.DoesNotExist:
                 try:
                     foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node, url=author_data['url'])
