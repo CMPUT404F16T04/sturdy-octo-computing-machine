@@ -433,6 +433,7 @@ class FriendRequest(APIView):
         data = serializer.validated_data
         author_data = data.get('author')
         friend_data = data.get('friend')
+        print("\n GOT A FRIEND REQUEST THROUGH THE API")
         print(author_data)
         print(friend_data)
         author = None
@@ -461,13 +462,13 @@ class FriendRequest(APIView):
                 try:
                     node = Node.objects.get(url=author_data['host'])
                 except Node.DoesNotExist:
-                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 try:
                     author_url = node.url + '/author/' + str(author_data['id'])
                     author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node, url=author_url)
                     author.save()
                 except Exception as error:
-                    print("Error in friend request" + str(e))
+                    print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Friend exists on our server. Add the friend to the author's pending foreign friends list.
             friend.pending_foreign_friends.add(author)
@@ -481,12 +482,12 @@ class FriendRequest(APIView):
                 try:
                     node = Node.objects.get(url=author_data['host'])
                 except Node.DoesNotExist:
-                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 try:
                     friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
                     friend.save()
                 except Exception as error:
-                    print("Error in friend request" + str(e))
+                    print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
             author.pending_foreign_friends.add(friend)
