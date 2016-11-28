@@ -50,6 +50,13 @@ class HTMLsafe():
             return markdowned.replace('\n', '<br/>')
         return safe_text.replace('\n', '<br/>')
 
+    @staticmethod
+    def get_url_fixed(url_link):
+        url = url_link
+        if url[-1] != "/":
+            url = url + "/"
+        return url
+
 class ForbiddenContent403():
     @staticmethod
     def denied():

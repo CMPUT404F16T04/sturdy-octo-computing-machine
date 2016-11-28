@@ -352,6 +352,47 @@ class Comment(models.Model):
     def __unicode__(self):
         return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.displayName + ": " + self.content
 
+class ForeignCommentManager(models.Manager):
+    """ Helps creating a foreign comment.
+    """
+    def create(self, guid, foreignauthor, parent_post, comment, pubDate, contentType):
+        markdown = False
+        if contentType == "text/markdown" or contentType == "text/x-markdown":
+            markdown = True
+        c = self.create(id=guid, foreign_author=foreignauthor, parent_post=parent_post, content=comment, \
+            created_on=pubDate, markdown=markdown)
+        return c
+
+class ForeignComment(models.Model):
+    """ Represents a comment made by a foreign user
+    Had to make another class because can't hide/override fields according to django when normal inheriting.
+    https://docs.djangoproject.com/en/1.10/topics/db/models/#field-name-hiding-is-not-permitted
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    objects = CommentQuerySet.as_manager()
+    parent_post = models.ForeignKey(Post, related_name="foreign_comment_parent_post")
+    foreign_author = models.ForeignKey(ForeignAuthor, related_name="foreign_comment_author")
+    content = models.TextField(max_length=512)
+    created_on = models.DateTimeField(auto_now=True)
+    markdown = models.BooleanField()
+
+    def get_absolute_url(self):
+        """ Gets the canonical URL for a Post
+        Will be of the format .../posts/<id>/comment/<id>
+        """
+        return reverse('view_remote_post', args=[str(self.parent_post.id)])
+
+    def view_content(self):
+        """ Retrieves content to be displayed as html, it is assumed safe
+        due to HTMLsafe's get_converted_content() applies HTML escapes already.
+        """
+        return HTMLsafe.get_converted_content(self.markdown, self.content)
+
+    # enable weird characters like lenny faces taken from:
+    #http://stackoverflow.com/questions/36389723/why-is-django-using-ascii-instead-of-utf-8
+    def __unicode__(self):
+        return "Parent post:"+ str(self.parent_post.id) + ", Author:" + self.author.displayName + ": " + self.content
+
 class ImageManager(models.Manager):
     """ Helps creating an image object.
     Taken from https://docs.djangoproject.com/en/1.10/ref/models/instances/#creating-objects
