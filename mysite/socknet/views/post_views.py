@@ -426,7 +426,6 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             markdown = "text/x-markdown"
 
         node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
-
         cmt = {
             "author":{
                # ID of the Author (UUID)
@@ -438,7 +437,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
                # HATEOS url for Github API
                "github": str(auth.github_url)
             },
-            "comment": params['content'],
+            "comment": params['comment'],
             "contentType": markdown,
             # ISO 8601 TIMESTAMP
             "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
@@ -453,15 +452,15 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             "comments" : cmt
             }
         head = {
-            "content-type" : "application/json"
+            "Content-Type" : "application/json"
         }
         req = requests.post(url_post + '/comments', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
-        print add
+        print json.dumps(add)
         print "Received status code:" + str(req.status_code)
         print str(req.text)
         # content_type="application/json"
         r = HttpResponse(status=200)
-        r.write(url_post + "<br>" + str(add) + "<br> received status code: " + str(req.status_code) + "<br>" + str(req.text))
+        r.write(str(params) + "<br>" + url_post + "<br>" + str(json.dumps(add)) + "<br> received status code: " + str(req.status_code) + "<br>" + str(req.text))
         return r
 
 class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
