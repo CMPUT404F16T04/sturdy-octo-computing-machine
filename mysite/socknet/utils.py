@@ -251,3 +251,55 @@ def is_FOAF_remote(viewing_author, remote_author):
         # If we could not parse the response, then assume not FOAF
         print "Error making remote FOAF call, could not parse reponse " + str(error) + " from " + remote_author.node.name
         return False
+
+def update_friend_status(local_author, remote_author):
+    """
+    Given a local author and remote author, check that the friend data aligns within
+    what the other server has.
+    There are 2 states we need to consider:
+      - We are friends with them locally and they may have deleted it
+      - We have sent them a friend request and we need to check if they accepted it
+    """
+    try:
+        response = requests.get(url + 'friends/' + str(local_author.uuid) + "/" + authorUUID , auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass), timeout=5)
+    except requests.exceptions.Timeout as error:
+        print("The request timed out for is friends call" + foreign_author.display_name + " from " + foreign_author.node.name)
+        # If we could not get a reponse, then don't change data state and assume it is correct.
+        return
+
+    # Ensure we got a 200
+    if response.status_code is not 200:
+        # If we could not get a reponse, then don't change data state and assume it is correct.
+        print("Check is friends Error: Response code was " + str(response.status_code) + " from " + node.name)
+        return
+
+    # Ensure we got data back
+    if (len(response.text) < 1):
+        # If we could not get a reponse, then don't change data state and assume it is correct.
+        print("Check is friends Error: No JSON was sent back. From " + node.name)
+        return
+
+    try:
+        data = json.loads(response.text)
+        print(data)
+        status = data["friends"]
+        # Status data has different usage depending on relationship
+        if remote_author in local_author.foreign_friends.all():
+            # We are here because we are checking if the authors are still friends
+            if not status:
+                print "Remote author is not friends. Remove locally."
+                local_author.foreign_friends.remove(remote_author)
+                return
+            print "Remote author is friends. Do nothing."
+        elif remote_author in local_author.foreign_friends_im_following.all():
+            # We are here because we are checking if the remote author accepted our friend request
+            if status:
+                print "Remote author accepted our friend request! Update it."
+                local_author.foreign_friends_im_following.remove(remote_author)
+                local_author.foreign_friends.add(remote_author)
+                return
+            print "Remote author has not accepted our friend request yet."
+
+    except Exception as error:
+        # If we could not parse the response, then don't change data state
+        print("Error making remote IS_FRIENDS call, could not parse reponse " + str(error) + " from " + remote_author.node.name)

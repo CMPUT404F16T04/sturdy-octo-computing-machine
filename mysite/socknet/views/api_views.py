@@ -329,6 +329,7 @@ class CommentsViewSet(APIView):
         return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
         """
         return Response(status=200)
+
 class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
@@ -472,7 +473,8 @@ class FriendRequest(APIView):
                     print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Friend exists on our server. Add the friend to the author's pending foreign friends list.
-            friend.pending_foreign_friends.add(author)
+            if author not in friend.pending_foreign_friends.all():
+                friend.pending_foreign_friends.add(author)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         if (friend is None):
@@ -492,7 +494,8 @@ class FriendRequest(APIView):
                     print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
-            author.pending_foreign_friends.add(friend)
+            if friend not in author.pending_foreign_friends.all():
+                author.pending_foreign_friends.add(friend)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         # If we got here, then both authors are local.

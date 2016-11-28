@@ -150,8 +150,13 @@ class Author(models.Model):
                 self.ignored.remove(requester)
         else:
             requester = ForeignAuthor.objects.get(id=requester_uuid)
-            self.pending_foreign_friends.remove(requester)
-            self.foreign_friends.add(requester)
+            if requester not in self.foreign_friends.all():
+                self.foreign_friends.add(requester)
+            if requester in self.pending_foreign_friends.all():
+                self.pending_foreign_friends.remove(requester)
+            if requester in self.foreign_friends_im_following.all():
+                # Incase the other group does something weird..
+                self.foreign_friends_im_following.remove(requester)
         self.save()
         return
 

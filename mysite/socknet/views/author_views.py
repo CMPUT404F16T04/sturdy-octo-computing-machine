@@ -302,6 +302,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             is_friend = False
             if foreign_author: # Only do stuff if we actually have an object.
                 context['profile_author'] = foreign_author
+                update_friend_status() # Update friends relationship
                 is_friend = self.request.user.author.is_friend(foreign_author.id)
                 context['is_friend'] = is_friend
                 if is_friend:
@@ -394,6 +395,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                 print("RESPONSE FROM SENDING FRIEND REQUEST")
                 print(response.status_code)
                 print(response)
+                if foreign_author not in local_author.foreign_friends_im_following.all():
+                    local_author.foreign_friends_im_following.add(foreign_author)
                 return HttpResponse(status=200)
         # Returning 500 right now since nothing else should be posting to this page
         return HttpResponse(status=500)
