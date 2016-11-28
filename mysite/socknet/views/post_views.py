@@ -54,7 +54,12 @@ class ListRemotePosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView)
             if url[-1] is not "/":
                 url = url + "/"
             r = requests.get(url + 'posts/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-            if (len(r.text) > 0):
+
+            if r.status_code is not 200:
+                print("Error response code was bad: " + str(r.status_code) + "from: " + n.name)
+            elif (len(r.text) < 1):
+                print("Response was empty from: " + n.name)
+            else:
                 data = {}
                 try:
                     data = json.loads(r.text)
