@@ -462,6 +462,7 @@ class FriendRequest(APIView):
                 try:
                     node = Node.objects.get(url=author_data['host'])
                 except Node.DoesNotExist:
+                    print("FRIEND REQUEST ERROR WITH AUTHOR NODE")
                     return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 try:
                     author_url = node.url + '/author/' + str(author_data['id'])
@@ -480,8 +481,9 @@ class FriendRequest(APIView):
             else:
                 node = None
                 try:
-                    node = Node.objects.get(url=author_data['host'])
+                    node = Node.objects.get(url=friend_data['host'])
                 except Node.DoesNotExist:
+                    print("FRIEND REQUEST ERROR WITH FRIEND NODE")
                     return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 try:
                     friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
