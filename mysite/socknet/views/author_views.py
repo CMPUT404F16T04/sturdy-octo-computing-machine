@@ -8,6 +8,8 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from socknet.utils import ForbiddenContent403, RemotePost
+from django.core.validators import URLValidator
+
 
 from socknet.models import *
 from socknet.forms import *
@@ -27,6 +29,16 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
         post_manager = PostManager()
         context['context_list'] = post_manager.get_profile_posts(profile_author, self.request.user.author)
 
+        URLval = URLValidator(verify_exists=True)
+        githubValid = False
+        try: 
+            URLval(profile_author.github_url)
+            githubValid = True
+        except ValidationError, e: 
+            githubValid = False
+
+        print(githubValid)
+        
         if authorUUID != self.request.user.author.uuid:
             author = self.request.user.author
             # We are viewing someone elses page, determine what our relationship with
