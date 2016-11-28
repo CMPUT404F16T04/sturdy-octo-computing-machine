@@ -263,8 +263,8 @@ class CommentsViewSet(APIView):
 
     def get(self, request, post_id, format=None):
         """
-        Return a list of the authors friends.
-        GET http://service/friends/<authorid>
+        Return a list of the post's comments
+        GET http://service/posts/<POST_ID>/comments
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         try:
@@ -304,6 +304,39 @@ class CommentsViewSet(APIView):
         except Author.DoesNotExist:
             return Response({'Error': 'Author does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
+    def post(self, request, format=None):
+        """
+        Posts to comments to create a comment.
+        POST to http://service/posts/<POST_ID>/comments
+        """
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        print request.data
+        """# Validate the request data
+        serializer = FriendsQuerySerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
+        data = serializer.validated_data
+
+        # Check that the author in the json data matches the author in the url
+        if (authorid != data.get('author')):
+            return Response({"Error": "The author uuid in the data does not match the author uuid in the url."}, status.HTTP_400_BAD_REQUEST)
+
+        # Check that the author exists
+        try:
+            author = Author.objects.get(uuid=authorid)
+        except Author.DoesNotExist:
+            return Response({"Error": "The author does not exist."}, status.HTTP_404_NOT_FOUND)
+
+        #  Check if anyone is the author's friend
+        friend_uuids = author.get_all_friend_uuids()
+        matching_uuids = []
+        for friend_id in data.get('authors'):
+            if uuid.UUID(friend_id) in friend_uuids:
+                matching_uuids.append(friend_id)
+
+        return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
+        """
+        return Response(status=200, content="YES")
 class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
