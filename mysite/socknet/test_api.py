@@ -198,7 +198,6 @@ class PostsAPITests(APITestCase):
                                title="Example Title",
                                content="Example Content.",
                                markdown=False)
-        print(self.post.content)
 
         self.client.force_authenticate(user=self.user)
 
@@ -209,12 +208,11 @@ class PostsAPITests(APITestCase):
 
         url = "/api/posts/"
         response = self.client.get(url)
-        # print("\nresp.content>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-        # print(response.content)
         decoded_json = json.loads(response.content)
-        # print(decoded_json)
 
         self.assertEqual(response.status_code, 200)
-        # print(decoded_json['posts'][0]['content'])
-        print(">>> " + decoded_json['posts'][0]['content'])
+        self.assertEqual(decoded_json['posts'][0]['title'], "Example Title", "Post title does not match.")
+        self.assertEqual(decoded_json['posts'][0]['description'], "No description provided.", "Post description does not match.")
         self.assertEqual(decoded_json['posts'][0]['content'], "Example Content.", "Post content does not match.")
+        self.assertEqual(decoded_json['posts'][0]['visibility'], "PUBLIC", "Post visibility does not match.")
+        self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
