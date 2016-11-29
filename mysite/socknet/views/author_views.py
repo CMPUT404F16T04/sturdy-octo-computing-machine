@@ -100,7 +100,12 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
     def get_context_data(self, **kwargs):
         # Get all friend of a user.
         context = super(ManageFriends, self).get_context_data(**kwargs)
-        friends = self.request.user.author.get_friends()
+
+        # Check pending friend requests incase someone accepted!
+        profile_author = self.request.user.author
+        for foreign_author in profile_author.foreign_friends.all():
+            update_friend_status(profile_author, foreign_author)
+        friends = profile_author.get_friends()
         context['friends'] = friends
         context['count'] = len(friends)
         return context
@@ -270,6 +275,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             # Ensure the data is valid
             if not serializer.is_valid():
                 context['error'] = "Validation Error: " + str(serializer.errors)
+                print(json_data)
                 print "View Remote Profile Validation Error: " + str(serializer.errors) + " from " + node.name
 
             author_data = serializer.validated_data
