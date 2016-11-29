@@ -1,8 +1,8 @@
 import uuid
 import json
 import datetime
-
-from django.shortcuts import get_object_or_404
+import urllib
+from django.shortcuts import get_object_or_404, redirect
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponse, FileResponse
@@ -194,6 +194,9 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
         paginator = Paginator(comments, 5)
         page = self.request.GET.get('page')
 
+
+
+
         foreign_comments = ForeignComment.objects.filter(parent_post_id=context['post'].id)
         context['foreign_comments'] = foreign_comments
 
@@ -260,6 +263,7 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         try:
             if postfind is not None :
                 postdat = postfind['posts']
+                print(postdat)
                 post_original = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
                             postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
             for i in datafind['comments']:
@@ -443,7 +447,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
                # HATEOS url for Github API
                "github": str(auth.github_url)
             },
-            "comment": params['comment'],
+            "comment": urllib.unquote_plus(params['comment']),
             "contentType": markdown,
             # ISO 8601 TIMESTAMP
             "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
@@ -461,13 +465,15 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             "content-type" : "application/json"
         }
         req = requests.post(url_post + '/comments/', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
-        print add
+        #print add
         print "Received status code:" + str(req.status_code)
-        print str(req.text)
+        #print str(req.text)
         # content_type="application/json"
+        #nodeID>[0-9]+)/remote_posts/(?P<pk
         r = HttpResponse(status=200)
         r.write(url_post + "<br>" + str(add) + "<br> received status code: " + str(req.status_code) + "<br>" + str(req.text))
-        return r
+        #return r
+        return redirect("view_remote_post", nodeID = node_obj.id, pk = self.kwargs.get('pk'))
 
 class ViewImage(LoginRequiredMixin, generic.base.TemplateView):
     """ Get the normal image view. """

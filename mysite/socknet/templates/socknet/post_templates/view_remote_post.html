@@ -22,9 +22,9 @@
         </article>
         <div class="post-actions">
             <div class="action">
-                <a href="">Write Comment</a>
+                <a href="{% url 'create_foreign_comment' pk=postdat.id nodeID=postdat.node.id %}">Write Comment</a>
             </div>
-            <a onclick="window.history.back()" href="#">Return to Post List</a>
+            <a href="{% url 'list_remote_posts' %}">Return to Remote Post List</a>
         </div>
 </div>
 

@@ -312,7 +312,8 @@ class CommentsViewSet(APIView):
                     "host": "http://cmput404f16t04dev.herokuapp.com",
                     "github": ""
                 },
-                "comment": "fdbdf",
+                "comment"
+                : "fdbdf",
                 "guid": "94e943b9-c0bd-4438-b5b1-12d624ff303a"
                 },
             "query": "addComment",
@@ -369,7 +370,7 @@ class CommentsViewSet(APIView):
 
         # Create the comment
         fcm = ForeignCommentManager()
-        fcm.create_comment(comment_data['id'], foreign_author, parent_post, comment_data['content'], comment_data['created_on'], comment_data['contentType'])
+        fcm.create_comment(foreign_author, parent_post, comment_data['content'], comment_data['contentType'])
         return Response({"query": "addComment", "success": True, "message":"Comment Added"}, status=200)
 
 class IsFriendQuery(APIView):

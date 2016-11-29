@@ -66,7 +66,7 @@ class AuthorAdmin(admin.ModelAdmin):
     readonly_fields=('friends', 'who_im_following', 'ignored', 'foreign_friends', "pending_foreign_friends", "host", "url")
     fieldsets = (
         (None, {
-            'fields': ('user', 'displayName','host', 'url', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored', 'foreign_friends', 'pending_foreign_friends')
+            'fields': ('user', 'displayName','host', 'url', 'about_me', 'birthday','github_url', 'friends', 'who_im_following', 'ignored', 'foreign_friends', 'pending_foreign_friends', 'foreign_friends_im_following')
         }),
     )
 
