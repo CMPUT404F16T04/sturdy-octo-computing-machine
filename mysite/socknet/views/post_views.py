@@ -460,7 +460,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
         head = {
             "content-type" : "application/json"
         }
-        req = requests.post(url_post + '/comments', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
+        req = requests.post(url_post + '/comments/', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
         print add
         print "Received status code:" + str(req.status_code)
         print str(req.text)
