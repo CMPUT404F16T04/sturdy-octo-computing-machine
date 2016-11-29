@@ -67,5 +67,10 @@
             $('#id_markdown').prop('checked', true)
         }
     });
+
+		$(document).ready(function() {
+			$('#visibility-select').val('{{ post.visibility }}');
+		});
+
 </script>
 {% endblock scripts %}
