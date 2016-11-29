@@ -312,7 +312,7 @@ class CommentsViewSet(APIView):
         # self, name, node_name, uuid, is_local):
         #foreignAuthor = AuthorInfo(com_auth['displayName'], )
         foaf = is_FOAF_str_remote()
-        friend /api/friends/
+        #friend /api/friends/
         # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
         # and get the basic posting to work first!!!!! so other teams can test it etc.
 
@@ -338,6 +338,7 @@ class CommentsViewSet(APIView):
             "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
         """
         return Response(status=200)
+
 class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
@@ -442,6 +443,7 @@ class FriendRequest(APIView):
         data = serializer.validated_data
         author_data = data.get('author')
         friend_data = data.get('friend')
+        print("\n GOT A FRIEND REQUEST THROUGH THE API")
         print(author_data)
         print(friend_data)
         author = None
@@ -470,16 +472,18 @@ class FriendRequest(APIView):
                 try:
                     node = Node.objects.get(url=author_data['host'])
                 except Node.DoesNotExist:
-                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    print("FRIEND REQUEST ERROR WITH AUTHOR NODE")
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 try:
                     author_url = node.url + '/author/' + str(author_data['id'])
                     author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node, url=author_url)
                     author.save()
                 except Exception as error:
-                    print("Error in friend request" + str(e))
+                    print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Friend exists on our server. Add the friend to the author's pending foreign friends list.
-            friend.pending_foreign_friends.add(author)
+            if author not in friend.pending_foreign_friends.all():
+                friend.pending_foreign_friends.add(author)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         if (friend is None):
@@ -488,17 +492,19 @@ class FriendRequest(APIView):
             else:
                 node = None
                 try:
-                    node = Node.objects.get(url=author_data['host'])
+                    node = Node.objects.get(url=friend_data['host'])
                 except Node.DoesNotExist:
-                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    print("FRIEND REQUEST ERROR WITH FRIEND NODE")
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
                 try:
                     friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
                     friend.save()
                 except Exception as error:
-                    print("Error in friend request" + str(e))
+                    print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
-            author.pending_foreign_friends.add(friend)
+            if friend not in author.pending_foreign_friends.all():
+                author.pending_foreign_friends.add(friend)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         # If we got here, then both authors are local.
