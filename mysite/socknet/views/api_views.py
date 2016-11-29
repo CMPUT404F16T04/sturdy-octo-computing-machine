@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
 from socknet.models import Author, Post, ImageServ, Comment
+from socknet.utils import *
 
 ### HELPER FUNCTIONS ###
 
@@ -301,32 +302,40 @@ class CommentsViewSet(APIView):
         POST to http://service/posts/<POST_ID>/comments
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        data = request.data
         print post_id
-        print "AAAAA " + str(request.data)
-        """# Validate the request data
-        serializer = FriendsQuerySerializer(data=request.data)
-        if not serializer.is_valid():
-            return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
-        data = serializer.validated_data
+        print data
+        post_obj = Posts
+        com_auth = data['comment']['author']
+        comment_host = HTMLsafe.get_url_fixed(comment_author['host'])
+        # is_FOAF_remote(viewing_author, remote_author)
+        # self, name, node_name, uuid, is_local):
+        #foreignAuthor = AuthorInfo(com_auth['displayName'], )
+        foaf = is_FOAF_str_remote()
+        friend /api/friends/
+        # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
+        # and get the basic posting to work first!!!!! so other teams can test it etc.
 
-        # Check that the author in the json data matches the author in the url
-        if (authorid != data.get('author')):
-            return Response({"Error": "The author uuid in the data does not match the author uuid in the url."}, status.HTTP_400_BAD_REQUEST)
+        # create a ForeignComment object from received data using ForeignCommentManager
+        # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
 
-        # Check that the author exists
-        try:
-            author = Author.objects.get(uuid=authorid)
-        except Author.DoesNotExist:
-            return Response({"Error": "The author does not exist."}, status.HTTP_404_NOT_FOUND)
-
-        #  Check if anyone is the author's friend
-        friend_uuids = author.get_all_friend_uuids()
-        matching_uuids = []
-        for friend_id in data.get('authors'):
-            if uuid.UUID(friend_id) in friend_uuids:
-                matching_uuids.append(friend_id)
-
-        return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
+        #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+        """receiving:
+        { "comment": {
+                "contentType": "text/plain",
+                "published": "2016-11-28T22:15:38.060015Z",
+                "author": {
+                    "displayName": "admin",
+                    "id": "e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "url": "cmput404f16t04dev.herokuapp.com/author/e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "host": "cmput404f16t04dev.herokuapp.com",
+                    "github": ""
+                },
+                "comment": "fdbdf",
+                "guid": "94e943b9-c0bd-4438-b5b1-12d624ff303a"
+                },
+            "query": "addComment",
+            "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
         """
         return Response(status=200)
 class IsFriendQuery(APIView):

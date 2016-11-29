@@ -449,7 +449,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
         add = {
             "query" : "addComment",
             "post" : str(url_post),
-            "comments" : cmt
+            "comment" : cmt
             }
         head = {
             "Content-Type" : "application/json"

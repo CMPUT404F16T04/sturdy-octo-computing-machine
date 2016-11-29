@@ -251,3 +251,51 @@ def is_FOAF_remote(viewing_author, remote_author):
         # If we could not parse the response, then assume not FOAF
         print "Error making remote FOAF call, could not parse reponse " + str(error) + " from " + remote_author.node.name
         return False
+
+def is_FOAF_str_remote(local_author, remote_author_uuid, remote_node):
+    """
+    When a local author views a remote author's profile and we want to check if
+    the viewing author is a FOAF.
+    """
+    viewers_friends = viewing_author.get_all_friend_uuids()
+    print("\nViewers Friends")
+    print(viewers_friends)
+    # Send a request to remote node
+    url = remote_author.node.url
+    if url[-1] is not "/":
+        url = url + "/"
+    response = None
+    try:
+        response = requests.get(url=url + 'friends/' + str(remote_author_uuid), auth=requests.auth.HTTPBasicAuth(remote_author.node.foreignNodeUser, remote_author.node.foreignNodePass), timeout=5)
+    except requests.exceptions.Timeout as error:
+        # if we timeout, assume not FOAF
+        print("The request timed out for FOAF call" + remote_author_uuid + " from " + remote_node)
+        return False
+
+    if response.status_code is not 200:
+        # Assume not FOAF
+        print "Error making remote FOAF call, response code was " + str(response.status_code) + " from " + remote_author_uuid
+        return False
+
+    # Ensure we got data back
+    if (len(response.text) < 1):
+        print "Error making remote FOAF call, response text was empty from " + remote_node
+        return False
+
+    try:
+        data = json.loads(response.text)
+        remote_friends = []
+        for friend_uuid in data['authors']:
+            remote_friends.append(uuid.UUID(friend_uuid))
+        print("\n Returned Friends")
+        print(remote_friends)
+
+        intersect = list(set(viewers_friends) & set(remote_friends))
+        if len(intersect):
+            return True
+        return False
+
+    except Exception as error:
+        # If we could not parse the response, then assume not FOAF
+        print "Error making remote FOAF call, could not parse reponse " + str(error) + " from " + remote_author.node.name
+        return False
