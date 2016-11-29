@@ -194,6 +194,9 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
         paginator = Paginator(comments, 5)
         page = self.request.GET.get('page')
 
+
+
+
         foreign_comments = ForeignComment.objects.filter(parent_post_id=context['post'].id)
         context['foreign_comments'] = foreign_comments
 
@@ -260,6 +263,7 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         try:
             if postfind is not None :
                 postdat = postfind['posts']
+                print(postdat)
                 post_original = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
                             postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
             for i in datafind['comments']:
