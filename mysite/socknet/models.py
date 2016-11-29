@@ -360,7 +360,14 @@ class Comment(models.Model):
 class ForeignCommentManager(models.Manager):
     """ Helps creating a foreign comment.
     """
-    def create_comment(self, guid, foreign_author, parent_post, content, created_on, contentType):
+    def create_comment(self, foreign_author, parent_post, content, contentType):
+        markdown = False
+        if contentType == "text/markdown" or contentType == "text/x-markdown":
+            markdown = True
+        c = ForeignComment.objects.create(foreign_author=foreign_author, parent_post=parent_post, content=content, markdown=markdown)
+        return c
+
+    def create_comment2(self, guid, foreign_author, parent_post, content, created_on, contentType):
         markdown = False
         if contentType == "text/markdown" or contentType == "text/x-markdown":
             markdown = True
@@ -369,7 +376,7 @@ class ForeignCommentManager(models.Manager):
         return c
 
 class ForeignCommentQuerySet(models.QuerySet):
-    
+
     def all_foreign_comments_for_post(self, post_pk, ordered):
         # Retrieve only post specific comments
         results = self.filter(parent_post_id=post_pk)
