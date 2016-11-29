@@ -260,6 +260,9 @@ def update_friend_status(local_author, remote_author):
       - We are friends with them locally and they may have deleted it
       - We have sent them a friend request and we need to check if they accepted it
     """
+    url = foreign_author.node.url
+    if url[-1] is not "/":
+        url = url + "/"
     try:
         response = requests.get(url + 'friends/' + str(local_author.uuid) + "/" + authorUUID , auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass), timeout=5)
     except requests.exceptions.Timeout as error:
