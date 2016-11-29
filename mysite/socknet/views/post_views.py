@@ -1,7 +1,7 @@
 import uuid
 import json
 import datetime
-
+import urllib
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -443,7 +443,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
                # HATEOS url for Github API
                "github": str(auth.github_url)
             },
-            "comment": params['comment'],
+            "comment": urllib.unquote_plus(params['comment']),
             "contentType": markdown,
             # ISO 8601 TIMESTAMP
             "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
