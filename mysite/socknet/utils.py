@@ -264,7 +264,7 @@ def update_friend_status(local_author, foreign_author):
     if url[-1] is not "/":
         url = url + "/"
     try:
-        response = requests.get(url + 'friends/' + str(local_author.uuid) + "/" + str(foreign_author.id) , auth=HTTPBasicAuth(foreign_author.node.foreignNodeUser, foreign_author.node.foreignNodePass), timeout=5)
+        response = requests.get(url + 'friends/' + str(local_author.uuid) + "/" + str(foreign_author.id) , auth=requests.auth.HTTPBasicAuth(foreign_author.node.foreignNodeUser, foreign_author.node.foreignNodePass), timeout=5)
     except requests.exceptions.Timeout as error:
         print("The request timed out for is friends call" + foreign_author.display_name + " from " + foreign_author.node.name)
         # If we could not get a reponse, then don't change data state and assume it is correct.
