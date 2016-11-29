@@ -312,7 +312,7 @@ class CommentsViewSet(APIView):
         # self, name, node_name, uuid, is_local):
         #foreignAuthor = AuthorInfo(com_auth['displayName'], )
         foaf = is_FOAF_str_remote()
-        friend /api/friends/
+        #friend /api/friends/
         # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
         # and get the basic posting to work first!!!!! so other teams can test it etc.
 
