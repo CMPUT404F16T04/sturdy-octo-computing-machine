@@ -391,7 +391,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                     }
                 }
                 json_data = json.dumps(data) # encode
-                response = requests.post(url=url + "friendrequest", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+                response = requests.post(url=url + "friendrequest/", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
                 print("RESPONSE FROM SENDING FRIEND REQUEST")
                 print(response.status_code)
                 print(response)
