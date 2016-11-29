@@ -89,11 +89,11 @@
 
         $('#friend_anchor').click(function (e) {
             var id = $(this).attr('id');
-            var status = $(this).data("status");
+            var status = "{{ friend_status }}"
             var csrftoken = getCookie('csrftoken'); // From js/cookie.js
 
             // Send a friend request
-            if (status == "False") {
+            if (status == "NONE") {
                 e.preventDefault(); // Disable link
                 console.log("Author wants to friend: "+$(this).data("username"));
                 // Unfriend with ajax so we don't have to reload the page.
