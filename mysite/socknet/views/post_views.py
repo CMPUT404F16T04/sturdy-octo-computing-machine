@@ -209,61 +209,63 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ViewRemotePost, self).get_context_data(**kwargs)
+        n = get_object_or_404(Node, id=self.kwargs['nodeID'])
         pid = self.kwargs['pk']
-
         comments = []
         post_original = None
-        for n in Node.objects.all():
-            print "Fetching Post & Comment data from Node: " + n.name
-            url = HTMLsafe.get_url_fixed(n.url)
-            # In case entered like host.com/api instead of host.com/api/
-            print "API URL: " + url
-            rpost = requests.get(url + 'posts/' + str(pid), auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-            r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-            print "Response received"
-            print "comments status code:" + str(r.status_code)
-            print "post status code:" + str(rpost.status_code)
-            #print rpost.text
-            #print r.text
 
-            # Ensure we got a 200
-            if r.status_code is not 200:
-                err = "Error: Response code of url/posts/{id}/comments was " + str(r.status_code)
-                context['error'] = err
-                print err
-            if rpost.status_code is not 200:
-                err = "Error: Response code of url/posts/{id} was " + str(r.status_code)
-                context['error'] = err
-                print err
-            # Ensure we got data back
-            if (len(r.text) < 0):
-                err = "Error: No JSON from url/posts/{id}/comments was sent back."
-                context['error'] = err
-                print err
-            if (len(rpost.text) < 0):
-                err = "Error: No JSON from url/posts/{id} was sent back."
-                context['error'] = err
-                print err
-            datafind = {}
-            postfind = None
-            try:
-                postfind = json.loads(rpost.text)
-                datafind = json.loads(r.text)
-            except ValueError, error:
-                context['error'] = "Error: " + str(error)
-                print("ValueError json loads in post_views.py ViewRemotePost" + str(error))
-            try:
-                if postfind is not None :
-                    postdat = postfind['posts']
-                    post_original = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
-                                postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
-                for i in datafind['comments']:
-                    # at utils.py RemoteComment((self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node)
-                    dat = RemoteComment(i['guid'], i['contentType'], i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
-                    comments.append(dat)
-            except KeyError, error:
-                context['error'] = "Error: comments KeyError, " + str(error)
-                print("KeyError json loads for comments in post_views.py ViewRemotePost" + str(error))
+        print "Fetching Post & Comment data from Node: " + n.name
+        url = HTMLsafe.get_url_fixed(n.url)
+        # In case entered like host.com/api instead of host.com/api/
+        print "API URL: " + url
+        rpost = requests.get(url + 'posts/' + str(pid), auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+        r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+        print "Response received"
+        print "comments status code:" + str(r.status_code)
+        print "post status code:" + str(rpost.status_code)
+        #print rpost.text
+        #print r.text
+
+        # Ensure we got a 200
+        if r.status_code is not 200:
+            err = "Error: Response code of url/posts/{id}/comments was " + str(r.status_code)
+            context['error'] = err
+            print err
+        if rpost.status_code is not 200:
+            err = "Error: Response code of url/posts/{id} was " + str(r.status_code)
+            context['error'] = err
+            print err
+        # Ensure we got data back
+        if (len(r.text) < 0):
+            err = "Error: No JSON from url/posts/{id}/comments was sent back."
+            context['error'] = err
+            print err
+        if (len(rpost.text) < 0):
+            err = "Error: No JSON from url/posts/{id} was sent back."
+            context['error'] = err
+            print err
+
+        datafind = {}
+        postfind = None
+        try:
+            postfind = json.loads(rpost.text)
+            datafind = json.loads(r.text)
+        except ValueError, error:
+            context['error'] = "Error: " + str(error)
+            print("ValueError json loads in post_views.py ViewRemotePost" + str(error))
+        try:
+            if postfind is not None :
+                postdat = postfind['posts']
+                post_original = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
+                            postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
+            for i in datafind['comments']:
+                # at utils.py RemoteComment((self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node)
+                dat = RemoteComment(i['guid'], i['contentType'], i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
+                comments.append(dat)
+        except KeyError, error:
+            context['error'] = "Error: comments KeyError, " + str(error)
+            print("KeyError json loads for comments in post_views.py ViewRemotePost" + str(error))
+
         try:
             context['post_auth_id'] = post_original.author_id
         except AttributeError, error:

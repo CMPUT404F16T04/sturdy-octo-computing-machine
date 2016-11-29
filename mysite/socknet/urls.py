@@ -33,7 +33,7 @@ urlpatterns = [
 
     # Remote Posts
     url(r'^remote_posts/$', post_views.ListRemotePosts.as_view(), name='list_remote_posts'),
-    url(r'^remote_posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewRemotePost.as_view(), name='view_remote_post'),
+    url(r'^remote_node/(?P<nodeID>[0-9]+)/remote_posts/(?P<pk>[0-9A-Fa-f-]+)/$', post_views.ViewRemotePost.as_view(), name='view_remote_post'),
 
     # Friends Posts (both local and remote)
     url(r'^friends_posts/$', post_views.ListFriendsPosts.as_view(), name='list_friends_posts'),
