@@ -300,34 +300,24 @@ class CommentsViewSet(APIView):
         """
         Posts to comments to create a comment.
         POST to http://service/posts/<POST_ID>/comments
+
+        Example:
+        { "comment": {
+                "contentType": "text/plain",
+                "published": "2016-11-28T22:15:38.060015Z",
+                "author": {
+                    "displayName": "admin",
+                    "id": "e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "url": "cmput404f16t04dev.herokuapp.com/author/e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "host": "http://cmput404f16t04dev.herokuapp.com",
+                    "github": ""
+                },
+                "comment": "fdbdf",
+                "guid": "94e943b9-c0bd-4438-b5b1-12d624ff303a"
+                },
+            "query": "addComment",
+            "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
         """
-        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
-
-        """
-        Posts to comments to create a comment.
-        POST to http://service/posts/<POST_ID>/comments
-
-        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
-        data = request.data
-        print post_id
-        print data
-        post_obj = Posts
-        com_auth = data['comment']['author']
-        comment_host = HTMLsafe.get_url_fixed(comment_author['host'])
-        # is_FOAF_remote(viewing_author, remote_author)
-        # self, name, node_name, uuid, is_local):
-        #foreignAuthor = AuthorInfo(com_auth['displayName'], )
-        foaf = is_FOAF_str_remote()
-        """
-        #friend /api/friends/
-        # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
-        # and get the basic posting to work first!!!!! so other teams can test it etc.
-
-        # create a ForeignComment object from received data using ForeignCommentManager
-        # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
-
-        #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-
         # Ensure the parent post exists
         parent_post = None
         try:
@@ -335,6 +325,20 @@ class CommentsViewSet(APIView):
         except Post.DoesNotExist:
             print("ADD COMMENT API ERROR: Parent post does not exist.")
             return Response({'Errors': "Parent post does not exist."}, status.HTTP_404_NOT_FOUND)
+
+        """
+        CHECK VISIBILITY
+        # is_FOAF_remote(viewing_author, remote_author)
+        foaf = is_FOAF_str_remote()
+        #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+        #friend /api/friends/
+        # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
+        # and get the basic posting to work first!!!!! so other teams can test it etc.
+        # create a ForeignComment object from received data using ForeignCommentManager
+        # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
+        """
+        if parent_post.visibility == "SERVERONLY" or  parent_post.visibility == "PRIVATE":
+            return Response({"query": "addComment", "success": False, "message":"Comment not allowed"}, status=403)
 
         # Validate the request data
         serializer = AddForeignCommentSerializer(data=request.data)
@@ -365,25 +369,7 @@ class CommentsViewSet(APIView):
         # Create the comment
         fcm = ForeignCommentManager()
         fcm.create_comment(comment_data['id'], foreign_author, parent_post, comment_data['content'], comment_data['created_on'], comment_data['contentType'])
-
-        """receiving:
-        { "comment": {
-                "contentType": "text/plain",
-                "published": "2016-11-28T22:15:38.060015Z",
-                "author": {
-                    "displayName": "admin",
-                    "id": "e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
-                    "url": "cmput404f16t04dev.herokuapp.com/author/e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
-                    "host": "http://cmput404f16t04dev.herokuapp.com",
-                    "github": ""
-                },
-                "comment": "fdbdf",
-                "guid": "94e943b9-c0bd-4438-b5b1-12d624ff303a"
-                },
-            "query": "addComment",
-            "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
-        """
-        return Response(status=200)
+        return Response({"query": "addComment", "success": True, "message":"Comment Added"}, status=200)
 
 class IsFriendQuery(APIView):
     """
