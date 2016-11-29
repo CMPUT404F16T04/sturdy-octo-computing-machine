@@ -252,7 +252,7 @@ def is_FOAF_remote(viewing_author, remote_author):
         print "Error making remote FOAF call, could not parse reponse " + str(error) + " from " + remote_author.node.name
         return False
 
-def update_friend_status(local_author, remote_author):
+def update_friend_status(local_author, foreign_author):
     """
     Given a local author and remote author, check that the friend data aligns within
     what the other server has.
