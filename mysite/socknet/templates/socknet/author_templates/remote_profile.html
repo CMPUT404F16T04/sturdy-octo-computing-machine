@@ -8,8 +8,7 @@
         <!-- Author is viewing someone else's profile, display button that allows
              them to follow, unfollow, unfriend, etc. -->
         <a id="friend_anchor" href="#" class="login-button float-right"
-            data-uuid="{{ profile_author.id }}" data-username="{{ profile_author.display_name }}"
-            data-status="{{ is_friend }}" data-islocal="False"></a>
+            data-uuid="{{ profile_author.id }}" data-username="{{ profile_author.display_name }}"  data-islocal="False"></a>
         <hr class="profile-divider"/>
         <!-- Profile fields -->
         <div class="profile-field">
@@ -73,8 +72,13 @@
         var url = "{% url 'remote_profile' nodeID=profile_author.node.id authorUUID=profile_author.id %}";
 
         // Set text of friend button based on current relationship
-        if("{{ is_friend }}" === "False") {
+        if("{{ friend_status }}" === "NONE") {
             $('#friend_anchor').text("Send Friend Request");
+        else if ("{{ friend_status }}" === "PENDING") {
+            $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> PENDING</span>");
+            $('#friend_anchor').removeAttr("href");
+            $('#friend_anchor').css('cursor', 'default');
+            $('#friend_anchor').css("background-color", "#DDDDDD")
         } else {
             $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> Friends</span>");
             $('#friend_anchor').removeAttr("href");

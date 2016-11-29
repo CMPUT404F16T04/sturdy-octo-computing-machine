@@ -304,11 +304,15 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                 context['profile_author'] = foreign_author
                 update_friend_status(self.request.user.author, foreign_author) # Update friends relati
                 is_friend = self.request.user.author.is_friend(foreign_author.id)
-                context['is_friend'] = is_friend
                 if is_friend:
                     is_FOAF = True
+                    context["friend_status"] = "FRIEND"
                 else:
                     is_FOAF = is_FOAF_remote(self.request.user.author, foreign_author)
+                    if foreign_author in self.request.user.author.foreign_friends_im_following.all():
+                        context["friend_status"] = "PENDING"
+                    else:
+                        context["friend_status"] = "NONE"
                 print("Is FOAF? " + str(is_FOAF))
 
         """
