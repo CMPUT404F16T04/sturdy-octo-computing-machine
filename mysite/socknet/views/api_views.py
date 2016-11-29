@@ -303,6 +303,31 @@ class CommentsViewSet(APIView):
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
 
+        """
+        Posts to comments to create a comment.
+        POST to http://service/posts/<POST_ID>/comments
+
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+        data = request.data
+        print post_id
+        print data
+        post_obj = Posts
+        com_auth = data['comment']['author']
+        comment_host = HTMLsafe.get_url_fixed(comment_author['host'])
+        # is_FOAF_remote(viewing_author, remote_author)
+        # self, name, node_name, uuid, is_local):
+        #foreignAuthor = AuthorInfo(com_auth['displayName'], )
+        foaf = is_FOAF_str_remote()
+        """
+        #friend /api/friends/
+        # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
+        # and get the basic posting to work first!!!!! so other teams can test it etc.
+
+        # create a ForeignComment object from received data using ForeignCommentManager
+        # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
+
+        #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+
         # Ensure the parent post exists
         parent_post = None
         try:
@@ -358,32 +383,6 @@ class CommentsViewSet(APIView):
             "query": "addComment",
             "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
         """
-
-
-        """
-        Posts to comments to create a comment.
-        POST to http://service/posts/<POST_ID>/comments
-
-        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
-        data = request.data
-        print post_id
-        print data
-        post_obj = Posts
-        com_auth = data['comment']['author']
-        comment_host = HTMLsafe.get_url_fixed(comment_author['host'])
-        # is_FOAF_remote(viewing_author, remote_author)
-        # self, name, node_name, uuid, is_local):
-        #foreignAuthor = AuthorInfo(com_auth['displayName'], )
-        foaf = is_FOAF_str_remote()
-        """
-        #friend /api/friends/
-        # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
-        # and get the basic posting to work first!!!!! so other teams can test it etc.
-
-        # create a ForeignComment object from received data using ForeignCommentManager
-        # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
-
-        #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
         return Response(status=200)
 
 class IsFriendQuery(APIView):
