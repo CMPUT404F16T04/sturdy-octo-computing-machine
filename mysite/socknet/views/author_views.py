@@ -167,7 +167,12 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
     def get_context_data(self, **kwargs):
         # Get all friend of a user.
         context = super(ManageFriends, self).get_context_data(**kwargs)
-        friends = self.request.user.author.get_friends()
+
+        # Check pending friend requests incase someone accepted!
+        profile_author = self.request.user.author
+        for foreign_author in profile_author.foreign_friends_im_following.all():
+            update_friend_status(profile_author, foreign_author)
+        friends = profile_author.get_friends()
         context['friends'] = friends
         context['count'] = len(friends)
         return context
@@ -337,6 +342,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             # Ensure the data is valid
             if not serializer.is_valid():
                 context['error'] = "Validation Error: " + str(serializer.errors)
+                print(json_data)
                 print "View Remote Profile Validation Error: " + str(serializer.errors) + " from " + node.name
 
             author_data = serializer.validated_data
@@ -369,12 +375,17 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             is_friend = False
             if foreign_author: # Only do stuff if we actually have an object.
                 context['profile_author'] = foreign_author
+                update_friend_status(self.request.user.author, foreign_author) # Update friends relati
                 is_friend = self.request.user.author.is_friend(foreign_author.id)
-                context['is_friend'] = is_friend
                 if is_friend:
                     is_FOAF = True
+                    context["friend_status"] = "FRIEND"
                 else:
                     is_FOAF = is_FOAF_remote(self.request.user.author, foreign_author)
+                    if foreign_author in self.request.user.author.foreign_friends_im_following.all():
+                        context["friend_status"] = "PENDING"
+                    else:
+                        context["friend_status"] = "NONE"
                 print("Is FOAF? " + str(is_FOAF))
 
         """
@@ -403,6 +414,8 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                         """
                         FILTER POSTS BY VISIBIITY
                         """
+                        print("Checking post " + post.title + " for " + post.author_display_name)
+                        print(post.visibility)
                         if post.visibility == "PUBLIC":
                             # We can see all public posts
                             posts.append(post)
@@ -442,23 +455,25 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
                 data = {
                     "query": "friendrequest",
                     "author": {
-                        "id": str(local_author.uuid),
-                        "host": self.check_url(local_author.host),
-                        "displayName": local_author.displayName
-
-                    },
-                    "friend": {
                         "id": str(foreign_author.id),
                         "host": self.check_url(foreign_author.node.url),
-                        "displayName": foreign_author.display_name,
-                        "url": self.check_url(foreign_author.url)
+                        "displayName": foreign_author.display_name
+                    },
+                    "friend": {
+                        "id": str(local_author.uuid),
+                        "host": self.check_url(local_author.host),
+                        "displayName": local_author.displayName,
+                        "url": self.check_url(local_author.url)
+
                     }
                 }
                 json_data = json.dumps(data) # encode
-                response = requests.post(url=url + "friendrequest", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
+                response = requests.post(url=url + "friendrequest/", headers={"content-type": "application/json"}, data=json_data, auth=HTTPBasicAuth(node.foreignNodeUser, node.foreignNodePass))
                 print("RESPONSE FROM SENDING FRIEND REQUEST")
                 print(response.status_code)
                 print(response)
+                if foreign_author not in local_author.foreign_friends_im_following.all():
+                    local_author.foreign_friends_im_following.add(foreign_author)
                 return HttpResponse(status=200)
         # Returning 500 right now since nothing else should be posting to this page
         return HttpResponse(status=500)

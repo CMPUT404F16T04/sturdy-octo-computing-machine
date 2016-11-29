@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from socknet.serializers import *
 from socknet.models import Author, Post, ImageServ, Comment
+from socknet.utils import *
 
 ### HELPER FUNCTIONS ###
 
@@ -299,36 +300,77 @@ class CommentsViewSet(APIView):
         """
         Posts to comments to create a comment.
         POST to http://service/posts/<POST_ID>/comments
+
+        Example:
+        { "comment": {
+                "contentType": "text/plain",
+                "published": "2016-11-28T22:15:38.060015Z",
+                "author": {
+                    "displayName": "admin",
+                    "id": "e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "url": "cmput404f16t04dev.herokuapp.com/author/e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "host": "http://cmput404f16t04dev.herokuapp.com",
+                    "github": ""
+                },
+                "comment": "fdbdf",
+                "guid": "94e943b9-c0bd-4438-b5b1-12d624ff303a"
+                },
+            "query": "addComment",
+            "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
         """
-        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
-        print post_id
-        print "AAAAA " + str(request.data)
-        """# Validate the request data
-        serializer = FriendsQuerySerializer(data=request.data)
+        # Ensure the parent post exists
+        parent_post = None
+        try:
+            parent_post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            print("ADD COMMENT API ERROR: Parent post does not exist.")
+            return Response({'Errors': "Parent post does not exist."}, status.HTTP_404_NOT_FOUND)
+
+        """
+        CHECK VISIBILITY
+        # is_FOAF_remote(viewing_author, remote_author)
+        foaf = is_FOAF_str_remote()
+        #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
+        #friend /api/friends/
+        # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
+        # and get the basic posting to work first!!!!! so other teams can test it etc.
+        # create a ForeignComment object from received data using ForeignCommentManager
+        # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
+        """
+        if parent_post.visibility == "SERVERONLY" or  parent_post.visibility == "PRIVATE":
+            return Response({"query": "addComment", "success": False, "message":"Comment not allowed"}, status=403)
+
+        # Validate the request data
+        serializer = AddForeignCommentSerializer(data=request.data)
         if not serializer.is_valid():
             return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
         data = serializer.validated_data
+        comment_data = data.get('comment')
+        author_data = comment_data['author']
 
-        # Check that the author in the json data matches the author in the url
-        if (authorid != data.get('author')):
-            return Response({"Error": "The author uuid in the data does not match the author uuid in the url."}, status.HTTP_400_BAD_REQUEST)
+        print("\n ADD COMMENT API Recieved Comment Data: ")
+        print(comment_data)
 
-        # Check that the author exists
+        # Get the foreign author
+        foreign_author = None
         try:
-            author = Author.objects.get(uuid=authorid)
-        except Author.DoesNotExist:
-            return Response({"Error": "The author does not exist."}, status.HTTP_404_NOT_FOUND)
+            foreign_author = ForeignAuthor.objects.get(id=author_data['uuid'])
+        except ForeignAuthor.DoesNotExist:
+            # Author doesn't exist, so create them in the db.
+            # First check if the node exists based off of host.
+            node = get_node(author_data['host']) # From utils
+            if node:
+                foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node)
+            else:
+                # Node does not exist locally.
+                print("ADD COMMENT API ERROR: The node is unknown.")
+                return Response({'Errors': "Unknown node"}, status.HTTP_401_UNAUTHORIZED)
 
-        #  Check if anyone is the author's friend
-        friend_uuids = author.get_all_friend_uuids()
-        matching_uuids = []
-        for friend_id in data.get('authors'):
-            if uuid.UUID(friend_id) in friend_uuids:
-                matching_uuids.append(friend_id)
+        # Create the comment
+        fcm = ForeignCommentManager()
+        fcm.create_comment(comment_data['id'], foreign_author, parent_post, comment_data['content'], comment_data['created_on'], comment_data['contentType'])
+        return Response({"query": "addComment", "success": True, "message":"Comment Added"}, status=200)
 
-        return Response({"query": "friends", "author": authorid, "authors": matching_uuids})
-        """
-        return Response(status=200, content="YES")
 class IsFriendQuery(APIView):
     """
     Ask if 2 authors are friends.
@@ -433,6 +475,7 @@ class FriendRequest(APIView):
         data = serializer.validated_data
         author_data = data.get('author')
         friend_data = data.get('friend')
+        print("\n GOT A FRIEND REQUEST THROUGH THE API")
         print(author_data)
         print(friend_data)
         author = None
@@ -461,16 +504,18 @@ class FriendRequest(APIView):
                 try:
                     node = Node.objects.get(url=author_data['host'])
                 except Node.DoesNotExist:
-                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    print("FRIEND REQUEST ERROR WITH AUTHOR NODE")
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_401_UNAUTHORIZED)
                 try:
                     author_url = node.url + '/author/' + str(author_data['id'])
                     author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node, url=author_url)
                     author.save()
                 except Exception as error:
-                    print("Error in friend request" + str(e))
+                    print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Friend exists on our server. Add the friend to the author's pending foreign friends list.
-            friend.pending_foreign_friends.add(author)
+            if author not in friend.pending_foreign_friends.all():
+                friend.pending_foreign_friends.add(author)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         if (friend is None):
@@ -479,17 +524,19 @@ class FriendRequest(APIView):
             else:
                 node = None
                 try:
-                    node = Node.objects.get(url=author_data['host'])
+                    node = Node.objects.get(url=friend_data['host'])
                 except Node.DoesNotExist:
-                    return Response({'Error': 'Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    print("FRIEND REQUEST ERROR WITH FRIEND NODE")
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_401_UNAUTHORIZED)
                 try:
                     friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
                     friend.save()
                 except Exception as error:
-                    print("Error in friend request" + str(e))
+                    print("'\nFRIEND REQUEST ERROR (API)" + str(e))
                     return Response({'Message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
             # Author exists on our server. Add the friend to the author's pending foreign friends list.
-            author.pending_foreign_friends.add(friend)
+            if friend not in author.pending_foreign_friends.all():
+                author.pending_foreign_friends.add(friend)
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         # If we got here, then both authors are local.

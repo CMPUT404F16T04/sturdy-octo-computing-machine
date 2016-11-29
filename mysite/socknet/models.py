@@ -150,8 +150,13 @@ class Author(models.Model):
                 self.ignored.remove(requester)
         else:
             requester = ForeignAuthor.objects.get(id=requester_uuid)
-            self.pending_foreign_friends.remove(requester)
-            self.foreign_friends.add(requester)
+            if requester not in self.foreign_friends.all():
+                self.foreign_friends.add(requester)
+            if requester in self.pending_foreign_friends.all():
+                self.pending_foreign_friends.remove(requester)
+            if requester in self.foreign_friends_im_following.all():
+                # Incase the other group does something weird..
+                self.foreign_friends_im_following.remove(requester)
         self.save()
         return
 
@@ -355,20 +360,30 @@ class Comment(models.Model):
 class ForeignCommentManager(models.Manager):
     """ Helps creating a foreign comment.
     """
-    def create(self, guid, foreignauthor, parent_post, comment, pubDate, contentType):
+    def create_comment(self, guid, foreign_author, parent_post, content, created_on, contentType):
         markdown = False
         if contentType == "text/markdown" or contentType == "text/x-markdown":
             markdown = True
-        c = self.create(id=guid, foreign_author=foreignauthor, parent_post=parent_post, content=comment, \
-            created_on=pubDate, markdown=markdown)
+        c = ForeignComment.objects.create(guid=guid, foreign_author=foreign_author, parent_post=parent_post, content=content,
+            created_on=created_on, markdown=markdown)
         return c
+
+class ForeignCommentQuerySet(models.QuerySet):
+    
+    def all_foreign_comments_for_post(self, post_pk, ordered):
+        # Retrieve only post specific comments
+        results = self.filter(parent_post_id=post_pk)
+        # Order it with latest date on top
+        if(ordered):
+            results = results.order_by('-created_on',)
+        return results
 
 class ForeignComment(models.Model):
     """ Represents a comment made by a foreign user
     Had to make another class because can't hide/override fields according to django when normal inheriting.
     https://docs.djangoproject.com/en/1.10/topics/db/models/#field-name-hiding-is-not-permitted
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    guid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     objects = CommentQuerySet.as_manager()
     parent_post = models.ForeignKey(Post, related_name="foreign_comment_parent_post")
     foreign_author = models.ForeignKey(ForeignAuthor, related_name="foreign_comment_author")
@@ -380,7 +395,7 @@ class ForeignComment(models.Model):
         """ Gets the canonical URL for a Post
         Will be of the format .../posts/<id>/comment/<id>
         """
-        return reverse('view_remote_post', args=[str(self.parent_post.id)])
+        return reverse('view_remote_post', args=[str(self.foreign_author.node.id), str(self.parent_post.id)])
 
     def view_content(self):
         """ Retrieves content to be displayed as html, it is assumed safe

@@ -4,7 +4,7 @@
         {% for post in posts_list %}
             <li class="post">
                 <div class="first-line">
-                    <a href="{% url 'view_remote_post' pk=post.id %} ">
+                    <a href="{% url 'view_remote_post' nodeID=post.node.id pk=post.id %} ">
                         <h3>{{ post.title }}</h3>
                     </a>
                 </div>
@@ -20,7 +20,7 @@
                     {{post.content|safe}}
                 </article>
                 <div>
-                    <a href="{% url 'view_remote_post' pk=post.id %} ">View Comment</a>
+                    <a href="{% url 'view_remote_post' nodeID=post.node.id pk=post.id %} ">View Comment</a>
                 </div>
             </li>
         {% endfor %}

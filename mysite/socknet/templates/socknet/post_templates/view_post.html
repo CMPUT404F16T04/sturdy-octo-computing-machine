@@ -10,6 +10,23 @@
     </div>
 </div>
 <br/>
+
+{% for comment in foreign_comments %}
+  <li>
+    <div>
+        <span class="author-label">{{ comment.foreign_author.display_name }}</span> from {{comment.foreign_author.node.name}}
+    </div>
+    <div class="author-date">
+        {{ comment.created_on }} UTC
+    </div>
+    <article class="content">
+        {{comment.view_content|safe}}
+    </article>
+  </li>
+  <hr class="comment-divider"/>
+{% endfor %}
+
+
 {% if num_comments > 0 %}
 <ol class="comment-container">
     {% for comment in comments %}
