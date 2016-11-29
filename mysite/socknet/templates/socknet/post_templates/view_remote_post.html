@@ -22,7 +22,6 @@
         </article>
         <div class="post-actions">
             <div class="action">
-
                 <a href="">Write Comment</a>
             </div>
             <a onclick="window.history.back()" href="#">Return to Post List</a>
@@ -35,7 +34,8 @@
     {% for comment in comments_list %}
       <li>
         <div>
-            <a class="author-label" href=""></a>
+            <!-- Let's just display stuff and not have it linked b/c it is easier -->
+            <span class="author-label">{{comment.author_display_name}}</span>
         </div>
         <div class="author-date">
              {{ comment.published }} UTC

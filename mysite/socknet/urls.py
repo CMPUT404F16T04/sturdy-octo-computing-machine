@@ -16,7 +16,7 @@ urlpatterns = [
     # API: Posts
     url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/$', api_views.PostIDQuery.as_view(), name="api_posts_id"),
     url(r'^api/posts/$', api_views.PostsQuery.as_view(), name="api_posts"),
-    url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/comments$', api_views.CommentsViewSet.as_view(), name="api_comments"),
+    url(r'^api/posts/(?P<post_id>[0-9A-Fa-f-]+)/comments/$', api_views.CommentsViewSet.as_view(), name="api_comments"),
     url(r'^api/images/(?P<img>[0-9A-Fa-f-]+)$', api_views.ViewApiRawImage.as_view(), name='view_api_raw_image'),
 
     # API: Author

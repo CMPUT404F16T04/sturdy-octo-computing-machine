@@ -193,6 +193,10 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
         context['num_comments'] = len(comments)
         paginator = Paginator(comments, 5)
         page = self.request.GET.get('page')
+
+        foreign_comments = ForeignComment.objects.filter(parent_post_id=context['post'].id)
+        context['foreign_comments'] = foreign_comments
+
         try:
             comments = paginator.page(page)
         except PageNotAnInteger:

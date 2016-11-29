@@ -191,6 +191,49 @@ class SingleCommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('author', 'guid', 'comment', 'pubDate', 'contentType')
 
+class ForeignCommentSerializer(serializers.ModelSerializer):
+    """
+    Serialize a foreign comment.
+    Used when another group is trying to post a comment to us.
+    """
+    author = AuthorSerializer(required=True)
+    comment = serializers.CharField(source='content', required=True)
+    published = serializers.DateTimeField(source='created_on', required=True)
+    guid = serializers.CharField(source='id', max_length=36, required=True) # a uuid is 36 characters
+    contentType = serializers.CharField(max_length=36, required=True)
+
+    def valid_contentType(self, contyp):
+        if contyp != "text/x-markdown" and contyp != "text/plain":
+            raise serializers.ValidationError("Content type is not text/x-markdown or text/plain.")
+        return value
+
+    def validate_guid(self, value):
+        """
+        Checks that the uuid is valid.
+        """
+        try:
+            valid_uuid = uuid.UUID(value)
+        except ValueError:
+            raise serializers.ValidationError("GUID is not a valid UUID.")
+        return value
+
+    class Meta:
+        model = ForeignComment
+        fields = ('author', 'guid', 'comment', 'published', 'contentType')
+
+class AddForeignCommentSerializer(serializers.Serializer):
+    query = serializers.CharField(max_length=36, required=True)
+    post = serializers.CharField(max_length=256, required=True)
+    comment = ForeignCommentSerializer(required=True)
+
+    def validate_query(self, value):
+        """
+        Check that the query is "addComment"
+        """
+        if value != "addComment":
+            raise serializers.ValidationError("Query type is not 'addComment'.")
+        return value
+
 class ProfileFriendSerializer(serializers.Serializer):
     #id = serializers.CharField(max_length = 64) # uuid is 36 characters
     id = serializers.CharField(source='uuid', required =True)

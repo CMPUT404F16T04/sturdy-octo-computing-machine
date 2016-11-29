@@ -302,6 +302,69 @@ class CommentsViewSet(APIView):
         POST to http://service/posts/<POST_ID>/comments
         """
         content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
+
+        # Ensure the parent post exists
+        parent_post = None
+        try:
+            parent_post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            print("ADD COMMENT API ERROR: Parent post does not exist.")
+            return Response({'Errors': "Parent post does not exist."}, status.HTTP_404_NOT_FOUND)
+
+        # Validate the request data
+        serializer = AddForeignCommentSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
+        data = serializer.validated_data
+        comment_data = data.get('comment')
+        author_data = comment_data['author']
+
+        print("\n ADD COMMENT API Recieved Comment Data: ")
+        print(comment_data)
+
+        # Get the foreign author
+        foreign_author = None
+        try:
+            foreign_author = ForeignAuthor.objects.get(id=author_data['uuid'])
+        except ForeignAuthor.DoesNotExist:
+            # Author doesn't exist, so create them in the db.
+            # First check if the node exists based off of host.
+            node = get_node(author_data['host']) # From utils
+            if node:
+                foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node)
+            else:
+                # Node does not exist locally.
+                print("ADD COMMENT API ERROR: The node is unknown.")
+                return Response({'Errors': "Unknown node"}, status.HTTP_401_UNAUTHORIZED)
+
+        # Create the comment
+        fcm = ForeignCommentManager()
+        fcm.create_comment(comment_data['id'], foreign_author, parent_post, comment_data['content'], comment_data['created_on'], comment_data['contentType'])
+
+        """receiving:
+        { "comment": {
+                "contentType": "text/plain",
+                "published": "2016-11-28T22:15:38.060015Z",
+                "author": {
+                    "displayName": "admin",
+                    "id": "e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "url": "cmput404f16t04dev.herokuapp.com/author/e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
+                    "host": "http://cmput404f16t04dev.herokuapp.com",
+                    "github": ""
+                },
+                "comment": "fdbdf",
+                "guid": "94e943b9-c0bd-4438-b5b1-12d624ff303a"
+                },
+            "query": "addComment",
+            "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
+        """
+
+
+        """
+        Posts to comments to create a comment.
+        POST to http://service/posts/<POST_ID>/comments
+
+        content = {'user': unicode(request.user), 'auth': unicode(request.auth),}
         data = request.data
         print post_id
         print data
@@ -312,6 +375,7 @@ class CommentsViewSet(APIView):
         # self, name, node_name, uuid, is_local):
         #foreignAuthor = AuthorInfo(com_auth['displayName'], )
         foaf = is_FOAF_str_remote()
+        """
         #friend /api/friends/
         # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
         # and get the basic posting to work first!!!!! so other teams can test it etc.
@@ -320,23 +384,6 @@ class CommentsViewSet(APIView):
         # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
 
         #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-        """receiving:
-        { "comment": {
-                "contentType": "text/plain",
-                "published": "2016-11-28T22:15:38.060015Z",
-                "author": {
-                    "displayName": "admin",
-                    "id": "e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
-                    "url": "cmput404f16t04dev.herokuapp.com/author/e1f3c310-fdb8-478b-84bb-e0a76fc8889a",
-                    "host": "cmput404f16t04dev.herokuapp.com",
-                    "github": ""
-                },
-                "comment": "fdbdf",
-                "guid": "94e943b9-c0bd-4438-b5b1-12d624ff303a"
-                },
-            "query": "addComment",
-            "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
-        """
         return Response(status=200)
 
 class IsFriendQuery(APIView):
@@ -473,7 +520,7 @@ class FriendRequest(APIView):
                     node = Node.objects.get(url=author_data['host'])
                 except Node.DoesNotExist:
                     print("FRIEND REQUEST ERROR WITH AUTHOR NODE")
-                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_401_UNAUTHORIZED)
                 try:
                     author_url = node.url + '/author/' + str(author_data['id'])
                     author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node, url=author_url)
@@ -495,7 +542,7 @@ class FriendRequest(APIView):
                     node = Node.objects.get(url=friend_data['host'])
                 except Node.DoesNotExist:
                     print("FRIEND REQUEST ERROR WITH FRIEND NODE")
-                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_400_BAD_REQUEST)
+                    return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_401_UNAUTHORIZED)
                 try:
                     friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
                     friend.save()
