@@ -1,7 +1,7 @@
 import uuid
 import json
 import datetime
-
+import urllib
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -440,14 +440,14 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             "author":{
                # ID of the Author (UUID)
                "id": str(auth.uuid),
-               "host": str(request.get_host()),
+               "host": "https://" + str(request.get_host()),
                "displayName": str(auth.displayName),
                # url to the authors information
                "url": request.get_host() + "/author/" + str(auth.uuid),
                # HATEOS url for Github API
                "github": str(auth.github_url)
             },
-            "comment": params['comment'],
+            "comment": urllib.unquote_plus(params['comment']),
             "contentType": markdown,
             # ISO 8601 TIMESTAMP
             "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
@@ -464,7 +464,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
         head = {
             "content-type" : "application/json"
         }
-        req = requests.post(url_post + '/comments', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
+        req = requests.post(url_post + '/comments/', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
         print add
         print "Received status code:" + str(req.status_code)
         print str(req.text)
