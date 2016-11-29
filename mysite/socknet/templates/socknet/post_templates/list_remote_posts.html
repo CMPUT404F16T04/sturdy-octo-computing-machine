@@ -19,8 +19,11 @@
                 <article class="content">
                     {{post.content|safe}}
                 </article>
-                <div>
+                <div class="action">
                     <a href="{% url 'view_remote_post' nodeID=post.node.id pk=post.id %} ">View Comment</a>
+                </div>
+                <div class="action">
+                    <a href="{% url 'create_foreign_comment' pk=post.id nodeID=post.node.id %}">Write Comment</a>
                 </div>
             </li>
         {% endfor %}
