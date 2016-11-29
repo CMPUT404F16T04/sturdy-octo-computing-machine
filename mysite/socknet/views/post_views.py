@@ -181,7 +181,6 @@ class ListFriendsPosts(LoginRequiredMixin, UserPassesTestMixin, generic.ListView
         else:
             return True
 
-
 class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
     """ Displays the details of a single post """
     model = Post
@@ -426,6 +425,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             markdown = "text/x-markdown"
 
         node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
+
         cmt = {
             "author":{
                # ID of the Author (UUID)
@@ -437,7 +437,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
                # HATEOS url for Github API
                "github": str(auth.github_url)
             },
-            "comment": params['comment'],
+            "comment": params['content'],
             "contentType": markdown,
             # ISO 8601 TIMESTAMP
             "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
@@ -452,15 +452,15 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             "comments" : cmt
             }
         head = {
-            "Content-Type" : "application/json"
+            "content-type" : "application/json"
         }
         req = requests.post(url_post + '/comments', auth=HTTPBasicAuth(node_obj.foreignNodeUser, node_obj.foreignNodePass), data=json.dumps(add), headers=head)
-        print json.dumps(add)
+        print add
         print "Received status code:" + str(req.status_code)
         print str(req.text)
         # content_type="application/json"
         r = HttpResponse(status=200)
-        r.write(str(params) + "<br>" + url_post + "<br>" + str(json.dumps(add)) + "<br> received status code: " + str(req.status_code) + "<br>" + str(req.text))
+        r.write(url_post + "<br>" + str(add) + "<br> received status code: " + str(req.status_code) + "<br>" + str(req.text))
         return r
 
 class ViewImage(LoginRequiredMixin, generic.base.TemplateView):

@@ -103,7 +103,7 @@ class ManageFriends(LoginRequiredMixin, generic.base.TemplateView):
 
         # Check pending friend requests incase someone accepted!
         profile_author = self.request.user.author
-        for foreign_author in profile_author.foreign_friends.all():
+        for foreign_author in profile_author.foreign_friends_im_following.all():
             update_friend_status(profile_author, foreign_author)
         friends = profile_author.get_friends()
         context['friends'] = friends
