@@ -59,11 +59,16 @@ class PostsSerializer(serializers.ModelSerializer):
     author = PostsAuthorSerializer()
     published = serializers.DateTimeField()
     comments = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
 
     def get_comments(self, obj):
         comments = Comment.objects.all_comments_for_post(obj.id, True)
         serializer = PostsCommentsSerializer(comments, many=True)
         return serializer.data
+
+    def get_count(self, obj):
+        comments = Comment.objects.all_comments_for_post(obj.id, True)
+        return comments.count()
 
     def validate_contentType(self, value):
         """
