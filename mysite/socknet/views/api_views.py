@@ -343,6 +343,7 @@ class CommentsViewSet(APIView):
         # Validate the request data
         serializer = AddForeignCommentSerializer(data=request.data)
         if not serializer.is_valid():
+            print serializer.errors
             return Response({'Errors': serializer.errors}, status.HTTP_400_BAD_REQUEST)
         data = serializer.validated_data
         comment_data = data.get('comment')

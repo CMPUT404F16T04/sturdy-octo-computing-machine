@@ -443,7 +443,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
                # HATEOS url for Github API
                "github": str(auth.github_url)
             },
-            "comment": params['content'],
+            "comment": params['comment'],
             "contentType": markdown,
             # ISO 8601 TIMESTAMP
             "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
