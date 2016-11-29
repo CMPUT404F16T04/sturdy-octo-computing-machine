@@ -7,13 +7,11 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
-<<<<<<< HEAD
 from socknet.utils import ForbiddenContent403, RemotePost
 from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
 
-=======
 from socknet.utils import *
->>>>>>> e8c457603bd618be30030fc06c2ea2b7d284a8a3
 
 from socknet.models import *
 from socknet.forms import *
@@ -24,6 +22,20 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "socknet/author_templates/profile.html"
     login_url = '/login/' # For login mixin
 
+    def git_parse(content): 
+        i = 0
+        while(i<10): 
+                eventType = content.json()[i]['type']
+
+                if (eventType == 'PushEvent'): 
+                    repo = content.json()[i]['repo']['name']
+                    repo_string = "User pushed to "+repo
+                    return repo_string
+                else: 
+                    i+=1
+
+        return "User has no recent Github Data"
+
     def get_context_data(self, **kwargs):
         context = super(ViewProfile, self).get_context_data(**kwargs)
         authorUUID = self.kwargs.get('authorUUID', self.request.user.author.uuid)
@@ -33,16 +45,55 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
         post_manager = PostManager()
         context['context_list'] = post_manager.get_local_profile_posts(profile_author, self.request.user.author)
 
-        URLval = URLValidator(verify_exists=True)
-        githubValid = False
-        try: 
-            URLval(profile_author.github_url)
-            githubValid = True
-        except ValidationError, e: 
-            githubValid = False
 
-        print(githubValid)
-        
+
+        #Pull in data for Github Stream
+        github_url = profile_author.github_url
+        if not github_url:
+            context['github_stream'] = ["User has not shared their Github stream"]
+        else:
+            #gets github username
+            spliturl = github_url.split('/')
+            github_name = spliturl[-1]
+
+            #takes info from github API based on issue type
+            try: 
+                content = requests.get('https://api.github.com/users/'+ github_name +'/events')
+                i = 0
+                github_list = []
+                while(i<3): 
+                    eventType = content.json()[i]['type']
+
+                    #Gets info for an event where user pushes to repo
+                    if (eventType == 'PushEvent'): 
+
+                        repo = content.json()[i]['repo']['name']
+                        message = content.json()[i]['payload']['commits'][0]['message']
+                        repo_string = message + " pushed to " + repo
+                        github_list.append(repo_string)
+                        i+=1
+
+                    #Gets info for an event where user opens/closes an issue
+                    elif (eventType == "IssuesEvent"): 
+
+                        repo = content.json()[i]['repo']['name']
+                        action = content.json()[i]['payload']['action']
+                        issue = content.json()[i]['payload']['issue']['title']  
+                        repo_string = action + " the issue: " + issue + " on " + repo
+                        github_list.append(repo_string)
+                        i+=1
+
+                    #For other types of events that aren't covered, we skip over them
+                    else: 
+                        i+=1
+
+                context['github_stream'] = github_list
+
+            except: 
+                 context['github_stream'] = ["User has an invalid github information, please use the url of your github profile"]
+          
+
+
         if authorUUID != self.request.user.author.uuid:
             author = self.request.user.author
             # We are viewing someone elses page, determine what our relationship with

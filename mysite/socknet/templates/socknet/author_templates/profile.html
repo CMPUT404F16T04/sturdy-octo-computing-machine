@@ -37,9 +37,23 @@
         {% endif %}
     </div>
 </div>
+<br></br>
+<div class = "git-stream">
+   <h3>Github Stream</h3>
+   <hr class="profile-divider"/>
+   <ol class="feed">
+        {% for post in github_stream %}
+            <li class="post">
+               {{ post }}
+            </li>
+        {% endfor %}
+    </ol>
+</div>
 
-<!-- The stream for the profile's author -->
+<br></br>
 <div class="postList">
+    <h3> Posts </h3>
+    <hr class="profile-divider"/>
     <ol class="feed">
         {% for post in context_list %}
             <li class="post">

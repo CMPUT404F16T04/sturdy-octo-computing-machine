@@ -187,3 +187,4 @@ class FriendAPITests(APITestCase):
         """
         # TODO
         pass
+
