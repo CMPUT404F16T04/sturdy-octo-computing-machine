@@ -273,13 +273,13 @@ def update_friend_status(local_author, foreign_author):
     # Ensure we got a 200
     if response.status_code is not 200:
         # If we could not get a reponse, then don't change data state and assume it is correct.
-        print("Check is friends Error: Response code was " + str(response.status_code) + " from " + node.name)
+        print("Check is friends Error: Response code was " + str(response.status_code) + " from " + foreign_author.node.name)
         return
 
     # Ensure we got data back
     if (len(response.text) < 1):
         # If we could not get a reponse, then don't change data state and assume it is correct.
-        print("Check is friends Error: No JSON was sent back. From " + node.name)
+        print("Check is friends Error: No JSON was sent back. From " + foreign_author.node.name)
         return
 
     try:
