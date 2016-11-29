@@ -74,6 +74,7 @@
         // Set text of friend button based on current relationship
         if("{{ friend_status }}" === "NONE") {
             $('#friend_anchor').text("Send Friend Request");
+        }
         else if ("{{ friend_status }}" === "PENDING") {
             $('#friend_anchor').append("<span class='glyphicon glyphicon-ok'></span><span> PENDING</span>");
             $('#friend_anchor').removeAttr("href");
