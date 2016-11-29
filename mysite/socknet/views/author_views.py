@@ -302,7 +302,7 @@ class ViewRemoteProfile(LoginRequiredMixin, generic.base.TemplateView):
             is_friend = False
             if foreign_author: # Only do stuff if we actually have an object.
                 context['profile_author'] = foreign_author
-                update_friend_status() # Update friends relationship
+                update_friend_status(self.request.user.author, foreign_author) # Update friends relati
                 is_friend = self.request.user.author.is_friend(foreign_author.id)
                 context['is_friend'] = is_friend
                 if is_friend:
