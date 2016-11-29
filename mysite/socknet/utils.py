@@ -287,22 +287,22 @@ def update_friend_status(local_author, foreign_author):
         print(data)
         status = data["friends"]
         # Status data has different usage depending on relationship
-        if remote_author in local_author.foreign_friends.all():
+        if foreign_author in local_author.foreign_friends.all():
             # We are here because we are checking if the authors are still friends
             if not status:
                 print "Remote author is not friends. Remove locally."
-                local_author.foreign_friends.remove(remote_author)
+                local_author.foreign_friends.remove(foreign_author)
                 return
             print "Remote author is friends. Do nothing."
-        elif remote_author in local_author.foreign_friends_im_following.all():
+        elif foreign_author in local_author.foreign_friends_im_following.all():
             # We are here because we are checking if the remote author accepted our friend request
             if status:
                 print "Remote author accepted our friend request! Update it."
-                local_author.foreign_friends_im_following.remove(remote_author)
-                local_author.foreign_friends.add(remote_author)
+                local_author.foreign_friends_im_following.remove(foreign_author)
+                local_author.foreign_friends.add(foreign_author)
                 return
             print "Remote author has not accepted our friend request yet."
 
     except Exception as error:
         # If we could not parse the response, then don't change data state
-        print("Error making remote IS_FRIENDS call, could not parse reponse " + str(error) + " from " + remote_author.node.name)
+        print("Error making remote IS_FRIENDS call, could not parse reponse " + str(error) + " from " + foreign_author.node.name)
