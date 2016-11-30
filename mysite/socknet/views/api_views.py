@@ -308,7 +308,7 @@ class CommentsViewSet(APIView):
             #     fcom.author.displayName = fcom.foreign_author.display_name
             #     fcom.author = fcom.foreign_author
             #     fcom.pubDate = fcom.created_on
-                fcom.author.host = fcom.foreign_author.node.url
+                #fcom.author.host = fcom.foreign_author.node.url
                 if fcom.markdown:
                     fcom.contentType = "text/x-markdown"
                 else:
