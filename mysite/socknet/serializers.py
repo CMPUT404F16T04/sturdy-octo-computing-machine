@@ -53,7 +53,7 @@ class ForeignPostsCommentsSerializer(serializers.Serializer):
     """
     Builds Comments for PostsSerializer /api/posts
     """
-    id = serializers.CharField(max_length=36, required=True) # uuid is 36 characters
+    id = serializers.CharField(source = 'guid', max_length=36, required=True) # uuid is 36 characters
     author = serializers.SerializerMethodField()
     comment = serializers.SerializerMethodField()
     contentType = serializers.SerializerMethodField()
