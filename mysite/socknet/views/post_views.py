@@ -471,6 +471,8 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
         print "\n\n-----------------CREATING A FOREIGN COMMENT"
         print "Received status code:" + str(req.status_code)
         print req.text
+        print "WHAT WE SEND YOU"
+        print  json.dumps(add)
         print "----------------END"
         #print str(req.text)
         # content_type="application/json"
