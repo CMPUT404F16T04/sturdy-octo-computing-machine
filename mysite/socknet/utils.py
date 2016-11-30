@@ -370,26 +370,3 @@ def update_friend_status(local_author, foreign_author):
     except Exception as error:
         # If we could not parse the response, then don't change data state
         print("Error making remote IS_FRIENDS call, could not parse reponse " + str(error) + " from " + foreign_author.node.name)
-
-def get_node(url):
-    """
-    Checks if a node exists in our node list based on the url
-    """
-    try:
-        node = Node.objects.get(url=url)
-        return node
-    except Node.DoesNotExist:
-        pass
-
-    # if that didn't work, try adding/removing a slash from the end
-    if url[-1] == "/":
-        url = url[:-1]
-    else:
-        url = url + "/"
-
-    try:
-        node = Node.objects.get(url=url)
-        return node
-    except Node.DoesNotExist:
-        # We have tried adding/removing slash at the end. Url probably does not exist.
-        return None

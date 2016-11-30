@@ -5,6 +5,7 @@ from socknet.models import *
 from socknet.serializers import *
 import json
 import uuid
+import datetime
 
 class FriendAPITests(APITestCase):
     def setUp(self):
@@ -366,6 +367,7 @@ class CommentAPITests(APITestCase):
 
         #Make a fake user
         self.user = mommy.make(User)
+        self.node = mommy.make(Node, name="Test Node", url="http://test-node.com")
         self.author = mommy.make(Author, user=self.user)
 
         #Make example Post
@@ -383,6 +385,8 @@ class CommentAPITests(APITestCase):
 
         self.client.force_authenticate(user=self.user)
 
+        self.uuid = uuid.UUID('{00000123-0101-0101-0101-000000001234}')
+
     def test_comment_get(self):
         """
         GET http://service/api/posts/postID/comments/
@@ -397,14 +401,39 @@ class CommentAPITests(APITestCase):
         self.assertEqual(decoded_json['comments'][0]["comment"],"Example Comment","Comment text was incorrect")
         self.assertEqual(decoded_json['comments'][0]['author']['id'],str(self.author.uuid),"Author Id was incorrect")
 
-        """
+
     def test_comment_post(self):
-
-        POST http://service/api/posts/postID/comments/
-
-        authors = [str(self.foreign_author.id)]
-        request_data = json.dumps({"query": "friends", "author": str(self.uuid), "authors": authors})
-        url = "/api/friends/%s/" % str(self.uuid)
-        response = self.client.post(url, data=request_data, content_type='application/json')
-        self.assertEqual(response.status_code, 404)
         """
+        POST http://service/api/posts/postID/comments/
+        """
+        cmt = {
+            "author":{
+               # ID of the Author (UUID)
+               "id": str(self.author.uuid),
+               "host": self.node.url,
+               "displayName": self.author.displayName,
+               # url to the authors information
+               "url": self.author.url,
+               # HATEOS url for Github API
+               "github": self.author.github_url
+            },
+            "comment":"Test Comment",
+            "contentType": "text/plain",
+            # ISO 8601 TIMESTAMP
+            "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
+            # ID of the Comment (UUID)
+            "guid": str(uuid.uuid4())
+        }
+        add = {
+            "query" : "addComment",
+            "post" : "http://test.com/posts",
+            "comment" : cmt
+            }
+        request_data = json.dumps(add)
+        url = "/api/posts/%s/comments/" % str(self.post.id)
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        decoded_json = json.loads(response.content)
+        self.assertEqual(decoded_json['query'], "addComment", "Query was incorrect")
+        self.assertEqual(decoded_json['message'], "Comment Added", "Message was incorrect")
+        self.assertTrue(decoded_json['success'], "Success should have been true.")
