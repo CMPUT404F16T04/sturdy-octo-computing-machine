@@ -364,7 +364,7 @@ class ForeignCommentManager(models.Manager):
         markdown = False
         if contentType == "text/markdown" or contentType == "text/x-markdown":
             markdown = True
-        c = ForeignComment.objects.create(author=foreign_author, parent_post=parent_post, content=content, markdown=markdown)
+        c = ForeignComment.objects.create(foreign_author=foreign_author, parent_post=parent_post, content=content, markdown=markdown)
         return c
 
 class ForeignCommentQuerySet(models.QuerySet):
