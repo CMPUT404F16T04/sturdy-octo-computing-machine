@@ -86,7 +86,7 @@ class ForeignPostsAuthorSerializer(serializers.ModelSerializer):
     id = serializers.CharField(max_length = 64)
     host = serializers.CharField(max_length = 128)
     github = serializers.CharField(required=False, allow_null=True, allow_blank=True)
-
+    displayName = serializers.CharField(source = 'display_name',max_length = 64)
     class Meta:
         model = ForeignAuthor
         fields = ('id','host','displayName','url','github')
