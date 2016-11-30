@@ -389,13 +389,13 @@ class CommentsViewSet(APIView):
         # Get the foreign author
         foreign_author = None
         try:
-            foreign_author = ForeignAuthor.objects.get(id=author_data['uuid'])
+            foreign_author = ForeignAuthor.objects.get(uuid=author_data['uuid'])
         except ForeignAuthor.DoesNotExist:
             # Author doesn't exist, so create them in the db.
             # First check if the node exists based off of host.
             node = self.get_node(author_data['host'])
             if node:
-                foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node)
+                foreign_author = ForeignAuthor(uuid=author_data['uuid'], display_name=author_data['displayName'], node=node)
                 foreign_author.save()
             else:
                 # Node does not exist locally.
@@ -533,8 +533,8 @@ class FriendRequest(APIView):
 
         # If either author is forgein, we should create them in the db if they are not there already.
         if (author is None):
-            if ForeignAuthor.objects.filter(id=author_data['id']).exists():
-                author = ForeignAuthor.objects.get(id=author_data['id'])
+            if ForeignAuthor.objects.filter(uuid=author_data['id']).exists():
+                author = ForeignAuthor.objects.get(uuid=author_data['id'])
             else:
                 node = None
                 try:
@@ -544,7 +544,7 @@ class FriendRequest(APIView):
                     return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_401_UNAUTHORIZED)
                 try:
                     author_url = node.url + '/author/' + str(author_data['id'])
-                    author = ForeignAuthor(id=author_data['id'], display_name=author_data['displayName'], node=node, url=author_url)
+                    author = ForeignAuthor(uuid=author_data['id'], display_name=author_data['displayName'], node=node, url=author_url)
                     author.save()
                 except Exception as error:
                     print("'\nFRIEND REQUEST ERROR (API)" + str(e))
@@ -555,8 +555,8 @@ class FriendRequest(APIView):
             return Response({'Message': 'Friend request received.'}, status=status.HTTP_200_OK)
 
         if (friend is None):
-            if ForeignAuthor.objects.filter(id=friend_data['id']).exists():
-                friend = ForeignAuthor.objects.get(id=friend_data['id'])
+            if ForeignAuthor.objects.filter(uuid=friend_data['id']).exists():
+                friend = ForeignAuthor.objects.get(uuid=friend_data['id'])
             else:
                 node = None
                 try:
@@ -565,7 +565,7 @@ class FriendRequest(APIView):
                     print("FRIEND REQUEST ERROR WITH FRIEND NODE")
                     return Response({'\nFRIEND REQUEST ERROR (API) Unknown host in request data.'}, status.HTTP_401_UNAUTHORIZED)
                 try:
-                    friend = ForeignAuthor(id=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
+                    friend = ForeignAuthor(uuid=friend_data['id'], display_name=friend_data['displayName'], node=node, url=friend_data['url'])
                     friend.save()
                 except Exception as error:
                     print("'\nFRIEND REQUEST ERROR (API)" + str(e))

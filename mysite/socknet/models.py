@@ -29,7 +29,7 @@ class ForeignAuthor(models.Model):
     """
     Represents an author from another node
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # Store display name because its needed in lots of places, update it whenever we grab the profile.
     display_name=models.CharField(max_length=150, default='test')
     node = models.ForeignKey(Node, related_name="my_node")
