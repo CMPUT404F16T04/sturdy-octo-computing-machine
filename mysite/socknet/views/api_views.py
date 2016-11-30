@@ -277,16 +277,23 @@ class CommentsViewSet(APIView):
             paginator = PostsPagination()
             comments = paginator.paginate_queryset(final_queryset, request)
             for commie in comments:
-                commie.guid = commie.id
+                # If it is local comment, use appropriate model.
+                if isinstance(commie, Comment):
+                    commie.guid = commie.id
+                    commie.author.id = commie.author.uuid
+                    commie.author.host = "http://" + request.get_host() + "/api"
+                    commie.author.displayName = commie.author.displayName
+                # If it is foreign comment, use appropriate model.
+                if isinstance(commie, ForeignComment):
+                    commie.guid = commie.guid
+                    commie.author.id = commie.foreign_author.id
+                    commie.author.host = commie.foreign_author.node.url
+                    commie.author.displayName = commie.foreign_author.display_name
                 commie.pubDate = commie.created_on
-                commie.author.id = commie.author.uuid
-                commie.author.host = "http://" + request.get_host() + "/api"
-                commie.author.displayName = commie.author.displayName
                 if commie.markdown:
                     commie.contentType = "text/x-markdown"
                 else:
                     commie.contentType = "text/plain"
-
             comments_serializer = SingleCommentSerializer(comments, many=True)
             response = {
                 "query" : "comments",
