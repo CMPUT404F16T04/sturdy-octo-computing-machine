@@ -284,6 +284,41 @@ class PostsAPITests(APITestCase):
         self.assertEqual(decoded_json['posts'][0]['visibility'], "PRIVATE", "Post visibility does not match.")
         self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
 
+    def test_posts_post_id(self):
+        """
+        GET http://service/posts/{POST_ID}
+        """
+
+
+        self.post = mommy.make(Post,
+                               author=self.author,
+                               title="Example Title",
+                               content="Example Content.",
+                               markdown=False,
+                               visibility="PRIVATE")
+
+        # Try post ID that doesn't exist, should not see post
+        url = "/api/posts/" + str(self.author.uuid) + "/"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(decoded_json['Error'], "Post does not exist")
+
+        # Try post ID that does exist, should not see post
+        url = "/api/posts/" + str(self.post.id) + "/"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(decoded_json['posts']['title'], "Example Title", "Post title does not match.")
+        self.assertEqual(decoded_json['posts']['description'], "No description provided.", "Post description does not match.")
+        self.assertEqual(decoded_json['posts']['content'], "Example Content.", "Post content does not match.")
+        # As per eClass post, filtering is responsibility of client
+        # https://eclass.srv.ualberta.ca/mod/forum/discuss.php?d=734704
+        self.assertEqual(decoded_json['posts']['visibility'], "PRIVATE", "Post visibility does not match.")
+        self.assertEqual(decoded_json['posts']['categories'], "N/A", "Post categories does not match.")
+
 class ProfileAPITests(APITestCase):
     def setUp(self):
         # Make some local authors
