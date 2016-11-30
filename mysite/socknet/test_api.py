@@ -244,6 +244,46 @@ class PostsAPITests(APITestCase):
         self.assertEqual(decoded_json['posts'][0]['visibility'], "PRIVATE", "Post visibility does not match.")
         self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
 
+    def test_author_author_id_posts(self):
+        """
+        GET http://service/author/{AUTHOR_ID}/posts
+        """
+
+        self.user2 = mommy.make(User)
+        self.author2 = mommy.make(Author, user=self.user2)
+
+        uuid = self.author.uuid
+        uuid2 = self.author2.uuid
+
+        self.post = mommy.make(Post,
+                               author=self.author2,
+                               title="Example Title",
+                               content="Example Content.",
+                               markdown=False,
+                               visibility="PRIVATE")
+
+        # Try with a different author's UUID, should not see the post
+        url = "/api/author/" + str(uuid) + "/posts/"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(decoded_json['posts'], "Should not see any posts for this author")
+
+        # Try with the post's author's UUID, should see the post
+        url = "/api/author/" + str(uuid2) + "/posts/"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(decoded_json['posts'][0]['title'], "Example Title", "Post title does not match.")
+        self.assertEqual(decoded_json['posts'][0]['description'], "No description provided.", "Post description does not match.")
+        self.assertEqual(decoded_json['posts'][0]['content'], "Example Content.", "Post content does not match.")
+        # As per eClass post, filtering is responsibility of client
+        # https://eclass.srv.ualberta.ca/mod/forum/discuss.php?d=734704
+        self.assertEqual(decoded_json['posts'][0]['visibility'], "PRIVATE", "Post visibility does not match.")
+        self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
+
 class ProfileAPITests(APITestCase):
     def setUp(self):
         # Make some local authors
