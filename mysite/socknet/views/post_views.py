@@ -427,7 +427,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             params[v[0]] = v[1]
 
         markdown = "text/plain"
-        if params.get(markdown,"off").lower() == "on":
+        if params.get(markdown,"on").lower() == "on":
             markdown = "text/x-markdown"
 
         node_obj = Node.objects.get(id=self.kwargs.get('nodeID'))
