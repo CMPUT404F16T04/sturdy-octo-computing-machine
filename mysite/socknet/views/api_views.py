@@ -286,6 +286,7 @@ class CommentsViewSet(APIView):
                 # If it is foreign comment, use appropriate model.
                 if isinstance(commie, ForeignComment):
                     commie.guid = commie.guid
+                    commie.author = commie.foreign_author
                     commie.author.id = commie.foreign_author.id
                     commie.author.host = commie.foreign_author.node.url
                     commie.author.displayName = commie.foreign_author.display_name
