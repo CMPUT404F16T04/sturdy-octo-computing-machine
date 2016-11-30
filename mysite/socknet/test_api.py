@@ -193,12 +193,6 @@ class PostsAPITests(APITestCase):
         self.user = mommy.make(User)
         self.author = mommy.make(Author, user=self.user)
 
-        self.post = mommy.make(Post,
-                               author=self.author,
-                               title="Example Title",
-                               content="Example Content.",
-                               markdown=False)
-
         self.client.force_authenticate(user=self.user)
 
     def test_posts(self):
@@ -206,6 +200,11 @@ class PostsAPITests(APITestCase):
         GET  http://service/posts
         """
 
+        self.post = mommy.make(Post,
+                               author=self.author,
+                               title="Example Title",
+                               content="Example Content.",
+                               markdown=False)
         url = "/api/posts/"
         response = self.client.get(url)
         decoded_json = json.loads(response.content)
@@ -216,3 +215,112 @@ class PostsAPITests(APITestCase):
         self.assertEqual(decoded_json['posts'][0]['content'], "Example Content.", "Post content does not match.")
         self.assertEqual(decoded_json['posts'][0]['visibility'], "PUBLIC", "Post visibility does not match.")
         self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
+
+    def test_author_posts(self):
+        """
+        GET http://service/author/posts
+        """
+
+        self.user2 = mommy.make(User)
+        self.author2 = mommy.make(Author, user=self.user2)
+
+        self.post = mommy.make(Post,
+                               author=self.author2,
+                               title="Example Title",
+                               content="Example Content.",
+                               markdown=False,
+                               visibility="PRIVATE")
+
+        url = "/api/author/posts"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(decoded_json['posts'][0]['title'], "Example Title", "Post title does not match.")
+        self.assertEqual(decoded_json['posts'][0]['description'], "No description provided.", "Post description does not match.")
+        self.assertEqual(decoded_json['posts'][0]['content'], "Example Content.", "Post content does not match.")
+        # As per eClass post, filtering is responsibility of client
+        # https://eclass.srv.ualberta.ca/mod/forum/discuss.php?d=734704
+        self.assertEqual(decoded_json['posts'][0]['visibility'], "PRIVATE", "Post visibility does not match.")
+        self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
+
+    def test_author_author_id_posts(self):
+        """
+        GET http://service/author/{AUTHOR_ID}/posts
+        """
+
+        self.user2 = mommy.make(User)
+        self.author2 = mommy.make(Author, user=self.user2)
+
+        uuid = self.author.uuid
+        uuid2 = self.author2.uuid
+
+        self.post = mommy.make(Post,
+                               author=self.author2,
+                               title="Example Title",
+                               content="Example Content.",
+                               markdown=False,
+                               visibility="PRIVATE")
+
+        # Try with a different author's UUID, should not see the post
+        url = "/api/author/" + str(uuid) + "/posts/"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(decoded_json['posts'], "Should not see any posts for this author")
+
+        # Try with the post's author's UUID, should see the post
+        url = "/api/author/" + str(uuid2) + "/posts/"
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(decoded_json['posts'][0]['title'], "Example Title", "Post title does not match.")
+        self.assertEqual(decoded_json['posts'][0]['description'], "No description provided.", "Post description does not match.")
+        self.assertEqual(decoded_json['posts'][0]['content'], "Example Content.", "Post content does not match.")
+        # As per eClass post, filtering is responsibility of client
+        # https://eclass.srv.ualberta.ca/mod/forum/discuss.php?d=734704
+        self.assertEqual(decoded_json['posts'][0]['visibility'], "PRIVATE", "Post visibility does not match.")
+        self.assertEqual(decoded_json['posts'][0]['categories'], "N/A", "Post categories does not match.")
+
+class ProfileAPITests(APITestCase):
+    def setUp(self):
+        # Make some local authors
+        self.user = mommy.make(User)
+        self.user2 = mommy.make(User)
+        self.author = mommy.make(Author, user=self.user)
+        self.author2 = mommy.make(Author, user=self.user2)
+
+        # Make the client
+        self.client = APIClient()
+
+         # Make a foreign author
+        self.node = mommy.make(Node, name="Test Node", url="http://test-node.com")
+        self.foreign_author = mommy.make(ForeignAuthor, node=self.node)
+
+        # Our node
+        self.local_node = mommy.make(Node, name="Localhost", url="http://127.0.0.1:8000")
+
+        # Make a UUID for testing garbage data
+        self.uuid = uuid.UUID('{00000123-0101-0101-0101-000000002222}')
+        self.uuid2 = uuid.UUID('{00000123-0101-0101-0101-000000004444}')
+
+        # Authentication
+        self.client.force_authenticate(user=self.user)
+
+    def test_profiles(self):
+        """
+        GET http://service/author/authorid
+        """
+        self.author.foreign_friends.add(self.foreign_author)
+        self.author.friends.add(self.author2)
+
+        url = "/api/author/%s/"  % (str(self.author.uuid))
+        response = self.client.get(url)
+        decoded_json = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(decoded_json['id'],str(self.author.uuid),"Id sent did not match author UUID")
+        self.assertEqual(decoded_json['friends'][0]['id'],str(self.author2.uuid),"Local Friend is being sent incorrectly")
+        self.assertEqual(decoded_json['friends'][1]['id'],str(self.foreign_author.id),"Foreign Friend is being sent incorrectly")
