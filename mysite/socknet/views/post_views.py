@@ -442,7 +442,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
             "author":{
                # ID of the Author (UUID)
                "id": str(auth.uuid),
-               "host": "https://" + str(request.get_host()) + "/api",
+               "host": "http://" + str(request.get_host()) + "/api",
                "displayName": str(auth.displayName),
                # url to the authors information
                "url": request.get_host() + "/author/" + str(auth.uuid),
