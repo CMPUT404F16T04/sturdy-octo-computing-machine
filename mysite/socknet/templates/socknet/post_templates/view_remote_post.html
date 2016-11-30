@@ -35,7 +35,8 @@
       <li>
         <div>
             <!-- Let's just display stuff and not have it linked b/c it is easier -->
-            <span class="author-label">{{comment.author_display_name}}</span>
+            <span class="author-label">{{comment.author_display_name}}</span> from
+            <span class="server-label">{{comment.node.name}}</span>
         </div>
         <div class="author-date">
              {{ comment.published }} UTC

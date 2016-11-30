@@ -228,27 +228,16 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         # In case entered like host.com/api instead of host.com/api/
         print "API URL: " + url
         rpost = requests.get(url + 'posts/' + str(pid), auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-        r = requests.get(url + 'posts/' + str(pid) + "/comments", auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
         print "Response received"
-        print "comments status code:" + str(r.status_code)
         print "post status code:" + str(rpost.status_code)
-        #print rpost.text
-        #print r.text
 
         # Ensure we got a 200
-        if r.status_code is not 200:
-            err = "Error: Response code of url/posts/{id}/comments was " + str(r.status_code)
-            context['error'] = err
-            print err
         if rpost.status_code is not 200:
             err = "Error: Response code of url/posts/{id} was " + str(r.status_code)
             context['error'] = err
             print err
+
         # Ensure we got data back
-        if (len(r.text) < 0):
-            err = "Error: No JSON from url/posts/{id}/comments was sent back."
-            context['error'] = err
-            print err
         if (len(rpost.text) < 0):
             err = "Error: No JSON from url/posts/{id} was sent back."
             context['error'] = err
@@ -258,7 +247,7 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         postfind = None
         try:
             postfind = json.loads(rpost.text)
-            datafind = json.loads(r.text)
+            #datafind = json.loads(r.text)
         except ValueError, error:
             context['error'] = "Error: " + str(error)
             print("ValueError json loads in post_views.py ViewRemotePost" + str(error))
@@ -268,9 +257,11 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
                 print(postdat)
                 post_original = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
                             postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
-            for i in datafind['comments']:
-                # at utils.py RemoteComment((self, guid, content_type, content, pubdate, author_display_name, author_id, auth_host, node)
-                dat = RemoteComment(i['guid'], i['contentType'], i['comment'], i['pubDate'], i['author']['displayName'], i['author']['id'], i['author']['host'], n.url)
+            datafind = postdat['comments']
+            for i in datafind:
+                print("\n")
+                print(i)
+                dat = RemoteComment(i['id'], i['contentType'], i['comment'], i['published'], i['author']['displayName'], i['author']['id'], i['author']['host'], n)
                 comments.append(dat)
         except KeyError, error:
             context['error'] = "Error: comments KeyError, " + str(error)
