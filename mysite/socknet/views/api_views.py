@@ -317,16 +317,16 @@ class CommentsViewSet(APIView):
             foreign_comments_serial = ForeignSingleCommentSerializer(remote_comments, many=True)
             response = {
                 "query" : "comments",
-                "count" : len(final_queryset),
-                "size": get_page_size(request, paginator),
+                "count" : len(remote_comments)+len(local_comments),
+                "size": 50, #get_page_size(request, paginator),
                 "comments" : comments_serializer.data + foreign_comments_serial.data}
             # Do not return previous if page is 0.
-            if (paginator.get_previous_link() is not None):
-                response['previous'] = paginator.get_previous_link()
+            #if (paginator.get_previous_link() is not None):
+            #    response['previous'] = paginator.get_previous_link()
 
             # Do not return next if last page
-            if (paginator.get_next_link() is not None):
-                response['next'] = paginator.get_next_link()
+            #if (paginator.get_next_link() is not None):
+            #    response['next'] = paginator.get_next_link()
 
             return Response(response)
         except Author.DoesNotExist:
