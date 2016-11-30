@@ -61,7 +61,6 @@ class ForeignPostsCommentsSerializer(serializers.Serializer):
 
     def get_author(self, obj):
         author = obj.author
-        author.id = author.uuid
         # TODO: Setup host attribute for authors
         author.host = "http://cmput404f16t04dev.herokuapp.com"
         author.github = author.github_url
