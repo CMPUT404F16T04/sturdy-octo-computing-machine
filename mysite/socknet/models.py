@@ -385,7 +385,7 @@ class ForeignComment(models.Model):
     guid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     objects = CommentQuerySet.as_manager()
     parent_post = models.ForeignKey(Post, related_name="foreign_comment_parent_post")
-    foreign_author = models.ForeignKey(ForeignAuthor, related_name="foreign_comment_author")
+    author = models.ForeignKey(ForeignAuthor, related_name="foreign_comment_author")
     content = models.TextField(max_length=512)
     created_on = models.DateTimeField(auto_now=True)
     markdown = models.BooleanField()

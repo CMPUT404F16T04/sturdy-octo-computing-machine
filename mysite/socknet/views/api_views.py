@@ -284,18 +284,18 @@ class CommentsViewSet(APIView):
                     commie.author.host = "http://" + request.get_host() + "/api"
                     commie.author.displayName = commie.author.displayName
                 # If it is foreign comment, use appropriate model.
-                if isinstance(commie, ForeignComment):
+                elif isinstance(commie, ForeignComment):
                     commie.guid = commie.guid
-                    commie.author.id = commie.foreign_author.id
-                    commie.author.host = commie.foreign_author.node.url
-                    commie.author.displayName = commie.foreign_author.display_name
-                    commie.author = commie.foreign_author
+                    commie.author.id = commie.author.id
+                    commie.author.host = commie.author.node.url
+                    commie.author.displayName = commie.author.display_name
                 commie.pubDate = commie.created_on
                 if commie.markdown:
                     commie.contentType = "text/x-markdown"
                 else:
                     commie.contentType = "text/plain"
             comments_serializer = SingleCommentSerializer(comments, many=True)
+            foreign_comments_serializer = SingleCommentSerializer(comments, many=True)
             response = {
                 "query" : "comments",
                 "count" : len(final_queryset),
