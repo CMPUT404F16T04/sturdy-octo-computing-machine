@@ -257,7 +257,7 @@ input[type=submit] {
 
 /* LOGIN AND LOGOUT */
 .login-button {
-    padding:5px 15px;
+    padding:8px 15px;
     background:#75D7FF;
     color:white;
     font-size: 16pt;
