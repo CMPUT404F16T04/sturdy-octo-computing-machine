@@ -95,6 +95,19 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ('id', 'displayName', 'host')
 
+class ForeignAuthorSerializer(serializers.ModelSerializer):
+    """
+    Serializer for a foreign author
+    uuid, host url, and display name
+
+    UNDER CONSTRUCTION working on figuring out how to get the host url
+    """
+    id = serializers.CharField(required=True)
+    host = serializers.URLField(source='url', required=True)
+    displayName = serializers.CharField(source='display_name', required=True)
+    class Meta:
+        model = ForeignAuthor
+        fields = ('id', 'displayName', 'host')
 
 class FriendSerializerNoUrl(serializers.Serializer):
     """
@@ -194,6 +207,26 @@ class SingleCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
+        fields = ('author', 'guid', 'comment', 'pubDate', 'contentType')
+
+class ForeignSingleCommentSerializer(serializers.ModelSerializer):
+    """
+    Serialize a single comment, used for "get all comments in a post" endpoint.
+    This endpoint has different field names than the "get posts for author" comments.
+    """
+    author = ForeignAuthorSerializer(source='foreign_author', required=True)
+    comment = serializers.CharField(source='content', required=True)
+    pubDate = serializers.DateTimeField(source='created_on', required=True)
+    guid = serializers.CharField(max_length=36, required=True) # a uuid is 36 characters
+    contentType = serializers.SerializerMethodField('contyp')
+
+    def contyp(self, contyp):
+        if contyp.markdown:
+            return "text/x-markdown"
+        return "text/plain"
+
+    class Meta:
+        model = ForeignComment
         fields = ('author', 'guid', 'comment', 'pubDate', 'contentType')
 
 class ForeignCommentSerializer(serializers.ModelSerializer):

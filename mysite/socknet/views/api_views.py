@@ -290,47 +290,43 @@ class CommentsViewSet(APIView):
 
             local_comments = Comment.objects.filter(parent_post=post).order_by('-created_on')
             remote_comments = ForeignComment.objects.filter(parent_post=post).order_by('-created_on')
-            #final_queryset = local_comments | remote_comments
-            final_queryset = []
-            for each in local_comments:
-                final_queryset.append(each)
-            for each in remote_comments:
-                final_queryset.append(each)
-            final_queryset = sorted(final_queryset, key=lambda comment_instance: comment_instance.created_on, reverse=True)
-            paginator = PostsPagination()
-            comments = paginator.paginate_queryset(final_queryset, request)
-            for commie in comments:
-                # If it is local comment, use appropriate model.
-                if isinstance(commie, Comment):
-                    commie.guid = commie.id
-                    commie.author.id = commie.author.uuid
-                    commie.author.host = "http://" + request.get_host() + "/api"
-                    commie.author.displayName = commie.author.displayName
-                # If it is foreign comment, use appropriate model.
-                if isinstance(commie, ForeignComment):
-                    commie.guid = commie.guid
-                    commie.author.id = commie.foreign_author.id
-                    commie.author.host = commie.foreign_author.node.url
-                    commie.author.displayName = commie.foreign_author.display_name
-                    commie.author = commie.foreign_author
+            #paginator = PostsPagination()
+            #comments = paginator.paginate_queryset(final_queryset, request)
+            for commie in local_comments:
+                commie.guid = commie.id
+                commie.author.id = commie.author.uuid
+                commie.author.host = "http://" + request.get_host() + "/api"
+                commie.author.displayName = commie.author.displayName
                 commie.pubDate = commie.created_on
                 if commie.markdown:
                     commie.contentType = "text/x-markdown"
                 else:
                     commie.contentType = "text/plain"
-            comments_serializer = SingleCommentSerializer(comments, many=True)
+            for fcom in remote_comments:
+            #     fcom.guid = fcom.guid
+            #     fcom.author.id = fcom.foreign_author.id
+            #     fcom.author.host = fcom.foreign_author.node.url
+            #     fcom.author.displayName = fcom.foreign_author.display_name
+            #     fcom.author = fcom.foreign_author
+            #     fcom.pubDate = fcom.created_on
+                if fcom.markdown:
+                    fcom.contentType = "text/x-markdown"
+                else:
+                    fcom.contentType = "text/plain"
+            comments_serializer = SingleCommentSerializer(local_comments, many=True)
+            foreign_comments_serial = ForeignSingleCommentSerializer(remote_comments, many=True)
             response = {
                 "query" : "comments",
-                "count" : len(final_queryset),
-                "size": get_page_size(request, paginator),
-                "comments" : comments_serializer.data}
+                "count" : len(remote_comments)+len(local_comments),
+                "size": 50, #get_page_size(request, paginator),
+                "comments" : comments_serializer.data + foreign_comments_serial.data}
             # Do not return previous if page is 0.
-            if (paginator.get_previous_link() is not None):
-                response['previous'] = paginator.get_previous_link()
+            #if (paginator.get_previous_link() is not None):
+            #    response['previous'] = paginator.get_previous_link()
 
             # Do not return next if last page
-            if (paginator.get_next_link() is not None):
-                response['next'] = paginator.get_next_link()
+            #if (paginator.get_next_link() is not None):
+            #    response['next'] = paginator.get_next_link()
 
             return Response(response)
         except Author.DoesNotExist:
