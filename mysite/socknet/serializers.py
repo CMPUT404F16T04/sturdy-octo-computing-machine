@@ -63,8 +63,10 @@ class PostsSerializer(serializers.ModelSerializer):
 
     def get_comments(self, obj):
         comments = Comment.objects.all_comments_for_post(obj.id, True)
+        foreign_comments = ForeignComment.objects.filter(parent_post=obj).order_by('-created_on')
         serializer = PostsCommentsSerializer(comments, many=True)
-        return serializer.data
+        foreign_serializer =  ForeignSingleCommentSerializer(foreign_comments,many=True)
+        return serializer.data + foreign_serializer.data
 
     def get_count(self, obj):
         comments = Comment.objects.all_comments_for_post(obj.id, True)
