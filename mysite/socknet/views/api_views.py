@@ -254,6 +254,29 @@ class CommentsViewSet(APIView):
     permission_classes = (IsAuthenticated,)
     pagination_class = PostsPagination
 
+    def get_node(self, url):
+        """
+        Checks if a node exists in our node list based on the url
+        """
+        try:
+            node = Node.objects.get(url=url)
+            return node
+        except Node.DoesNotExist:
+            pass
+
+        # if that didn't work, try adding/removing a slash from the end
+        if url[-1] == "/":
+            url = url[:-1]
+        else:
+            url = url + "/"
+
+        try:
+            node = Node.objects.get(url=url)
+            return node
+        except Node.DoesNotExist:
+            # We have tried adding/removing slash at the end. Url probably does not exist.
+            return None
+
     def get(self, request, post_id, format=None):
         """
         Return a list of the post's comments
@@ -336,6 +359,7 @@ class CommentsViewSet(APIView):
             "query": "addComment",
             "post": "http://cmput404f16t04dev2.herokuapp.com/api/posts/1ccc1b7a-4832-45bc-8d92-3b221cc1a073" }
         """
+
         # Ensure the parent post exists
         parent_post = None
         try:
@@ -369,9 +393,10 @@ class CommentsViewSet(APIView):
         except ForeignAuthor.DoesNotExist:
             # Author doesn't exist, so create them in the db.
             # First check if the node exists based off of host.
-            node = get_node(author_data['host']) # From utils
+            node = self.get_node(author_data['host'])
             if node:
                 foreign_author = ForeignAuthor(id=author_data['uuid'], display_name=author_data['displayName'], node=node)
+                foreign_author.save()
             else:
                 # Node does not exist locally.
                 print("ADD COMMENT API ERROR: The node is unknown.")

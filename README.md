@@ -4,6 +4,8 @@
 
 ##### Live Demo from 'develop': <http://cmput404f16t04dev.herokuapp.com/>
 
+#### Video can be found here: <https://youtu.be/4DOu-Jmbu0U/>
+
 ##### Travis Status: [![Travis Status](https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machine.svg)](https://travis-ci.org/CMPUT404F16T04/sturdy-octo-computing-machine)
 
 ### Contributors
