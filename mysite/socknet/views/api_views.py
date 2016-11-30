@@ -329,14 +329,6 @@ class CommentsViewSet(APIView):
 
         """
         CHECK VISIBILITY
-        # is_FOAF_remote(viewing_author, remote_author)
-        foaf = is_FOAF_str_remote()
-        #r = requests.get(comment_host + 'api/friends/', auth=HTTPBasicAuth(n.foreignNodeUser, n.foreignNodePass))
-        #friend /api/friends/
-        # MAYBE just skip foaf and friend, and return 403 only to private and server only posts!
-        # and get the basic posting to work first!!!!! so other teams can test it etc.
-        # create a ForeignComment object from received data using ForeignCommentManager
-        # Later` in posts_view, retrieve comments & ForeignComment and somehow sort both by time.
         """
         if parent_post.visibility == "SERVERONLY" or  parent_post.visibility == "PRIVATE":
             return Response({"query": "addComment", "success": False, "message":"Comment not allowed"}, status=403)

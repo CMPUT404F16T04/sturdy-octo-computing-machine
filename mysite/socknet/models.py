@@ -367,14 +367,6 @@ class ForeignCommentManager(models.Manager):
         c = ForeignComment.objects.create(foreign_author=foreign_author, parent_post=parent_post, content=content, markdown=markdown)
         return c
 
-    def create_comment2(self, guid, foreign_author, parent_post, content, created_on, contentType):
-        markdown = False
-        if contentType == "text/markdown" or contentType == "text/x-markdown":
-            markdown = True
-        c = ForeignComment.objects.create(guid=guid, foreign_author=foreign_author, parent_post=parent_post, content=content,
-            created_on=created_on, markdown=markdown)
-        return c
-
 class ForeignCommentQuerySet(models.QuerySet):
 
     def all_foreign_comments_for_post(self, post_pk, ordered):

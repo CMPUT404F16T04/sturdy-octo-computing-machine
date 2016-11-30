@@ -11,6 +11,7 @@
 </div>
 <br/>
 
+<!--
 {% for comment in foreign_comments %}
   <li>
     <div>
@@ -25,20 +26,21 @@
   </li>
   <hr class="comment-divider"/>
 {% endfor %}
-
+-->
 
 {% if num_comments > 0 %}
 <ol class="comment-container">
     {% for comment in comments %}
       <li>
         <div>
-            <a class="author-label" href="{% url 'profile' authorUUID=comment.author.uuid %}">{{ comment.author.displayName }}</a>
+            <span class="author-label">{{ comment.author }}</span> from
+            <span class="server-label">{{ comment.node }}</span>
         </div>
         <div class="author-date">
             {{ comment.created_on }} UTC
         </div>
         <article class="content">
-            {{comment.view_content|safe}}
+            {{comment.content|safe}}
         </article>
       </li>
       <hr class="comment-divider"/>

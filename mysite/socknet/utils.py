@@ -129,6 +129,22 @@ class RemoteComment():
     def __str__(self):
         return "Comment: " + self.content + " by " + self.author_display_name + " " + self.author_host
 
+class CommentDetails():
+    """
+    A container for comment details. Used for combining local and remote posts.
+    """
+    def __init__(self, comment, is_local):
+        self.content = comment.view_content()
+        self.created_on = comment.created_on
+
+        if not is_local:
+            self.author = comment.foreign_author.display_name
+            self.node = comment.foreign_author.node.name
+        else:
+            self.author = comment.author.displayName
+            self.node = "Local"
+
+
 class PostDetails():
     """
     - An object that represents the details of a post
@@ -299,7 +315,6 @@ def is_FOAF_str_remote(local_author, remote_author_uuid, remote_node):
         # If we could not parse the response, then assume not FOAF
         print "Error making remote FOAF call, could not parse reponse " + str(error) + " from " + remote_author.node.name
         return False
-
 
 def update_friend_status(local_author, foreign_author):
     """

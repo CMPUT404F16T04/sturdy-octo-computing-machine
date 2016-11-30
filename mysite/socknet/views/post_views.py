@@ -12,8 +12,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from socknet.models import *
 from socknet.forms import *
 from socknet.serializers import *
-
-from socknet.utils import ForbiddenContent403, RemotePost, RemoteComment, HTMLsafe, PostDetails
+from socknet.utils import *
 
 
 # For images
@@ -189,16 +188,20 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ViewPost, self).get_context_data(**kwargs)
-        comments = Comment.objects.all_comments_for_post(context['post'].id, True)
-        context['num_comments'] = len(comments)
-        paginator = Paginator(comments, 5)
         page = self.request.GET.get('page')
 
-
-
-
+        comments = []
         foreign_comments = ForeignComment.objects.filter(parent_post_id=context['post'].id)
-        context['foreign_comments'] = foreign_comments
+        for comment in foreign_comments:
+            comments.append(CommentDetails(comment, False))
+
+        local_comments = Comment.objects.all_comments_for_post(context['post'].id, True)
+        for comment in local_comments:
+            comments.append(CommentDetails(comment, True))
+
+        context['num_comments'] = len(comments)
+        context['comments'] = comments
+        paginator = Paginator(comments, 5)
 
         try:
             comments = paginator.page(page)
@@ -206,7 +209,6 @@ class ViewPost(LoginRequiredMixin, generic.detail.DetailView):
             comments = paginator.page(1)
         except EmptyPage:
             comments = paginator.page(paginator.num_pages)
-        context['comments'] = comments
         return context
 
 class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
