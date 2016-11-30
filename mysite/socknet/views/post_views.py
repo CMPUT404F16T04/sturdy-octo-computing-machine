@@ -445,7 +445,7 @@ class CreateForeignComment(LoginRequiredMixin, generic.base.TemplateView):
                "host": "http://" + str(request.get_host()) + "/api",
                "displayName": str(auth.displayName),
                # url to the authors information
-               "url": request.get_host() + "/author/" + str(auth.uuid),
+               "url": "http://" + request.get_host() + "/author/" + str(auth.uuid),
                # HATEOS url for Github API
                "github": str(auth.github_url)
             },
