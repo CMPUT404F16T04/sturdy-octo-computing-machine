@@ -286,10 +286,10 @@ class CommentsViewSet(APIView):
                 # If it is foreign comment, use appropriate model.
                 if isinstance(commie, ForeignComment):
                     commie.guid = commie.guid
-                    commie.author = commie.foreign_author
                     commie.author.id = commie.foreign_author.id
                     commie.author.host = commie.foreign_author.node.url
                     commie.author.displayName = commie.foreign_author.display_name
+                    commie.author = commie.foreign_author
                 commie.pubDate = commie.created_on
                 if commie.markdown:
                     commie.contentType = "text/x-markdown"
