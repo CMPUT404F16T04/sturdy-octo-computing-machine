@@ -1,4 +1,5 @@
 import base64
+from itertools import chain
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -264,7 +265,15 @@ class CommentsViewSet(APIView):
             if (post is None):
                 return Response({'Error': 'Post doest not exist.'}, status=status.HTTP_404_NOT_FOUND)
 
-            final_queryset = Comment.objects.filter(parent_post=post).order_by('-created_on')
+            local_comments = Comment.objects.filter(parent_post=post).order_by('-created_on')
+            remote_comments = ForeignComment.objects.filter(parent_post=post).order_by('-created_on')
+            #final_queryset = local_comments | remote_comments
+            final_queryset = []
+            for each in local_comments:
+                final_queryset.append(each)
+            for each in remote_comments:
+                final_queryset.append(each)
+            final_queryset = sorted(final_queryset, key=lambda comment_instance: comment_instance.created_on, reverse=True)
             paginator = PostsPagination()
             comments = paginator.paginate_queryset(final_queryset, request)
             for commie in comments:
