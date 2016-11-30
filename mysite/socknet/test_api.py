@@ -361,7 +361,7 @@ class ProfileAPITests(APITestCase):
         self.assertEqual(decoded_json['friends'][1]['id'],str(self.foreign_author.id),"Foreign Friend is being sent incorrectly")
 
 class CommentAPITests(APITestCase):
-    def setUp(self): 
+    def setUp(self):
         self.client = APIClient(HTTP_HOST='127.0.0.1:8000')
 
         #Make a fake user
@@ -376,14 +376,14 @@ class CommentAPITests(APITestCase):
                                markdown=False)
 
         #Make example comment
-        self.comment = mommy.make(Comment, 
+        self.comment = mommy.make(Comment,
                                  parent_post=self.post,
                                  author = self.author,
                                  content = "Example Comment")
 
         self.client.force_authenticate(user=self.user)
 
-    def test_comment_get(self): 
+    def test_comment_get(self):
         """
         GET http://service/api/posts/postID/comments/
         """
@@ -397,3 +397,14 @@ class CommentAPITests(APITestCase):
         self.assertEqual(decoded_json['comments'][0]["comment"],"Example Comment","Comment text was incorrect")
         self.assertEqual(decoded_json['comments'][0]['author']['id'],str(self.author.uuid),"Author Id was incorrect")
 
+        """
+    def test_comment_post(self):
+
+        POST http://service/api/posts/postID/comments/
+
+        authors = [str(self.foreign_author.id)]
+        request_data = json.dumps({"query": "friends", "author": str(self.uuid), "authors": authors})
+        url = "/api/friends/%s/" % str(self.uuid)
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+        """
