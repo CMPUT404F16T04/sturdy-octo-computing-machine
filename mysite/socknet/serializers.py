@@ -104,7 +104,7 @@ class ForeignAuthorSerializer(serializers.ModelSerializer):
     """
     id = serializers.CharField(required=True)
     host = serializers.URLField(required=True)
-    displayName = serializer.CharField(source = display_name, required=True)
+    displayName = serializers.CharField(source = display_name, required=True)
     class Meta:
         model = ForeignAuthor
         fields = ('id', 'displayName', 'host')
