@@ -22,16 +22,16 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
     template_name = "socknet/author_templates/profile.html"
     login_url = '/login/' # For login mixin
 
-    def git_parse(content): 
+    def git_parse(content):
         i = 0
-        while(i<10): 
+        while(i<10):
                 eventType = content.json()[i]['type']
 
-                if (eventType == 'PushEvent'): 
+                if (eventType == 'PushEvent'):
                     repo = content.json()[i]['repo']['name']
                     repo_string = "User pushed to "+repo
                     return repo_string
-                else: 
+                else:
                     i+=1
 
         return "User has no recent Github Data"
@@ -57,15 +57,15 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
             github_name = spliturl[-1]
 
             #takes info from github API based on issue type
-            try: 
+            try:
                 content = requests.get('https://api.github.com/users/'+ github_name +'/events')
                 i = 0
                 github_list = []
-                while(i<3): 
+                while(i<3):
                     eventType = content.json()[i]['type']
 
                     #Gets info for an event where user pushes to repo
-                    if (eventType == 'PushEvent'): 
+                    if (eventType == 'PushEvent'):
 
                         repo = content.json()[i]['repo']['name']
                         message = content.json()[i]['payload']['commits'][0]['message']
@@ -74,24 +74,24 @@ class ViewProfile(LoginRequiredMixin, generic.base.TemplateView):
                         i+=1
 
                     #Gets info for an event where user opens/closes an issue
-                    elif (eventType == "IssuesEvent"): 
+                    elif (eventType == "IssuesEvent"):
 
                         repo = content.json()[i]['repo']['name']
                         action = content.json()[i]['payload']['action']
-                        issue = content.json()[i]['payload']['issue']['title']  
+                        issue = content.json()[i]['payload']['issue']['title']
                         repo_string = action + " the issue: " + issue + " on " + repo
                         github_list.append(repo_string)
                         i+=1
 
                     #For other types of events that aren't covered, we skip over them
-                    else: 
+                    else:
                         i+=1
 
                 context['github_stream'] = github_list
 
-            except: 
+            except:
                  context['github_stream'] = ["User has an invalid github information, please use the url of your github profile"]
-          
+
 
 
         if authorUUID != self.request.user.author.uuid:

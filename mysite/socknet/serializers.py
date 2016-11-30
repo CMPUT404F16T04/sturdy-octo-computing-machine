@@ -203,26 +203,12 @@ class ForeignCommentSerializer(serializers.ModelSerializer):
     """
     author = AuthorSerializer(required=True)
     comment = serializers.CharField(source='content', required=True)
-    #published = serializers.DateTimeField(source='created_on', required=True)
-    #guid = serializers.CharField(source='id', max_length=36) # a uuid is 36 characters
     contentType = serializers.CharField(max_length=36, required=True)
 
     def valid_contentType(self, contyp):
         if contyp != "text/x-markdown" and contyp != "text/plain":
             raise serializers.ValidationError("Content type is not text/x-markdown or text/plain.")
         return value
-
-        """
-    def validate_guid(self, value):
-
-        Checks that the uuid is valid.
-        
-        try:
-            valid_uuid = uuid.UUID(value)
-        except ValueError:
-            raise serializers.ValidationError("GUID is not a valid UUID.")
-        return value
-        """
 
     class Meta:
         model = ForeignComment
