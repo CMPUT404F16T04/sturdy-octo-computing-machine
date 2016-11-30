@@ -34,7 +34,7 @@ class PostsCommentsSerializer(serializers.Serializer):
         # TODO: Setup host attribute for authors
         author.host = "http://cmput404f16t04dev.herokuapp.com"
         author.github = author.github_url
-        serializer = ForeignPostsAuthorSerializer(author)
+        serializer = PostsAuthorSerializer(author)
         return serializer.data
 
     def get_comment(self, obj):
@@ -64,7 +64,7 @@ class ForeignPostsCommentsSerializer(serializers.Serializer):
         # TODO: Setup host attribute for authors
         author.host = author.node.url
         author.github = ""
-        serializer = PostsAuthorSerializer(author)
+        serializer = ForeignPostsAuthorSerializer(author)
         return serializer.data
 
     def get_comment(self, obj):
