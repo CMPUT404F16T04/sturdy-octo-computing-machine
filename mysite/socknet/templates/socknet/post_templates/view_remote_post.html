@@ -9,7 +9,7 @@
         <div class="post-id-label">
             {{ postdat.visibility }} post submitted by
             <a class="author-label" href="{% url 'remote_profile' nodeID=postdat.node.id authorUUID=postdat.author_id %}">{{ postdat.author_display_name }}</a>
-            on {{ postdat.published }} from {{ postdat.node.name }}
+            on {{ postdat.published }} from <span class="server-label">{{ postdat.node.name }}</span>
         </div>
         {% else %}
             Error loading post author: {{error}}
@@ -35,8 +35,7 @@
       <li>
         <div>
             <!-- Let's just display stuff and not have it linked b/c it is easier -->
-            <span class="author-label">{{comment.author_display_name}}</span> from
-            <span class="server-label">{{comment.node.name}}</span>
+            <span class="author-label">{{comment.author_display_name}}</span>
         </div>
         <div class="author-date">
              {{ comment.published }} UTC
