@@ -251,18 +251,21 @@ class ViewRemotePost(LoginRequiredMixin, generic.base.TemplateView):
         except ValueError, error:
             context['error'] = "Error: " + str(error)
             print("ValueError json loads in post_views.py ViewRemotePost" + str(error))
+
         try:
             if postfind is not None :
                 postdat = postfind['posts']
                 print(postdat)
                 post_original = RemotePost(postdat['id'], postdat['title'], postdat['description'], postdat['contentType'],
                             postdat['content'], postdat['visibility'], postdat['published'], postdat['author']['displayName'], postdat['author']['id'],n)
-            datafind = postdat['comments']
-            for i in datafind:
-                print("\n")
-                print(i)
-                dat = RemoteComment(i['id'], i['contentType'], i['comment'], i['published'], i['author']['displayName'], i['author']['id'], i['author']['host'], n)
-                comments.append(dat)
+                datafind = postdat['comments']
+                for i in datafind:
+                    if "contentType" not in i:
+                        i['contentType'] = text/x-markdown
+                    print("\n")
+                    print(i)
+                    dat = RemoteComment(i['id'], i['contentType'], i['comment'], i['published'], i['author']['displayName'], i['author']['id'], i['author']['host'], n)
+                    comments.append(dat)
         except KeyError, error:
             context['error'] = "Error: comments KeyError, " + str(error)
             print("KeyError json loads for comments in post_views.py ViewRemotePost" + str(error))
