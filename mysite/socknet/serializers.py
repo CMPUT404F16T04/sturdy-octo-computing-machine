@@ -103,7 +103,7 @@ class ForeignAuthorSerializer(serializers.ModelSerializer):
     UNDER CONSTRUCTION working on figuring out how to get the host url
     """
     id = serializers.CharField(required=True)
-    host = serializers.URLField(source='url', required=True)
+    host = serializers.URLField(source='node.url', required=True)
     displayName = serializers.CharField(source='display_name', required=True)
     class Meta:
         model = ForeignAuthor
