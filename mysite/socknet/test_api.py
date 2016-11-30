@@ -361,6 +361,15 @@ class ProfileAPITests(APITestCase):
         self.assertEqual(decoded_json['friends'][0]['id'],str(self.author2.uuid),"Local Friend is being sent incorrectly")
         self.assertEqual(decoded_json['friends'][1]['id'],str(self.foreign_author.id),"Foreign Friend is being sent incorrectly")
 
+    def test_profiles_no_author(self):
+        """
+        GET http://service/author/authorid where authorid does not exist.
+        """
+        url = "/api/author/%s/"  % (str(self.uuid))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+
 class CommentAPITests(APITestCase):
     def setUp(self):
         self.client = APIClient(HTTP_HOST='127.0.0.1:8000')
@@ -376,6 +385,13 @@ class CommentAPITests(APITestCase):
                                title="Example Title",
                                content="Example Content.",
                                markdown=False)
+
+        self.post_serveronly = mommy.make(Post,
+                                author=self.author,
+                                title="My server only post.",
+                                content="This post is only for this server.",
+                                markdown=False,
+                                visibility="SERVERONLY")
 
         #Make example comment
         self.comment = mommy.make(Comment,
@@ -437,3 +453,71 @@ class CommentAPITests(APITestCase):
         self.assertEqual(decoded_json['query'], "addComment", "Query was incorrect")
         self.assertEqual(decoded_json['message'], "Comment Added", "Message was incorrect")
         self.assertTrue(decoded_json['success'], "Success should have been true.")
+
+    def test_comment_post_bad_host(self):
+        """
+        POST http://service/api/posts/postID/comments/ with bad node
+        """
+        cmt = {
+            "author":{
+               # ID of the Author (UUID)
+               "id": str(self.author.uuid),
+               "host": "http://RANDOM-NODE.com",
+               "displayName": self.author.displayName,
+               # url to the authors information
+               "url": self.author.url,
+               # HATEOS url for Github API
+               "github": self.author.github_url
+            },
+            "comment":"Test Comment",
+            "contentType": "text/plain",
+            # ISO 8601 TIMESTAMP
+            "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
+            # ID of the Comment (UUID)
+            "guid": str(uuid.uuid4())
+        }
+        add = {
+            "query" : "addComment",
+            "post" : "http://test.com/posts",
+            "comment" : cmt
+            }
+        request_data = json.dumps(add)
+        url = "/api/posts/%s/comments/" % str(self.post.id)
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 401, "The code was not 401.")
+
+    def test_comment_post_serveronly(self):
+        """
+        POST http://service/api/posts/postID/comments/ to server only post.
+        """
+        cmt = {
+            "author":{
+               # ID of the Author (UUID)
+               "id": str(self.author.uuid),
+               "host": self.node.url,
+               "displayName": self.author.displayName,
+               # url to the authors information
+               "url": self.author.url,
+               # HATEOS url for Github API
+               "github": self.author.github_url
+            },
+            "comment":"Test Comment",
+            "contentType": "text/plain",
+            # ISO 8601 TIMESTAMP
+            "published": str(datetime.datetime.utcnow().isoformat()) + "Z",
+            # ID of the Comment (UUID)
+            "guid": str(uuid.uuid4())
+        }
+        add = {
+            "query" : "addComment",
+            "post" : "http://test.com/posts",
+            "comment" : cmt
+            }
+        request_data = json.dumps(add)
+        url = "/api/posts/%s/comments/" % str(self.post_serveronly.id)
+        response = self.client.post(url, data=request_data, content_type='application/json')
+        self.assertEqual(response.status_code, 403, "The code was not 403.")
+        decoded_json = json.loads(response.content)
+        self.assertEqual(decoded_json['query'], "addComment", "Query was incorrect")
+        self.assertEqual(decoded_json['message'], "Comment not allowed", "Message was incorrect")
+        self.assertFalse(decoded_json['success'], "Success should have been false.")
